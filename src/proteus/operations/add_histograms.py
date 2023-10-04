@@ -134,13 +134,12 @@ def add_3D_hists(files, hist_name):
         values, *member_data, variances, hist.member("fXaxis"), hist.member("fYaxis"), hist.member("fZaxis"))
 
 def find_histograms(file):
-    # for i in filenames:
-        with uproot.open(file) as i:
-            array = i.classnames()
-            list = np.array([i for i in array if (array.get(i).startswith("TH1") or array.get(i).startswith("TH2") or array.get(i).startswith("TH3"))])
-        return list
+    with uproot.open(file) as i:
+        array = i.classnames()
+        list = np.array([i for i in array if (array.get(i).startswith("TH1") or array.get(i).startswith("TH2") or array.get(i).startswith("TH3"))])
+    return list
 
-def hadd_like(destination, files, hist_names=None):
+def add_hists(destination, files, hist_names=None):
     """
     Args:
         destination (path-like): Name of the output file or file path.
@@ -182,5 +181,3 @@ def hadd_like(destination, files, hist_names=None):
             elif num_axes == 3:
                 h_sum = add_3D_hists(files, name)
             file_out[h_sum.member("fName")] = h_sum
-
-
