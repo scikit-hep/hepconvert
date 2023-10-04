@@ -8,7 +8,7 @@ def add_1D_hists(files, hist_name, members, values, bins):
             hist = file[hist_name]
             if bins != hist.member('fN'):
                 raise ValueError(
-                    "Bins must be equal, not " + bins + " and " + hist.member('fN')
+                    "Bins must be equal, not ", bins, " and ", hist.member('fN')
                 )
             if hist.member('fName') != hist_name:
                 raise ValueError(
@@ -29,17 +29,20 @@ def add_1D_hists(files, hist_name, members, values, bins):
     return uproot.writing.identify.to_TH1x(hist.member("fName"), hist.member("fTitle"), values,
                                             *members[0:6], hist.member("fXaxis"))
 
-def add_2D_hists(files, hist_name, values, members, bins):
+def add_2D_hists(files, hist_name, members, values, bins):
     for path in files[1:]:
         with uproot.open(path) as file:
+            if hist_names == None: # if histogram names are not provided
+                hist_names = find_histograms(path)
             hist = file[hist_name]
+            print(path)
             if bins != hist.member('fN'):
                 raise ValueError(
-                    "Bins must be equal, not "+ {members['fN']} + " and " + {hist.member('fN')}
+                    "Bins must be equal, not ", bins, " and ", hist.member('fN')
                 )
             if hist.member('fName') != hist_name:
                 raise ValueError(
-                    "Names must be the same, not "+ {members['fN']} + " and " + {hist.member('fName')}
+                    "Names must be the same, not " + hist_name + " and " + hist.member('fName')
                 )
             
             temp_members = [
@@ -50,26 +53,27 @@ def add_2D_hists(files, hist_name, values, members, bins):
                             hist.member('fTsumwx2'),
                             hist.member('fTsumwy'),
                             hist.member('fTsumwy2'),
-                            hist.member('fTsumxy'),
+                            hist.member('fTsumwxy'),
                             hist.variances(flow=True)
                            ]
             members += temp_members
-            values += hist.values(flow=True)
-    return uproot.writing.identify.to_TH1x(hist.member("fName"), hist.member("fTitle"), values, 
-        *members[0:9],
+            values += np.array(hist.values(flow=True))
+            print(type(values))
+    return uproot.writing.identify.to_TH2x(hist.member("fName"), hist.member("fTitle"), values, 
+        *members,
         hist.member("fXaxis"), hist.member("fYaxis"))
 
-def add_3D_hists(files, hist_names, values, members):
+def add_3D_hists(files, hist_names, values, members, bins):
     for path in files[1:]:
         with uproot.open(path) as file:
             hist = file[hist_names]
             if members['fN'] != hist.member('fN'):
                 raise ValueError(
-                    "Bins must be equal, not "+ {members['fN']} + " and " + {hist.member('fN')}
+                     "Bins must be equal, not ", bins, " and ", hist.member('fN')
                 )
             if hist.member('fName') != hist_names:
                 raise ValueError(
-                    "Names must be the same, not "+ {members['fN']} + " and " + {hist.member('fN')}
+                    "Names must be the same, not " + hist.member('fName') + " and " + hist.member('fName')
                 )
             temp_members = [
                 hist.member('fEntries'), 
@@ -79,7 +83,7 @@ def add_3D_hists(files, hist_names, values, members):
                 hist.member('fTsumwx2'),
                 hist.member('fTsumwy'),
                 hist.member('fTsumwy2'),
-                hist.member('fTsumxy'),
+                hist.member('fTsumwxy'),
                 hist.member('fTsumwz'),
                 hist.member('fTsumwz2'),
                 hist.member('fTsumwxz'),
@@ -88,8 +92,8 @@ def add_3D_hists(files, hist_names, values, members):
             ]
         members += temp_members
         values += hist.values(flow=True)
-    return uproot.writing.identify.to_TH1x(hist.member("fName"), hist.member("fTitle"), values,
-                            *members[0:14], hist.member("fXaxis"))
+    return uproot.writing.identify.to_TH3x(hist.member("fName"), hist.member("fTitle"), values,
+                            *members[0:14], hist.member("fXaxis"), hist.member("fYaxis"), hist.member("fZaxis"))
 
 def find_histograms(file):
     # for i in filenames:
@@ -102,13 +106,13 @@ def hadd_like(destination, filenames=None, directory=None, hist_names=None):
     """
     Args:
         destination (path-like): Name of the output file or file path.
-        filenames (None, or list of str): 
+        filenames (None, or list of str): List of local ROOT files to read histograms from.
         directory (None, str): Local path, may contain glob patterns 
         hist_names (None, str, or list of str): Names of histograms to be added together. 
 
     Adds together histograms from local ROOT files of a collection of ROOT files, and writes them to one ROOT file.
     """
-    if directory!=None:
+    if directory!=None: # Merge directory and filenames arguments?
         import glob
         filenames = sorted(
             glob.glob(directory + f"/**/*{'.root'}", recursive=True)
@@ -116,7 +120,7 @@ def hadd_like(destination, filenames=None, directory=None, hist_names=None):
 
     if hist_names == None: # if histogram names are not provided
         hist_names = find_histograms(filenames[0])
-        hist_names = hist_names[0]
+
 
     file = uproot.open(filenames[0]) # This file may never close until the end...
     hist_name = hist_names
@@ -142,10 +146,11 @@ def hadd_like(destination, filenames=None, directory=None, hist_names=None):
             hist.member('fTsumwx2'),
             hist.member('fTsumwy'),
             hist.member('fTsumwy2'),
-            hist.member('fTsumxy'),
+            hist.member('fTsumwxy'),
             hist.variances(flow=True)
             ]
-        values = hist.values(flow=True)
+        values = np.array(hist.values(flow=True))
+        print(type(values))
         h_sum = add_2D_hists(filenames, hist.member('fName'), members, values, bins)
     elif len(hist.axes) == 3:
         members = [
@@ -156,14 +161,18 @@ def hadd_like(destination, filenames=None, directory=None, hist_names=None):
             hist.member('fTsumwx2'),
             hist.member('fTsumwy'),
             hist.member('fTsumwy2'),
-            hist.member('fTsumxy'),
+            hist.member('fTsumwxy'),
             hist.member('fTsumwz'),
             hist.member('fTsumwz2'),
             hist.member('fTsumwxz'),
             hist.member('fTsumwyz'),
             hist.variances(flow=True)
-            ]
-        values = hist.values(flow=True)
+        ]
+        values += np.array(hist.values(flow=True))
         h_sum = add_3D_hists(filenames, hist.member('fName'), members, values, bins)
     file_out = uproot.recreate(destination) # What compression level?
     file_out[h_sum.member("fName")] = h_sum
+
+
+hadd_like("place.root", filenames=["/Users/zobil/Documents/Proteus/tests/file1.root", "/Users/zobil/Documents/Proteus/tests/file2.root"], hist_names="name")
+# hadd_like("place.root",  directory="/Users/zobil/Documents/Proteus/tests/")
