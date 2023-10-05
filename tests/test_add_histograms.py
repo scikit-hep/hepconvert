@@ -42,7 +42,18 @@ def test_simple(tmp_path, file_paths):
     h1, h2, h3 = gen_1d_root(file_paths)
 
     destination = os.path.join(tmp_path, "destination.root")
-    proteus.operations.add_hists(destination, ["tests/directory/file1.root", "tests/directory/file2.root"], hist_names="name")
+    proteus.operations.add_hists(destination, file_paths, hist_names="name", tree_reduction=False)
+
+    with uproot.open(destination) as file:
+        assert file["name"].member("fN") == h1.member("fN")
+        assert file["name"].member("fTsumw") == h1.member("fTsumw") + h2.member("fTsumw") + h3.member("fTsumw")
+        assert np.equal(file["name"].values(flow=True), np.array(h1.values(flow=True) + h2.values(flow=True))).all
+
+def test_tree_reduction(tmp_path, file_paths):
+    h1, h2, h3 = gen_1d_root(file_paths)
+
+    destination = os.path.join(tmp_path, "destination.root")
+    proteus.operations.add_hists(destination, file_paths, hist_names="name", tree_reduction=True)
 
     with uproot.open(destination) as file:
         assert file["name"].member("fN") == h1.member("fN")
@@ -90,6 +101,10 @@ def test_2dim(tmp_path):
     with uproot.open("tests/place2.root") as file:
         assert file["name"].member("fN") == h1.member("fN")
         assert file["name"].member("fTsumw") == h1.member("fTsumw") + h2.member("fTsumw")
+        print(file["name"].values(flow=True))
         assert np.equal(file["name"].values(flow=True), np.array(h1.values(flow=True) + h2.values(flow=True))).all
 
-test_3_glob("",["tests/directory/file1.root","tests/directory/file2.root","tests/directory/file3.root"])
+# def test_partial_tree_reduction():
+
+# test_3_glob("",["tests/directory/file1.root","tests/directory/file2.root","tests/directory/file3.root"])
+test_simple("",["tests/directory/file1.root","tests/directory/file2.root","tests/directory/file3.root"])
