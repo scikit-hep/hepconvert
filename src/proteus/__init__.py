@@ -11,7 +11,4 @@ from proteus._version import version as __version__
 
 from proteus.operations import add_histograms
 
-__all__ = [x for x in globals() if not x.startswith("_")]
-
-def __dir__():
-    return __all__
+__all__ = ["add_histograms"]
