@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import importlib.metadata
 
-import proteus as m
+import odapt as m
 
 
 def test_version():
-    assert importlib.metadata.version("proteus") == m.__version__
+    assert importlib.metadata.version("odapt") == m.__version__
