@@ -1,12 +1,8 @@
 """
 Copyright (c) 2023 Zoë Bilodeau. All rights reserved.
 
-Proteus: File conversion package.
+Odapt: File conversion package.
 """
-
-
-
-from __future__ import annotations
 
 from version import __version__
 
