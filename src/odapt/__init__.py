@@ -3,6 +3,7 @@ Copyright (c) 2023 Zoë Bilodeau. All rights reserved.
 
 Odapt: File conversion package.
 """
+from __future__ import annotations
 
 from Odapt.version import __version__
 
