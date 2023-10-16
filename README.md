@@ -1,4 +1,4 @@
-# Proteus
+# Odapt
 
 [![Actions Status][actions-badge]][actions-link]
 [![Documentation Status][rtd-badge]][rtd-link]
@@ -12,16 +12,16 @@
 <!-- SPHINX-START -->
 
 <!-- prettier-ignore-start -->
-[actions-badge]:            https://github.com/zbilodea/Proteus/workflows/CI/badge.svg
-[actions-link]:             https://github.com/zbilodea/Proteus/actions
-[conda-badge]:              https://img.shields.io/conda/vn/conda-forge/Proteus
-[conda-link]:               https://github.com/conda-forge/Proteus-feedstock
+[actions-badge]:            https://github.com/zbilodea/odapt/workflows/CI/badge.svg
+[actions-link]:             https://github.com/zbilodea/odapt/actions
+[conda-badge]:              https://img.shields.io/conda/vn/conda-forge/odapt
+[conda-link]:               https://github.com/conda-forge/odapt-feedstock
 [github-discussions-badge]: https://img.shields.io/static/v1?label=Discussions&message=Ask&color=blue&logo=github
-[github-discussions-link]:  https://github.com/zbilodea/Proteus/discussions
-[pypi-link]:                https://pypi.org/project/Proteus/
-[pypi-platforms]:           https://img.shields.io/pypi/pyversions/Proteus
-[pypi-version]:             https://img.shields.io/pypi/v/Proteus
-[rtd-badge]:                https://readthedocs.org/projects/Proteus/badge/?version=latest
-[rtd-link]:                 https://Proteus.readthedocs.io/en/latest/?badge=latest
+[github-discussions-link]:  https://github.com/zbilodea/odapt/discussions
+[pypi-link]:                https://pypi.org/project/odapt/
+[pypi-platforms]:           https://img.shields.io/pypi/pyversions/odapt
+[pypi-version]:             https://img.shields.io/pypi/v/odapt
+[rtd-badge]:                https://readthedocs.org/projects/odapt/badge/?version=latest
+[rtd-link]:                 https://odapt.readthedocs.io/en/latest/?badge=latest
 
 <!-- prettier-ignore-end -->
