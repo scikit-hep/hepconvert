@@ -8,8 +8,8 @@ Proteus: File conversion package.
 
 from __future__ import annotations
 
-from odapt.version import __version__
+from Odapt.version import __version__
 
-from odapt.operations import add_histograms
+from Odapt.operations import add_histograms
 
 __all__ = ["add_histograms"]
