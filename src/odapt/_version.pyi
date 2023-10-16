@@ -1,4 +1,4 @@
 from __future__ import annotations
 
-version: "1.0"
-version_tuple: [1,0,0]
+version: str
+version_tuple: tuple[int, int, int] | tuple[int, int, int, str, str]
