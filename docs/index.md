@@ -1,4 +1,4 @@
-# Proteus
+# Odapt
 
 ```{toctree}
 :maxdepth: 2
