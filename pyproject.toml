@@ -49,10 +49,10 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/zbilodea/Odapt"
-"Bug Tracker" = "https://github.com/zbilodea/Odapt/issues"
-Discussions = "https://github.com/zbilodea/Odapt/discussions"
-Changelog = "https://github.com/zbilodea/Odapt/releases"
+Homepage = "https://github.com/zbilodea/odapt"
+"Bug Tracker" = "https://github.com/zbilodea/odapt/issues"
+Discussions = "https://github.com/zbilodea/odapt/discussions"
+Changelog = "https://github.com/zbilodea/odapt/releases"
 
 
 [tool.hatch]
