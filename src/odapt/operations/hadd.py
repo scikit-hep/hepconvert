@@ -61,7 +61,7 @@ def hadd_1D(destination, file, key, first):
             outfile[key].variances(flow=True) + hist.variances(flow=True),
             hist.member("fXaxis"),
         )
-        file.close()
+        outfile.close()
         return h_sum
 
     msg = "Bins must be the same for histograms to be added, not "
@@ -143,7 +143,7 @@ def hadd_2D(destination, file, key, first):
             hist.member("fXaxis"),
             hist.member("fYaxis"),
         )
-        file.close()
+        outfile.close()
         return h_sum
 
     msg = "Bins must be the same for histograms to be added, not "
@@ -208,18 +208,20 @@ def hadd_3D(destination, file, key, first):
                 ]
             ),
             np.array(
-                hist.member("fEntries"),
-                outfile[key].member("fTsumw"),
-                outfile[key].member("fTsumw2"),
-                outfile[key].member("fTsumwx"),
-                outfile[key].member("fTsumwx2"),
-                outfile[key].member("fTsumwy"),
-                outfile[key].member("fTsumwy2"),
-                outfile[key].member("fTsumwxy"),
-                outfile[key].member("fTsumwz"),
-                outfile[key].member("fTsumwz2"),
-                outfile[key].member("fTsumwxz"),
-                outfile[key].member("fTsumwyz"),
+                [
+                    hist.member("fEntries"),
+                    outfile[key].member("fTsumw"),
+                    outfile[key].member("fTsumw2"),
+                    outfile[key].member("fTsumwx"),
+                    outfile[key].member("fTsumwx2"),
+                    outfile[key].member("fTsumwy"),
+                    outfile[key].member("fTsumwy2"),
+                    outfile[key].member("fTsumwxy"),
+                    outfile[key].member("fTsumwz"),
+                    outfile[key].member("fTsumwz2"),
+                    outfile[key].member("fTsumwxz"),
+                    outfile[key].member("fTsumwyz"),
+                ]
             ),
         )
         h_sum = uproot.writing.identify.to_TH3x(
@@ -237,7 +239,7 @@ def hadd_3D(destination, file, key, first):
             hist.member("fYaxis"),
             hist.member("fZaxis"),
         )
-        file.close()
+        outfile.close()
         return h_sum
 
     msg = "Bins must be the same for histograms to be added, not "
@@ -285,19 +287,19 @@ def hadd(
         >>> odapt.add_histograms("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
 
     """
-    if compression == "ZLIB" or compression == "zlib":
+    if compression in ("ZLIB", "zlib"):
         compression_code = uproot.const.kZLIB
-    elif compression == "LZMA" or compression == "lzma":
+    elif compression in ("LZMA", "lzma"):
         compression_code = uproot.const.kLZMA
-    elif compression == "LZ4" or compression == "lz4":
+    elif compression in ("LZ4", "lz4"):
         compression_code = uproot.const.kLZ4
-    elif compression == "ZSTD" or compression == "zstd":
+    elif compression in ("ZSTD", "zstd"):
         compression_code = uproot.const.kZSTD
     else:
         msg = f"unrecognized compression algorithm: {compression}. Only ZLIB, LZMA, LZ4, and ZSTD are accepted."
         raise ValueError(msg)
-
-    if Path.isfile(destination):
+    p = Path(destination)
+    if Path.is_file(p):
         if not force and not append:
             raise FileExistsError
         if force and append:
@@ -310,12 +312,13 @@ def hadd(
             )
         file_out = uproot.recreate(
             destination,
-            compression=uproot.compression.from_code_pair(
+            compression=uproot.compression.Compression.from_code_pair(
                 compression_code, compression_level
             ),
         )
-    if isinstance(files, list):
-        files = sorted(Path(files).glob(f"/**/*{'.root'}"))
+    if not isinstance(files, list):
+        path = Path(files)
+        files = sorted(path.glob("**/*.root"))
 
     with uproot.open(files[0]) as file:
         keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
@@ -326,8 +329,8 @@ def hadd(
                     keys,
                     file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False),
                 )
-                if files[i + 1] == files[-1]:
-                    keys_axes = dict(zip(keys, (len(file[j].axes) for j in keys)))
+                # if files[i + 1] == files[-1]:
+                #     keys_axes = dict(zip(keys, (len(file[j].axes) for j in keys)))
     else:
         for i, _value in enumerate(files[1:]):
             with uproot.open(files[i]) as file:
@@ -335,16 +338,22 @@ def hadd(
                     keys,
                     file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False),
                 )
-                if files[i + 1] == files[-1]:
-                    keys_axes = dict(zip(keys, (len(file[j].axes) for j in keys)))
+                # if files[i + 1] == files[-1]:
+                #     keys_axes = dict(zip(keys, (len(file[j].axes) for j in keys)))
 
     first = True
     for input_file in files:
-        if Path.isfile(input_file):
+        p = Path(input_file)
+        if Path.is_file(p):
             file_out = uproot.update(destination)
         else:
-            file_out = uproot.recreate(destination)
-        file_out.compression.from_code_pair(compression_code, compression_level)
+            file_out = uproot.recreate(
+                destination,
+                compression=uproot.compression.Compression.from_code_pair(
+                    compression_code, compression_level
+                ),
+            )
+
         try:
             file = uproot.open(input_file)
         except FileNotFoundError:
@@ -358,10 +367,10 @@ def hadd(
                 file[key]
             except Warning:
                 Warning("Histogram {key} missing from file {input_file}.")
-            if keys_axes[key] == 1:
+            if len(file[key].axes) == 1:
                 h_sum = hadd_1D(destination, file, key, first)
 
-            elif keys_axes[key] == 2:
+            elif len(file[key].axes) == 2:
                 h_sum = hadd_2D(destination, file, key, first)
 
             else:
