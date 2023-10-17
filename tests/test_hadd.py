@@ -3,10 +3,9 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import uproot
-
 import numpy as np
 import ROOT
+import uproot
 
 sys.path.append("/Users/zobil/Documents/Odapt/src/")
 import odapt
@@ -80,13 +79,47 @@ def generate_1D_simple():
 
 
 def test_simple(tmp_path, file_paths):
-    h1, h2, h3 = generate_1D_gaussian(file_paths)
+    gauss_1 = ROOT.TH1I("name", "title", 5, -4, 4)
+    gauss_1.FillRandom("gaus")
+    gauss_1.Sumw2()
+    gauss_1.SetDirectory(0)
+    outHistFile = ROOT.TFile.Open(file_paths[0], "RECREATE")
+    outHistFile.cd()
+    gauss_1.Write()
+    outHistFile.Close()
+    h1 = uproot.from_pyroot(gauss_1)
+
+    gauss_2 = ROOT.TH1I("name", "title", 5, -4, 4)
+    gauss_2.FillRandom("gaus")
+    gauss_2.Sumw2()
+    gauss_2.SetDirectory(0)
+    outHistFile = ROOT.TFile.Open(file_paths[1], "RECREATE")
+    outHistFile.cd()
+    gauss_2.Write()
+    outHistFile.Close()
+    h2 = uproot.from_pyroot(gauss_2)
+
+    gauss_3 = ROOT.TH1I("name", "title", 5, -4, 4)
+    gauss_3.FillRandom("gaus")
+    gauss_3.Sumw2()
+    gauss_3.SetDirectory(0)
+    outHistFile = ROOT.TFile.Open(file_paths[2], "RECREATE")
+    outHistFile.cd()
+    gauss_3.Write()
+    outHistFile.Close()
+    h3 = uproot.from_pyroot(gauss_3)
+
     path = Path(tmp_path)
     destination = path / "destination.root"
     odapt.operations.hadd(destination, file_paths, force=True)
 
     with uproot.open(destination) as file:
-        assert file["name"].member("fN") == h1.member("fN")
+        added = uproot.from_pyroot(
+            gauss_1 + gauss_2 + gauss_3
+        )  # test odapt vs Pyroot histogram adding
+        assert file["name"].member("fN") == added.member("fN")
+        assert file["name"].member("fTsumw") == added.member("fTsumw")
+        assert np.equal(file["name"].values(flow=True), added.values(flow=True)).all
         assert file["name"].member("fTsumw") == h1.member("fTsumw") + h2.member(
             "fTsumw"
         ) + h3.member("fTsumw")
@@ -94,6 +127,16 @@ def test_simple(tmp_path, file_paths):
             file["name"].values(flow=True),
             np.array(h1.values(flow=True) + h2.values(flow=True)),
         ).all
+
+
+test_simple(
+    "tests",
+    [
+        "tests/samples/file1.root",
+        "tests/samples/file2.root",
+        "tests/samples/file3.root",
+    ],
+)
 
 
 def test_3_glob(file_paths):
@@ -434,11 +477,13 @@ def simple_2D():
             np.array(h1.values(flow=True) + h2.values(flow=True)),
         ).all
 
+
 mult_2D_hists()
 
 simple_1dim_F()
 
 simple_2dim_F()
+
 
 def break_bins():
     h1 = ROOT.TH1F("name", "", 8, 0.0, 10.0)
