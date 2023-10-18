@@ -29,7 +29,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dynamic = ["version"]
-dependencies = [NumPy, uproot]
+dependencies = ["numpy>=1.18.0", "uproot>=5.0.0"]
 
 [project.optional-dependencies]
 test = [
