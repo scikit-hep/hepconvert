@@ -3,10 +3,12 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-import ROOT
+import pytest
 import uproot
 
 import odapt
+
+ROOT = pytest.importorskip("pyarrow")
 
 
 def write_root_file(hist, path):
