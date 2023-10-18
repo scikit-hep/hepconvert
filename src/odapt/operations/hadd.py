@@ -7,7 +7,15 @@ import numpy as np
 import uproot
 
 
-def hadd_1D(destination, file, key, first):
+def hadd_1d(destination, file, key, first):
+    """
+    Args:
+    destination (path-like): Name of the output file or file path.
+    file (ReadOnlyDirectory): ROOT file to read histogram from.
+    key (str): key to reference histogram to be added.
+    first (bool): if True, special case for first of a certain histogram
+        to be added to the new file.
+    """
     outfile = uproot.open(destination)
     try:
         hist = file[key]
@@ -73,7 +81,15 @@ def hadd_1D(destination, file, key, first):
     ) from None
 
 
-def hadd_2D(destination, file, key, first):
+def hadd_2d(destination, file, key, first):
+    """
+    Args:
+    destination (path-like): Name of the output file or file path.
+    file (ReadOnlyDirectory): ROOT file to read histogram from.
+    key (str): key to reference histogram to be added.
+    first (bool): if True, special case for first of a certain histogram
+        to be added to the new file.
+    """
     outfile = uproot.open(destination)
     try:
         hist = file[key]
@@ -155,7 +171,15 @@ def hadd_2D(destination, file, key, first):
     ) from None
 
 
-def hadd_3D(destination, file, key, first):
+def hadd_3d(destination, file, key, first):
+    """
+    Args:
+    destination (path-like): Name of the output file or file path.
+    file (ReadOnlyDirectory): ROOT file to read histogram from.
+    key (str): key to reference histogram to be added.
+    first (bool): if True, special case for first of a certain histogram
+        to be added to the new file.
+    """
     outfile = uproot.open(destination)
     try:
         hist = file[key]
@@ -369,16 +393,16 @@ def hadd(
         for key in keys:
             try:
                 file[key]
-            except Warning:
+            finally:
                 Warning("Histogram {key} missing from file {input_file}.")
             if len(file[key].axes) == 1:
-                h_sum = hadd_1D(destination, file, key, first)
+                h_sum = hadd_1d(destination, file, key, first)
 
             elif len(file[key].axes) == 2:
-                h_sum = hadd_2D(destination, file, key, first)
+                h_sum = hadd_2d(destination, file, key, first)
 
             else:
-                h_sum = hadd_3D(destination, file, key, first)
+                h_sum = hadd_3d(destination, file, key, first)
 
             if h_sum is not None:
                 file_out[key] = h_sum
@@ -388,6 +412,9 @@ def hadd(
 
 
 def main():
+    """
+    Implementation of cmd-line executables.
+    """
     argparser = argparse.ArgumentParser(description="Hadd ROOT histograms with Uproot")
     argparser.add_argument("destination", type=str, help="path of output file")
     argparser.add_argument(
