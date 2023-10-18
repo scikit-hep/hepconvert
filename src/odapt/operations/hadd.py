@@ -320,6 +320,10 @@ def hadd(
         path = Path(files)
         files = sorted(path.glob("**/*.root"))
 
+    if len(files) <= 1:
+        msg = "Cannot hadd one file. Use root_to_root to copy a ROOT file."
+        raise ValueError(msg) from None
+
     with uproot.open(files[0]) as file:
         keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
     if union:
@@ -383,7 +387,7 @@ def hadd(
         file.close()
 
 
-def args():
+def main():
     argparser = argparse.ArgumentParser(description="Hadd ROOT histograms with Uproot")
     argparser.add_argument("destination", type=str, help="path of output file")
     argparser.add_argument(
@@ -393,17 +397,33 @@ def args():
         help="list or directory (glob syntax accepted) of input files",
     )
     argparser.add_argument(
-        "-f", action="force", default=True, help="force overwrite of output file"
+        "-f",
+        "--force",
+        action="store_true",
+        default=True,
+        help="force overwrite of output file",
     )
     argparser.add_argument(
-        "-a", action="append", default=False, help="append to existing file"
+        "-a", "--append", action="store", default=False, help="append to existing file"
     )
     argparser.add_argument(
-        "-c", action="compression", default=1, help="set compression level between 1-9"
+        "-c",
+        "--compression",
+        action="store",
+        default="lz4",
+        help="set compression level between 1-9",
+    )
+    argparser.add_argument(
+        "-c[0-9]",
+        "--compression_level",
+        action="store",
+        default=1,
+        help="set compression level between 1-9",
     )
     argparser.add_argument(
         "-k",
-        action="skip_bad_files",
+        "--skip_bad_files",
+        action="store",
         default=False,
         help="corrupt or non-existent input files are ignored",
     )
@@ -413,15 +433,16 @@ def args():
         default=True,
         help="all histograms get copied to new file, only those with same name get added",
     )
-    argparser.add_argument(
-        "-n",
-        action="max_opened_files",
-        default=0,
-        help="maximum number of files to be open at one time. 0 is system max",
-    )
-    argparser.add_argument(
-        "-ff",
-        action="input_compression",
-        default=True,
-        help="compression level for the new file the same as the compression of the input files",
+
+    args = argparser.parse_args()
+
+    hadd(
+        args.destination,
+        args.input_file,
+        force=args.force,
+        append=args.append,
+        compression=args.compression,
+        compression_level=args.compression_level,
+        skip_bad_files=args.skip_bad_files,
+        union=args.union,
     )

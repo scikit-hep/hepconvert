@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import numpy as np
 import ROOT
 import uproot
 
-sys.path.append("/Users/zobil/Documents/Odapt/src/")
 import odapt
 
 
