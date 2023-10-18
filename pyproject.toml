@@ -29,7 +29,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dynamic = ["version"]
-dependencies = []
+dependencies = [NumPy, uproot]
 
 [project.optional-dependencies]
 test = [
@@ -160,3 +160,6 @@ messages_control.disable = [
   "missing-module-docstring",
   "wrong-import-position",
 ]
+
+[project.scripts]
+odapt = "odapt.src.operations.hadd:main"
