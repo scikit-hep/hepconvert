@@ -393,8 +393,11 @@ def hadd(
         for key in keys:
             try:
                 file[key]
-            finally:
-                Warning("Histogram {key} missing from file {input_file}.")
+            except ValueError:
+                if not union:
+                    continue
+                msg = "Union key filter error."
+                raise ValueError(msg) from None
             if len(file[key].axes) == 1:
                 h_sum = hadd_1d(destination, file, key, first)
 
