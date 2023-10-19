@@ -1,4 +1,4 @@
-# Odapt
+# odapt
 
 ```{toctree}
 :maxdepth: 2
