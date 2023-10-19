@@ -29,7 +29,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dynamic = ["version"]
-dependencies = ["numpy>=1.18.0", "uproot>=5.0.0"]
+dependencies = ["numpy>=1.19.0", "uproot>=5.0.0"]
 
 [project.optional-dependencies]
 test = [
@@ -55,13 +55,8 @@ Discussions = "https://github.com/zbilodea/odapt/discussions"
 Changelog = "https://github.com/zbilodea/odapt/releases"
 
 
-[tool.hatch]
-version.source = "vcs"
-build.hooks.vcs.version-file = "src/odapt/_version.py"
-envs.default.dependencies = [
-  "pytest",
-  "pytest-cov",
-]
+[tool.hatch.version]
+path = "src/odapt/version.py"
 
 
 [tool.pytest.ini_options]
@@ -162,4 +157,4 @@ messages_control.disable = [
 ]
 
 [project.scripts]
-odapt = "odapt.src.operations.hadd:main"
+hadd = "odapt.src.operations.hadd:main"
