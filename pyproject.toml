@@ -56,8 +56,12 @@ Changelog = "https://github.com/zbilodea/odapt/releases"
 
 
 [tool.hatch.version]
-path = "src/odapt/version.py"
+source = "vcs"
 
+[tool.hatch.build.hooks.vcs]
+version-file = "_version.py"
+
+[tool.hatch.metadata.hooks.vcs]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
