@@ -28,7 +28,7 @@ classifiers = [
   "Topic :: Scientific/Engineering",
   "Typing :: Typed",
 ]
-dynamic = ["version"]
+
 dependencies = ["numpy>=1.19.0", "uproot>=5.0.0"]
 
 [project.optional-dependencies]
