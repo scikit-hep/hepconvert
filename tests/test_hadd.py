@@ -8,7 +8,7 @@ import uproot
 
 import odapt as od
 
-ROOT = pytest.importorskip("pyarrow")
+ROOT = pytest.importorskip("ROOT")
 
 
 def write_root_file(hist, path):
