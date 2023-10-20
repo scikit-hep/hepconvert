@@ -59,7 +59,7 @@ Changelog = "https://github.com/zbilodea/odapt/releases"
 source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "_version.py"
+version-file = "src/odapt/_version.py"
 
 [tool.hatch.metadata.hooks.vcs]
 
