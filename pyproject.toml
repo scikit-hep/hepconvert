@@ -28,7 +28,7 @@ classifiers = [
   "Topic :: Scientific/Engineering",
   "Typing :: Typed",
 ]
-
+dynamic = ["version"]
 dependencies = ["numpy>=1.19.0", "uproot>=5.0.0"]
 
 [project.optional-dependencies]
@@ -56,7 +56,7 @@ Changelog = "https://github.com/zbilodea/odapt/releases"
 
 
 [tool.hatch.version]
-path = "src/odapt/_version.py"
+path = "src/odapt/version.py"
 
 
 [tool.pytest.ini_options]
