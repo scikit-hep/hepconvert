@@ -478,39 +478,39 @@ def main():
     )
 
 
-def merge_ttree(ttree1, ttree2, name): #hadd includes
-    # Use tmpdir? Or just do two at a time, tree reduction style...
-    if ttree1.name != ttree2.name:
-        print("Names must be the same")
+# def merge_ttree(ttree1, ttree2, name): #hadd includes
+#     # Use tmpdir? Or just do two at a time, tree reduction style...
+#     if ttree1.name != ttree2.name:
+#         print("Names must be the same")
 
-    #title must be the same as the file name? maybe is just a tChain thing
+#     #title must be the same as the file name? maybe is just a tChain thing
 
-    # Get keys
-    t1_keys = ttree1.keys(recursive=True)
-    t2_keys = ttree2.keys(recursive=True)
+#     # Get keys
+#     t1_keys = ttree1.keys(recursive=True)
+#     t2_keys = ttree2.keys(recursive=True)
 
-    all_keys = np.union1d(t1_keys, t2_keys)
+#     all_keys = np.union1d(t1_keys, t2_keys)
 
-    for t1_key in t1_keys:
-        class_name = ttree1[t1_key].class_name()
-        if class_name == "ttree":
-            branches = ttree1[t1_key].branches
+#     for t1_key in t1_keys:
+#         class_name = ttree1[t1_key].class_name()
+#         if class_name == "ttree":
+#             branches = ttree1[t1_key].branches
 
-        # for t2_key in t2_keys:
-        if :
+#         # for t2_key in t2_keys:
+#         if :
 
 
-        merge_inputs()
+#         merge_inputs()
 
-        # Check if histograms
+#         # Check if histograms
 
-        write...
-    #   read key - get get class name
-    #   inputs(?) = tlist()
-    #   if isTree:
-    #       obj = obj.CloneTree?
-    #       branches = obj.branches
-    #   for f2 in files[1:]:
-    #       other_obj = f2.getListOfKeys().readObj()
-    #       inputs.Add(other_obj)
-    #
+#         write...
+#     #   read key - get get class name
+#     #   inputs(?) = tlist()
+#     #   if isTree:
+#     #       obj = obj.CloneTree?
+#     #       branches = obj.branches
+#     #   for f2 in files[1:]:
+#     #       other_obj = f2.getListOfKeys().readObj()
+#     #       inputs.Add(other_obj)
+#     #
