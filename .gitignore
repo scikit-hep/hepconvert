@@ -139,7 +139,7 @@ cython_debug/
 
 # # setuptools_scm
 src/*/_version.py
-
+_version.py
 
 # ruff
 .ruff_cache/
