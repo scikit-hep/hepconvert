@@ -56,7 +56,7 @@ Changelog = "https://github.com/zbilodea/odapt/releases"
 
 
 [tool.hatch.version]
-path = "src/odapt/version.py"
+path = "src/odapt/_version.py"
 
 
 [tool.pytest.ini_options]
