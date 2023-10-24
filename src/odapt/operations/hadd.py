@@ -18,10 +18,7 @@ def hadd_1d(destination, file, key, first, *, n_key=None):
     """
     outfile = uproot.open(destination)
     try:
-        if n_key == None:
-            hist = file[key]
-        else:
-            hist = file[n_key]
+        hist = file[key] if n_key is None else file[n_key]
     except ValueError:
         msg = "Key missing from {file}"
         raise ValueError(msg) from None
@@ -35,6 +32,7 @@ def hadd_1d(destination, file, key, first, *, n_key=None):
                 hist.member("fTsumwx2"),
             ]
         )
+        print(hist.member("fName"))
         return uproot.writing.identify.to_TH1x(
             hist.member("fName"),
             hist.member("fTitle"),
@@ -53,26 +51,26 @@ def hadd_1d(destination, file, key, first, *, n_key=None):
                 hist.member("fTsumwx2"),
             ]
         )
-        if n_key == None:
-            h_sum = uproot.writing.identify.to_TH1x(
-                hist.member("fName"),
-                hist.member("fTitle"),
-                outfile[key].values(flow=True) + hist.values(flow=True),
-                *np.add(
-                    np.array(
-                        [
-                            outfile[key].member("fEntries"),
-                            outfile[key].member("fTsumw"),
-                            outfile[key].member("fTsumw2"),
-                            outfile[key].member("fTsumwx"),
-                            outfile[key].member("fTsumwx2"),
-                        ]
-                    ),
-                    member_data,
+        h_sum = uproot.writing.identify.to_TH1x(
+            hist.member("fName"),
+            hist.member("fTitle"),
+            outfile[key].values(flow=True) + hist.values(flow=True),
+            *np.add(
+                np.array(
+                    [
+                        outfile[key].member("fEntries"),
+                        outfile[key].member("fTsumw"),
+                        outfile[key].member("fTsumw2"),
+                        outfile[key].member("fTsumwx"),
+                        outfile[key].member("fTsumwx2"),
+                    ]
                 ),
-                outfile[key].variances(flow=True) + hist.variances(flow=True),
-                hist.member("fXaxis"),
-            )
+                member_data,
+            ),
+            outfile[key].variances(flow=True) + hist.variances(flow=True),
+            hist.member("fXaxis"),
+        )
+        print(hist.member("fName"))
         outfile.close()
         return h_sum
 
@@ -96,10 +94,7 @@ def hadd_2d(destination, file, key, first, *, n_key=None):
     """
     outfile = uproot.open(destination)
     try:
-        if n_key == None:
-            hist = file[key]
-        else:
-            hist = file[n_key]
+        hist = file[key] if n_key is None else file[n_key]
     except ValueError:
         msg = "Key missing from {file}"
         raise ValueError(msg) from None
@@ -125,7 +120,7 @@ def hadd_2d(destination, file, key, first, *, n_key=None):
             hist.member("fXaxis"),
             hist.member("fYaxis"),
         )
-    if hist.member("fN") == outfile[outfile.keys()[indx]].member("fN"):
+    if hist.member("fN") == outfile[key].member("fN"):
         member_data = np.array(
             [
                 hist.member("fEntries"),
@@ -189,10 +184,7 @@ def hadd_3d(destination, file, key, first, *, n_key=None):
     """
     outfile = uproot.open(destination)
     try:
-        if n_key == None:
-            hist = file[key]
-        else:
-            hist = file[n_key]
+        hist = file[key] if n_key is None else file[n_key]
     except ValueError:
         msg = "Key missing from {file}"
         raise ValueError(msg) from None
@@ -295,7 +287,7 @@ def hadd(
     compression_level=1,
     skip_bad_files=False,
     union=True,
-    same_names = False,
+    same_names=False,
 ):
     """
     Args:
@@ -315,7 +307,7 @@ def hadd(
             this gets set to system limit.
         union (bool): If True, adds the histograms that have the same name and copies all others
             to the new file.
-        same_names (bool): If True, only adds together histograms which have the same name (key). If False, 
+        same_names (bool): If True, only adds together histograms which have the same name (key). If False,
             histograms are added together based on TTree structure (bins must be equal).
 
     Adds together histograms from local ROOT files of a collection of ROOT files, and writes them to
@@ -342,6 +334,13 @@ def hadd(
         if force and append:
             msg = "Cannot append to a new file. Either force or append can be true."
             raise ValueError(msg)
+        file_out = uproot.recreate(
+            destination,
+            compression=uproot.compression.Compression.from_code_pair(
+                compression_code, compression_level
+            ),
+        )     
+        print("recreated")
     else:
         if append:
             raise FileNotFoundError(
@@ -353,6 +352,8 @@ def hadd(
                 compression_code, compression_level
             ),
         )
+        print("recreated")
+
     if not isinstance(files, list):
         path = Path(files)
         files = sorted(path.glob("**/*.root"))
@@ -363,20 +364,24 @@ def hadd(
 
     with uproot.open(files[0]) as file:
         keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
-    if union:
-        for i, _value in enumerate(files[1:]):
-            with uproot.open(files[i]) as file:
-                keys = np.union1d(
-                    keys,
-                    file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False),
-                )
+    if same_names:
+        if union:
+            for i, _value in enumerate(files[1:]):
+                with uproot.open(files[i]) as file:
+                    keys = np.union1d(
+                        keys,
+                        file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False),
+                    )
+                    print("Other keys", keys)
+        else:
+            for i, _value in enumerate(files[1:]):
+                with uproot.open(files[i]) as file:
+                    keys = np.intersect1d(
+                        keys,
+                        file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False),
+                    )
     else:
-        for i, _value in enumerate(files[1:]):
-            with uproot.open(files[i]) as file:
-                keys = np.intersect1d(
-                    keys,
-                    file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False),
-                )
+        keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
 
     first = True
     for input_file in files:
@@ -390,6 +395,7 @@ def hadd(
                     compression_code, compression_level
                 ),
             )
+            print("recreated")
 
         try:
             file = uproot.open(input_file)
@@ -417,26 +423,23 @@ def hadd(
                     h_sum = hadd_3d(destination, file, key, first)
 
         else:
-            n_keys = file.keys()
-            for i, value in enumerate(keys):
-                try:
-                    file[key]
-                except ValueError:
-                    if not union:
-                        continue
-                    msg = "Union key filter error."
-                    raise ValueError(msg) from None
+            n_keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
+            print("number of n keys", len(n_keys))
+            for i, _value in enumerate(keys):
+                print("indx", i)
                 if len(file[n_keys[i]].axes) == 1:
-                    h_sum = hadd_1d(destination, file, keys[i], first, nkey=n_keys[i])
+                    h_sum = hadd_1d(destination, file, keys[i], first, n_key=n_keys[i])
 
                 elif len(file[n_keys[i]].axes) == 2:
-                    h_sum = hadd_2d(destination, file, keys[i], first, nkey=n_keys[i]i)
+                    h_sum = hadd_2d(destination, file, keys[i], first, n_key=n_keys[i])
 
                 else:
-                    h_sum = hadd_3d(destination, file, keys[i], first, nkey=n_keys[i])
+                    h_sum = hadd_3d(destination, file, keys[i], first, n_key=n_keys[i])
+                print("keys", keys)
+                print("n keys", n_keys)
 
-        if h_sum is not None:
-            file_out[key] = h_sum
+                if h_sum is not None:
+                    file_out[keys[i]] = h_sum
 
         first = False
         file.close()
