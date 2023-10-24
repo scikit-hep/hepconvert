@@ -7,7 +7,7 @@ import numpy as np
 import uproot
 
 
-def hadd_1d(destination, file, key, first):
+def hadd_1d(destination, file, key, first, *, n_key=None):
     """
     Args:
     destination (path-like): Name of the output file or file path.
@@ -18,7 +18,10 @@ def hadd_1d(destination, file, key, first):
     """
     outfile = uproot.open(destination)
     try:
-        hist = file[key]
+        if n_key == None:
+            hist = file[key]
+        else:
+            hist = file[n_key]
     except ValueError:
         msg = "Key missing from {file}"
         raise ValueError(msg) from None
@@ -50,25 +53,26 @@ def hadd_1d(destination, file, key, first):
                 hist.member("fTsumwx2"),
             ]
         )
-        h_sum = uproot.writing.identify.to_TH1x(
-            hist.member("fName"),
-            hist.member("fTitle"),
-            outfile[key].values(flow=True) + hist.values(flow=True),
-            *np.add(
-                np.array(
-                    [
-                        outfile[key].member("fEntries"),
-                        outfile[key].member("fTsumw"),
-                        outfile[key].member("fTsumw2"),
-                        outfile[key].member("fTsumwx"),
-                        outfile[key].member("fTsumwx2"),
-                    ]
+        if n_key == None:
+            h_sum = uproot.writing.identify.to_TH1x(
+                hist.member("fName"),
+                hist.member("fTitle"),
+                outfile[key].values(flow=True) + hist.values(flow=True),
+                *np.add(
+                    np.array(
+                        [
+                            outfile[key].member("fEntries"),
+                            outfile[key].member("fTsumw"),
+                            outfile[key].member("fTsumw2"),
+                            outfile[key].member("fTsumwx"),
+                            outfile[key].member("fTsumwx2"),
+                        ]
+                    ),
+                    member_data,
                 ),
-                member_data,
-            ),
-            outfile[key].variances(flow=True) + hist.variances(flow=True),
-            hist.member("fXaxis"),
-        )
+                outfile[key].variances(flow=True) + hist.variances(flow=True),
+                hist.member("fXaxis"),
+            )
         outfile.close()
         return h_sum
 
@@ -81,7 +85,7 @@ def hadd_1d(destination, file, key, first):
     ) from None
 
 
-def hadd_2d(destination, file, key, first):
+def hadd_2d(destination, file, key, first, *, n_key=None):
     """
     Args:
     destination (path-like): Name of the output file or file path.
@@ -92,7 +96,10 @@ def hadd_2d(destination, file, key, first):
     """
     outfile = uproot.open(destination)
     try:
-        hist = file[key]
+        if n_key == None:
+            hist = file[key]
+        else:
+            hist = file[n_key]
     except ValueError:
         msg = "Key missing from {file}"
         raise ValueError(msg) from None
@@ -118,7 +125,7 @@ def hadd_2d(destination, file, key, first):
             hist.member("fXaxis"),
             hist.member("fYaxis"),
         )
-    if hist.member("fN") == outfile[key].member("fN"):
+    if hist.member("fN") == outfile[outfile.keys()[indx]].member("fN"):
         member_data = np.array(
             [
                 hist.member("fEntries"),
@@ -171,7 +178,7 @@ def hadd_2d(destination, file, key, first):
     ) from None
 
 
-def hadd_3d(destination, file, key, first):
+def hadd_3d(destination, file, key, first, *, n_key=None):
     """
     Args:
     destination (path-like): Name of the output file or file path.
@@ -182,7 +189,10 @@ def hadd_3d(destination, file, key, first):
     """
     outfile = uproot.open(destination)
     try:
-        hist = file[key]
+        if n_key == None:
+            hist = file[key]
+        else:
+            hist = file[n_key]
     except ValueError:
         msg = "Key missing from {file}"
         raise ValueError(msg) from None
@@ -285,6 +295,7 @@ def hadd(
     compression_level=1,
     skip_bad_files=False,
     union=True,
+    same_names = False,
 ):
     """
     Args:
@@ -304,6 +315,8 @@ def hadd(
             this gets set to system limit.
         union (bool): If True, adds the histograms that have the same name and copies all others
             to the new file.
+        same_names (bool): If True, only adds together histograms which have the same name (key). If False, 
+            histograms are added together based on TTree structure (bins must be equal).
 
     Adds together histograms from local ROOT files of a collection of ROOT files, and writes them to
         a new or existing ROOT file.
@@ -357,8 +370,6 @@ def hadd(
                     keys,
                     file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False),
                 )
-                # if files[i + 1] == files[-1]:
-                #     keys_axes = dict(zip(keys, (len(file[j].axes) for j in keys)))
     else:
         for i, _value in enumerate(files[1:]):
             with uproot.open(files[i]) as file:
@@ -366,8 +377,6 @@ def hadd(
                     keys,
                     file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False),
                 )
-                # if files[i + 1] == files[-1]:
-                #     keys_axes = dict(zip(keys, (len(file[j].axes) for j in keys)))
 
     first = True
     for input_file in files:
@@ -389,26 +398,45 @@ def hadd(
                 continue
             msg = "File: {input_file} does not exist or is corrupt."
             raise FileNotFoundError(msg) from None
+        if same_names:
+            for key in keys:
+                try:
+                    file[key]
+                except ValueError:
+                    if not union:
+                        continue
+                    msg = "Union key filter error."
+                    raise ValueError(msg) from None
+                if len(file[key].axes) == 1:
+                    h_sum = hadd_1d(destination, file, key, first)
 
-        for key in keys:
-            try:
-                file[key]
-            except ValueError:
-                if not union:
-                    continue
-                msg = "Union key filter error."
-                raise ValueError(msg) from None
-            if len(file[key].axes) == 1:
-                h_sum = hadd_1d(destination, file, key, first)
+                elif len(file[key].axes) == 2:
+                    h_sum = hadd_2d(destination, file, key, first)
 
-            elif len(file[key].axes) == 2:
-                h_sum = hadd_2d(destination, file, key, first)
+                else:
+                    h_sum = hadd_3d(destination, file, key, first)
 
-            else:
-                h_sum = hadd_3d(destination, file, key, first)
+        else:
+            n_keys = file.keys()
+            for i, value in enumerate(keys):
+                try:
+                    file[key]
+                except ValueError:
+                    if not union:
+                        continue
+                    msg = "Union key filter error."
+                    raise ValueError(msg) from None
+                if len(file[n_keys[i]].axes) == 1:
+                    h_sum = hadd_1d(destination, file, keys[i], first, nkey=n_keys[i])
 
-            if h_sum is not None:
-                file_out[key] = h_sum
+                elif len(file[n_keys[i]].axes) == 2:
+                    h_sum = hadd_2d(destination, file, keys[i], first, nkey=n_keys[i]i)
+
+                else:
+                    h_sum = hadd_3d(destination, file, keys[i], first, nkey=n_keys[i])
+
+        if h_sum is not None:
+            file_out[key] = h_sum
 
         first = False
         file.close()
@@ -476,41 +504,3 @@ def main():
         skip_bad_files=args.skip_bad_files,
         union=args.union,
     )
-
-
-# def merge_ttree(ttree1, ttree2, name): #hadd includes
-#     # Use tmpdir? Or just do two at a time, tree reduction style...
-#     if ttree1.name != ttree2.name:
-#         print("Names must be the same")
-
-#     #title must be the same as the file name? maybe is just a tChain thing
-
-#     # Get keys
-#     t1_keys = ttree1.keys(recursive=True)
-#     t2_keys = ttree2.keys(recursive=True)
-
-#     all_keys = np.union1d(t1_keys, t2_keys)
-
-#     for t1_key in t1_keys:
-#         class_name = ttree1[t1_key].class_name()
-#         if class_name == "ttree":
-#             branches = ttree1[t1_key].branches
-
-#         # for t2_key in t2_keys:
-#         if :
-
-
-#         merge_inputs()
-
-#         # Check if histograms
-
-#         write...
-#     #   read key - get get class name
-#     #   inputs(?) = tlist()
-#     #   if isTree:
-#     #       obj = obj.CloneTree?
-#     #       branches = obj.branches
-#     #   for f2 in files[1:]:
-#     #       other_obj = f2.getListOfKeys().readObj()
-#     #       inputs.Add(other_obj)
-#     #
