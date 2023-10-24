@@ -32,7 +32,6 @@ def hadd_1d(destination, file, key, first, *, n_key=None):
                 hist.member("fTsumwx2"),
             ]
         )
-        print(hist.member("fName"))
         return uproot.writing.identify.to_TH1x(
             hist.member("fName"),
             hist.member("fTitle"),
@@ -70,7 +69,6 @@ def hadd_1d(destination, file, key, first, *, n_key=None):
             outfile[key].variances(flow=True) + hist.variances(flow=True),
             hist.member("fXaxis"),
         )
-        print(hist.member("fName"))
         outfile.close()
         return h_sum
 
@@ -339,8 +337,7 @@ def hadd(
             compression=uproot.compression.Compression.from_code_pair(
                 compression_code, compression_level
             ),
-        )     
-        print("recreated")
+        )
     else:
         if append:
             raise FileNotFoundError(
@@ -352,7 +349,6 @@ def hadd(
                 compression_code, compression_level
             ),
         )
-        print("recreated")
 
     if not isinstance(files, list):
         path = Path(files)
@@ -372,7 +368,6 @@ def hadd(
                         keys,
                         file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False),
                     )
-                    print("Other keys", keys)
         else:
             for i, _value in enumerate(files[1:]):
                 with uproot.open(files[i]) as file:
@@ -395,7 +390,6 @@ def hadd(
                     compression_code, compression_level
                 ),
             )
-            print("recreated")
 
         try:
             file = uproot.open(input_file)
@@ -424,9 +418,7 @@ def hadd(
 
         else:
             n_keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
-            print("number of n keys", len(n_keys))
             for i, _value in enumerate(keys):
-                print("indx", i)
                 if len(file[n_keys[i]].axes) == 1:
                     h_sum = hadd_1d(destination, file, keys[i], first, n_key=n_keys[i])
 
@@ -435,8 +427,6 @@ def hadd(
 
                 else:
                     h_sum = hadd_3d(destination, file, keys[i], first, n_key=n_keys[i])
-                print("keys", keys)
-                print("n keys", n_keys)
 
                 if h_sum is not None:
                     file_out[keys[i]] = h_sum

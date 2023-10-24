@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import numpy as np
 import pytest
 import uproot
 
-import sys
 sys.path.append("/Users/zobil/Documents/Odapt/src/")
 
 import odapt as od
@@ -143,6 +143,7 @@ test_simple(
 
 print("test_simple passed")
 
+
 def mult_1D(tmp_path, file_paths):
     gauss_1 = ROOT.TH1I("name1", "title", 5, -4, 4)
     gauss_1.FillRandom("gaus")
@@ -162,7 +163,7 @@ def mult_1D(tmp_path, file_paths):
     outHistFile.cd()
     gauss_2.Write()
     outHistFile.Close()
-    h2= uproot.from_pyroot(gauss_2)
+    h2 = uproot.from_pyroot(gauss_2)
 
     gauss_3 = ROOT.TH1I("name3", "title", 5, -4, 4)
     gauss_3.FillRandom("gaus")
@@ -228,14 +229,16 @@ def mult_1D(tmp_path, file_paths):
             "fTsumw"
         ) + h6.member("fTsumw")
 
+
 mult_1D(
     "tests",
     [
         "tests/samples/file21.root",
         "tests/samples/file22.root",
         "tests/samples/file23.root",
-    ]
+    ],
 )
+
 
 def test_3_glob(file_paths):
     h1, h2, h3 = generate_1D_gaussian(file_paths)
@@ -542,7 +545,7 @@ def simple_2D():
     h1.Write()
     outHistFile.Close()
     h1 = uproot.from_pyroot(h1)
-    
+
     od.operations.hadd(
         "tests/place2.root",
         ["tests/file1dim2.root", "tests/file2dim2.root"],
@@ -574,6 +577,7 @@ def simple_2D():
             file["name"].values(flow=True),
             np.array(h1.values(flow=True) + h2.values(flow=True)),
         ).all
+
 
 print("Start mult_2D")
 mult_2D_hists()
