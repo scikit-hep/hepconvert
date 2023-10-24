@@ -44,7 +44,7 @@ def recur_write_hdf5(root, group): # How set attributes?? Is it automatic? Check
                     # print(ak.to_numpy(next(branch.iterate(step_size=branch.num_baskets))))
                     dset[chunk] = next(array.iterate(step_size=branch.num_baskets))
                     # dset[chunk] = [i for i in branch.iterate(step_size=branch.num_baskets)]
-                print("written")
+
 
 # So iterate may be worse due to arbitrarily picked batch size? TBasket is likely better choice, but
 # this may be dependent on size of baskets...bad I/O... but:
