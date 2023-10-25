@@ -129,14 +129,90 @@ def test_simple(tmp_path, file_paths):
         ).all
 
 
-test_simple(
-    "tests",
-    [
-        "tests/samples/file1.root",
-        "tests/samples/file2.root",
-        "tests/samples/file3.root",
-    ],
-)
+def mult_1D(tmp_path, file_paths):
+    gauss_1 = ROOT.TH1I("name1", "title", 5, -4, 4)
+    gauss_1.FillRandom("gaus")
+    gauss_1.Sumw2()
+    gauss_1.SetDirectory(0)
+    outHistFile = ROOT.TFile.Open(file_paths[0], "RECREATE")
+    outHistFile.cd()
+    gauss_1.Write()
+    outHistFile.Close()
+    h1 = uproot.from_pyroot(gauss_1)
+
+    gauss_2 = ROOT.TH1I("name2", "title", 5, -4, 4)
+    gauss_2.FillRandom("gaus")
+    gauss_2.Sumw2()
+    gauss_2.SetDirectory(0)
+    outHistFile = ROOT.TFile.Open(file_paths[0], "UPDATE")
+    outHistFile.cd()
+    gauss_2.Write()
+    outHistFile.Close()
+    h2 = uproot.from_pyroot(gauss_2)
+
+    gauss_3 = ROOT.TH1I("name3", "title", 5, -4, 4)
+    gauss_3.FillRandom("gaus")
+    gauss_3.Sumw2()
+    gauss_3.SetDirectory(0)
+    outHistFile = ROOT.TFile.Open(file_paths[1], "RECREATE")
+    outHistFile.cd()
+    gauss_3.Write()
+    outHistFile.Close()
+    h3 = uproot.from_pyroot(gauss_3)
+
+    gauss_4 = ROOT.TH1I("name4", "title", 5, -4, 4)
+    gauss_4.FillRandom("gaus")
+    gauss_4.Sumw2()
+    gauss_4.SetDirectory(0)
+    outHistFile = ROOT.TFile.Open(file_paths[1], "UPDATE")
+    outHistFile.cd()
+    gauss_4.Write()
+    outHistFile.Close()
+    h4 = uproot.from_pyroot(gauss_4)
+
+    gauss_5 = ROOT.TH1I("name5", "title", 5, -4, 4)
+    gauss_5.FillRandom("gaus")
+    gauss_5.Sumw2()
+    gauss_5.SetDirectory(0)
+    outHistFile = ROOT.TFile.Open(file_paths[2], "RECREATE")
+    outHistFile.cd()
+    gauss_5.Write()
+    outHistFile.Close()
+    h5 = uproot.from_pyroot(gauss_5)
+
+    gauss_6 = ROOT.TH1I("name6", "title", 5, -4, 4)
+    gauss_6.FillRandom("gaus")
+    gauss_6.Sumw2()
+    gauss_6.SetDirectory(0)
+    outHistFile = ROOT.TFile.Open(file_paths[2], "UPDATE")
+    outHistFile.cd()
+    gauss_6.Write()
+    outHistFile.Close()
+    h6 = uproot.from_pyroot(gauss_6)
+
+    path = Path(tmp_path)
+    destination = path / "destination.root"
+    od.operations.hadd(destination, file_paths, force=True, same_names=False)
+
+    with uproot.open(destination) as file:
+        added = uproot.from_pyroot(
+            gauss_1 + gauss_3 + gauss_5
+        )  # test od vs Pyroot histogram adding
+        assert file["name1"].member("fN") == added.member("fN")
+        assert file["name1"].member("fTsumw") == added.member("fTsumw")
+        assert np.equal(file["name1"].values(flow=True), added.values(flow=True)).all
+        assert file["name1"].member("fTsumw") == h1.member("fTsumw") + h3.member(
+            "fTsumw"
+        ) + h5.member("fTsumw")
+        added = uproot.from_pyroot(
+            gauss_2 + gauss_4 + gauss_6
+        )  # test od vs Pyroot histogram adding
+        assert file["name2"].member("fN") == added.member("fN")
+        assert file["name2"].member("fTsumw") == added.member("fTsumw")
+        assert np.equal(file["name1"].values(flow=True), added.values(flow=True)).all
+        assert file["name2"].member("fTsumw") == h2.member("fTsumw") + h4.member(
+            "fTsumw"
+        ) + h6.member("fTsumw")
 
 
 def test_3_glob(file_paths):
@@ -476,13 +552,6 @@ def simple_2D():
             file["name"].values(flow=True),
             np.array(h1.values(flow=True) + h2.values(flow=True)),
         ).all
-
-
-mult_2D_hists()
-
-simple_1dim_F()
-
-simple_2dim_F()
 
 
 def break_bins():
