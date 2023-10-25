@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import numpy as np
 import pytest
 import uproot
-
-sys.path.append("/Users/zobil/Documents/Odapt/src/")
 
 import odapt as od
 
@@ -132,18 +129,6 @@ def test_simple(tmp_path, file_paths):
         ).all
 
 
-test_simple(
-    "tests",
-    [
-        "tests/samples/file1.root",
-        "tests/samples/file2.root",
-        "tests/samples/file3.root",
-    ],
-)
-
-print("test_simple passed")
-
-
 def mult_1D(tmp_path, file_paths):
     gauss_1 = ROOT.TH1I("name1", "title", 5, -4, 4)
     gauss_1.FillRandom("gaus")
@@ -228,16 +213,6 @@ def mult_1D(tmp_path, file_paths):
         assert file["name2"].member("fTsumw") == h2.member("fTsumw") + h4.member(
             "fTsumw"
         ) + h6.member("fTsumw")
-
-
-mult_1D(
-    "tests",
-    [
-        "tests/samples/file21.root",
-        "tests/samples/file22.root",
-        "tests/samples/file23.root",
-    ],
-)
 
 
 def test_3_glob(file_paths):
@@ -577,14 +552,6 @@ def simple_2D():
             file["name"].values(flow=True),
             np.array(h1.values(flow=True) + h2.values(flow=True)),
         ).all
-
-
-print("Start mult_2D")
-mult_2D_hists()
-print("Finish mult_2D")
-simple_1dim_F()
-
-simple_2dim_F()
 
 
 def break_bins():
