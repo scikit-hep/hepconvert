@@ -10,6 +10,7 @@ def root_to_hdf5(read_path, write_path, *, compression=None):
     tree = in_file[keys[0]]
     
     for key in keys:
+        print(in_file[key].classname)
         if in_file[key].classname == "TTree":
             print("here?")
             in_file[key].branches
@@ -44,10 +45,11 @@ def recur_write_hdf5(root, group): # How set attributes?? Is it automatic? Check
             shape_1 = branch.num_entries
             dset = group.create_dataset(branch.name, shape=(branch.num_entries), chunks=(branch.num_entries))
             
-            if branch.classname == "TBranch": #what?
+            if branch.classname == "TBranch" and len(branch.branches) == 0: #what?
                 chunks = [chunk for chunk in dset.iter_chunks()]
                 indx = 0
                 for i in uproot.iterate(branch):
+                    print(i)
                     dset[chunks[indx]] = i
                     indx+=1
 
