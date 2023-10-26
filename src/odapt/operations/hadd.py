@@ -497,3 +497,49 @@ def main():
         skip_bad_files=args.skip_bad_files,
         union=args.union,
     )
+
+
+def merge_files(ttree1, ttree2, name): #hadd includes
+    # Use tmpdir? Or just do two at a time, tree reduction style...
+    import tempfile
+
+    if ttree1.name != ttree2.name:
+        print("Names must be the same")
+
+    #title must be the same as the file name? maybe is just a tChain thing
+
+    # Get keys
+    t1_keys = ttree1.keys(recursive=True)
+    t2_keys = ttree2.keys(recursive=True)
+
+    shared_keys = np.intersect1d(t1_keys, t2_keys)
+
+    t1_diff = [t1_keys - t2_keys]
+
+    t2_diff = [t2_keys - t1_keys]
+
+    for key in shared_keys:
+        class_name = ttree1[key].class_name()
+        if class_name.startswith("Model_TTree"):
+            branches = ttree1[key].branches
+        elif class_name.startswith("TH[1|2|3][I|S|F|D|C]"):
+
+    
+    # for t2_key in t2_keys:
+    for t2_key in t2_keys:
+        
+        merge_inputs()
+
+        # Check if histograms
+
+        write...
+    #   read key - get get class name
+    #   inputs(?) = tlist()
+    #   if isTree:
+    #       obj = obj.CloneTree?
+    #       branches = obj.branches
+    #   for f2 in files[1:]:
+    #       other_obj = f2.getListOfKeys().readObj()
+    #       inputs.Add(other_obj)
+    #
+
