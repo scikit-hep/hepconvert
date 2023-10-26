@@ -349,7 +349,7 @@ def hadd(
                 compression_code, compression_level
             ),
         )
-
+    
     if not isinstance(files, list):
         path = Path(files)
         files = sorted(path.glob("**/*.root"))
@@ -368,6 +368,7 @@ def hadd(
                         keys,
                         file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False),
                     )
+                    all_keys = np.union1d(files.keys(), keys)
         else:
             for i, _value in enumerate(files[1:]):
                 with uproot.open(files[i]) as file:
@@ -375,6 +376,7 @@ def hadd(
                         keys,
                         file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False),
                     )
+                    all_keys = np.intersect1d(files.keys(), keys)
     else:
         keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
 
@@ -434,6 +436,10 @@ def hadd(
         first = False
         file.close()
 
+
+def setup_file(all_keys, file, destination):
+    with uproot.open(file) as to_copy:
+        destination.copy_from(file, filter_name=all_keys)
 
 def main():
     """
