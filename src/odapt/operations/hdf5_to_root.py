@@ -1,52 +1,71 @@
-import h5py
-import awkward as ak
-import uproot
-import numpy as np
+from __future__ import annotations
 
-def hdf5_to_root(read_path, write_path, *, chunk_shape=True, compression=None,):
-    f = h5py.File(read_path, 'r') # 'r' for read only, file must exist (it's the default though)
-    # print(f.ref_dtype)
-    
-    keys = [key for key in f.keys()] # keys may or not be for groups
-    # print([key for key in f.keys()])
+import h5py
+import uproot
+
+
+def hdf5_to_root(
+    read_path,
+    write_path,
+    *,
+    chunk_shape=True,
+    compression=None,
+):
+    f = h5py.File(
+        read_path, "r"
+    )  # 'r' for read only, file must exist (it's the default though)
+
+    keys = list(f.keys())
     out_file = uproot.recreate(write_path)
-    # tree.mktree("tree", branch_types=type(dset), ) # Fix type obv
     for key in keys:
-        print(type(f[key]))
-        if isinstance((f[key]), h5py.Group): #group or whatever...
+        if isinstance((f[key]), h5py.Group):
             recur_in_group(group, out_file)
         else:
-            print("true?")
-            print([f[key][s] for s in f[key].iter_chunks()])
-            out_file[key] = ({key:[f[key][s] for s in f[key].iter_chunks()]})
-            out_file[key].extend({key:[f[key][s] for s in f[key].iter_chunks()]})
+            first = True
+            for chunk in f[key].iter_chunks():
+                if first is True:
+                    out_file[key] = {key: [f[key][chunk]]}
+                    first = False
+                out_file[key].extend({key: [f[key][chunk]]})
     # del f or something - CLOSE FILE!
 
-def recur_in_group(group, out_file):
-    keys = [key for key in group.keys()] #Does this not work?
+
+def recur_in_group(group, out_file_directory):
+    keys = list(group.keys())
+    tree = out_file_directory.mktree(
+        group.name, {keys[i]: group[keys[i]].dtype for i, value in enumerate(keys)}
+    )  # Fix type obv
+
     for key in keys:
-        if isinstance((group[key]), h5py.Group): #group or swhatever...
-            recur_in_group(group[key], out_file)
-        else:
-            print("true?")
-            print([group[key][s] for s in group[key].iter_chunks()])
-            out_file[key] = ({key:[group[key][s] for s in group[key].iter_chunks()]})
-            out_file[key].extend({key:[group[key][s] for s in group[key].iter_chunks()]})
+        if isinstance((group[key]), h5py.Group):
+            tree = recur_in_group(group[key], tree)
+
+    chunks = list(group[key].iter_chunks())
+    tree.extend({key: [[group[key][chunk]] for chunk in chunks] for key in keys})
+    return tree
+
 
 f = h5py.File("/Users/zobil/Documents/odapt/tests/samples/mytestfile.hdf5", "w")
+
 group = f.create_group("test")
-from numpy.random import Generator, PCG64
+from numpy.random import PCG64, Generator
+
 rng = Generator(PCG64())
 array = rng.standard_normal([10000])
 group = f.create_group("datasets", track_order=True)
-dset = group.create_dataset("mydataset", data=(array), dtype='f', chunks=True)
+dset = group.create_dataset("mydataset", data=(array), dtype="f", chunks=True)
 
 array1 = rng.standard_normal([10000])
-dset1 = group.create_dataset("mydataset1", data=(array1), dtype='f', chunks=True)
-hdf5_to_root("/Users/zobil/Documents/odapt/tests/samples/mytestfile.hdf5", "/Users/zobil/Documents/odapt/tests/samples/destination.root")
+dset1 = group.create_dataset("mydataset1", data=(array1), dtype="f", chunks=True)
+hdf5_to_root(
+    "/Users/zobil/Documents/odapt/tests/samples/mytestfile.hdf5",
+    "/Users/zobil/Documents/odapt/tests/samples/destination.root",
+)
 with uproot.open("/Users/zobil/Documents/odapt/tests/samples/destination.root") as file:
     keys = file.keys(cycle=False)
+    print(keys)
     ttree1 = file[keys[0]]
+    print(ttree1.keys(cycle=False))
     branches = ttree1.branches
     print(file[keys[0]].name == "mydataset")
     print(keys[0])
@@ -56,9 +75,3 @@ with uproot.open("/Users/zobil/Documents/odapt/tests/samples/destination.root") 
     print(ttree2.name == "mydataset1")
     print(keys[1])
     print(ttree2.arrays())
-
-# When writing with Uproot, every time you call uproot.WritableTree.extend,
-# you create a new TBasket (for all TBranches, so you create a new cluster).
-# You can use extend inside of iterate to resize TBaskets from an input 
-# file to an output file.
-
