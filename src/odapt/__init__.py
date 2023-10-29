@@ -6,6 +6,9 @@ odapt: File conversion package.
 from __future__ import annotations
 
 from odapt._version import __version__
-from odapt.operations import hadd  # noqa: F401
+from odapt.operations import (
+    hadd,  # noqa: F401
+    hdf5_to_root,  # noqa: F401
+)
 
 __all__ = ["__version__"]
