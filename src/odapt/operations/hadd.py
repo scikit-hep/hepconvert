@@ -505,40 +505,40 @@ def main():
     )
 
 
-def merge_files(ttree1, ttree2, name): #hadd includes
+def merge_files(destination, file1, file2, name, compression): #hadd includes
     # Use tmpdir? Or just do two at a time, tree reduction style...
     import tempfile
 
-    if ttree1.name != ttree2.name:
-        print("Names must be the same")
-
+    f1 = uproot.open(file1)
+    f2 = uproot.open(file2)
     #title must be the same as the file name? maybe is just a tChain thing
 
-    # Get keys
-    t1_keys = ttree1.keys(recursive=True)
-    t2_keys = ttree2.keys(recursive=True)
+    out_file = uproot.recreate(destination, compression)
 
-    shared_keys = np.intersect1d(t1_keys, t2_keys)
-
-    t1_diff = [t1_keys - t2_keys]
-
-    t2_diff = [t2_keys - t1_keys]
-
-    for key in shared_keys:
-        class_name = ttree1[key].class_name()
-        if class_name.startswith("Model_TTree"):
-            branches = ttree1[key].branches
+    for key in f1.keys(out_file, recursive=False):
+        class_name = f1[key].class_name()
+        if isinstance(class_name, uproot.TTree):
+            try:
+                if f1[key].name != f2[key].name:
+                    print("Names must be the same")
+                    recur(out_file, f1[key], f2[key])
+            finally: 
+                # Write just f1 to file???
+                msg = "Files must have similar structure."
+                raise ValueError(msg) from None
         elif class_name.startswith("TH[1|2|3][I|S|F|D|C]"):
-
-    
-    # for t2_key in t2_keys:
-    for t2_key in t2_keys:
-        
-        merge_inputs()
+            hadd_1d(out_file, f1[key], key, first=True, n_key=None) #tree1? does it need to be a file?
+        else:
+            t1_keys = f1[key].keys()
+            t2_keys = f2[key].keys()
+            shared_keys = np.intersect1d(t1_keys, t2_keys)
+            # out_file.copy_from(ttree1, filter_name=shared_keys, filter_classnames='^(?![Model_TTree]).*$') # worth? good because it's still compressed and faster...but can't guarantee it will be memory friendly?
+            # out_file[key] = f1[key]
+            # out_file[key] = f2[key]
 
         # Check if histograms
 
-        write...
+        # write...
     #   read key - get get class name
     #   inputs(?) = tlist()
     #   if isTree:
@@ -549,3 +549,25 @@ def merge_files(ttree1, ttree2, name): #hadd includes
     #       inputs.Add(other_obj)
     #
 
+def recur(out_file, tree1, tree2):
+    branches = tree1.branches
+    print(branches)
+    missing_branches = tree1.branches - tree2.branches
+
+    # get keys for branches? for hadd
+    for branch in branches:
+        class_name = tree1.class_name()
+        if isinstance(class_name, uproot.TTree) and isinstance(tree2.class_name(), uproot.TTree):
+            if tree1.name == tree2.name:
+                # Iterate here?
+                out_file[tree1.name] = branches 
+        elif class_name.startswith("TH[1|2|3][I|S|F|D|C]"):
+            hadd_1d(out_file, branch, branch.index, first=True, n_key=None) #tree1? does it need to be a file?
+        
+        else:
+            t1_keys = tree1.keys()
+            t2_keys = tree2.keys()
+            shared_keys = np.intersect1d(t1_keys, t2_keys)
+            # out_file.copy_from(ttree1, filter_name=shared_keys, filter_classnames='^(?![Model_TTree]).*$') # worth? good because it's still compressed and faster...but can't guarantee it will be memory friendly?
+            # out_file[key] = f1[key]
+            # out_file[key] = f2[key]
