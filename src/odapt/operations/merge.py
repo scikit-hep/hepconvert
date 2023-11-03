@@ -62,9 +62,13 @@ def merge_files(destination, file1, file2, step_size="100MB"): #hadd includes
             # Write just f1 to file???
             # msg = "Files must have similar structure."
             # raise ValueError(msg) from None
-
+        
         elif f1[key].classname.startswith("TH") or f1[key].classname.startswith("TProfile"):
+            import tempfile
+
             if len(file[key].axes) == 1:
+                #Make temp, add them together...then write to out_file
+                fp = tempfile.TemporaryFile()
                 out_file[key] = hadd.hadd_1d(file1, f2[key], key, True)
 
             elif len(file[key].axes) == 2:
@@ -248,8 +252,15 @@ def recur_merge(out_file, tree1, tree2, key, step_size):
                 out_file[key][tree1.name] = tree1
         # elif isinstance(f[key], uproot.histogram)
         elif classname.startswith("TH") or classname.startswith("TProfile"):
-            hadd.hadd_merge(out_file, tree1, key, first=True, n_key=None) #tree1? does it need to be a file?
+            if len(file[key].axes) == 1:
+                out_file[key] = hadd.hadd_1d(file1, tree2[key], key, False)
 
+            elif len(file[key].axes) == 2:
+                out_file[key] = hadd.hadd_2d(file1, tree2[key], key, False)
+
+            else:
+                out_file[key] = hadd.hadd_3d(file1, tree2[key], key, False)
+            
         else:
             # print(tree1[key].typenames(recursive=False))
             first = True
@@ -290,6 +301,7 @@ print(keys)
 tree = file[keys[0]]
 # print(tree)
 file1 = uproot.update("/Users/zobil/Documents/odapt/src/odapt/operations/uproot-HZZ.root")
+temp = uproot.recreate("testfile1.root")
 
 # first = False
 # for chunk in uproot.iterate(tree):
