@@ -66,9 +66,9 @@ def merge_files(destination, file1, file2, step_size="100MB"): #hadd includes
         elif f1[key].classname.startswith("TH") or f1[key].classname.startswith("TProfile"):
             import tempfile
 
+            fp = tempfile.TemporaryFile()   
             if len(file[key].axes) == 1:
                 #Make temp, add them together...then write to out_file
-                fp = tempfile.TemporaryFile()
                 out_file[key] = hadd.hadd_1d(file1, f2[key], key, True)
 
             elif len(file[key].axes) == 2:
