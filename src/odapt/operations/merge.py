@@ -71,8 +71,8 @@ def hadd_and_merge(
     if Path.is_file(p):
         if not force and not append:
             raise FileExistsError
-        if force and append:  # Does this still apply??
-            msg = "Cannot append to a new file. Either force or append can be true."
+        if force and append:
+            msg = "Cannot append to an empty file. Either force or append can be true."
             raise ValueError(msg)
         if append:
             out_file = uproot.update(
