@@ -3,8 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import awkward as ak
-from odapt.operations.hadd import hadd_1d, hadd_2d, hadd_3d
 import uproot
+
+from odapt.operations.hadd import hadd_1d, hadd_2d, hadd_3d
 
 
 # Could just automatically filter with typenames
@@ -238,7 +239,7 @@ def hadd_and_merge(
                 except AssertionError:
                     msg = "TTrees must have the same structure to be merged"
 
-        for i, value in enumerate(histograms):
+        for i, _value in enumerate(histograms):
             out_file[histograms[i]] = writable_hists[i]
 
         f.close()
@@ -269,19 +270,13 @@ def hadd_and_merge(
             writable_hists = []
             for key in histograms:
                 if len(f[key].axes) == 1:
-                    writable_hists[key] = hadd_1d(
-                        destination, out_file, key, False
-                    )
+                    writable_hists[key] = hadd_1d(destination, out_file, key, False)
 
                 elif len(f[key].axes) == 2:
-                    writable_hists[key] = hadd_2d(
-                        destination, out_file, key, False
-                    )
+                    writable_hists[key] = hadd_2d(destination, out_file, key, False)
 
                 else:
-                    writable_hists[key] = hadd_3d(
-                        destination, out_file, key, False
-                    )
+                    writable_hists[key] = hadd_3d(destination, out_file, key, False)
 
             for chunk in uproot.iterate(tree, step_size=step_size, how=dict):
                 for group in groups:
