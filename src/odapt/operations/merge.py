@@ -183,13 +183,13 @@ def hadd_and_merge(
 
         elif len(histograms) == 1:
             if len(f[histograms[0]].axes) == 1:
-                writable_hists[key] = hadd_1d(destination, f, key, True)
+                writable_hists = hadd_1d(destination, f, histograms[0], True)
 
             elif len(f[histograms[0]].axes) == 2:
-                writable_hists[key] = hadd_2d(destination, f, key, True)
+                writable_hists = hadd_2d(destination, f, histograms[0], True)
 
             else:
-                writable_hists[key] = hadd_3d(destination, f, key, True)
+                writable_hists = hadd_3d(destination, f, histograms[0], True)
 
         first = True
         for chunk in uproot.iterate(tree, step_size=step_size, how=dict):
