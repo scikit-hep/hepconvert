@@ -108,7 +108,7 @@ def hadd_and_merge(
         files = sorted(path.glob("**/*.root"))
 
     if len(files) <= 1:
-        msg = "Cannot hadd one file. Use root_to_root to copy a ROOT file."
+        msg = "Only one file was input. Use root_to_root to copy a ROOT file."
         raise ValueError(msg) from None
 
     try:
@@ -150,7 +150,8 @@ def hadd_and_merge(
         cur_group = 0
         for branch in temp_branches:
             if len(tree[branch].member("fLeaves")) > 1:
-                NotImplementedError("Cannot handle split objects.")
+                msg = "Cannot handle split objects."
+                raise NotImplementedError(msg)
             if tree[branch].member("fLeaves")[0].member("fLeafCount") is None:
                 continue
             groups.append([])
