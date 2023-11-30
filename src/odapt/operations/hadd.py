@@ -38,7 +38,14 @@ def hadd_1d(destination, file, key, first, *, n_key=None):
             hist.values(flow=True),
             *member_data,
             hist.variances(flow=True),
-            hist.member("fXaxis"),
+            uproot.writing.identify.to_TAxis(
+                "fXaxis",
+                "",
+                hist.member("fN"),
+                hist.axis(axis="x").low,
+                hist.axis(axis="x").high,
+                fXbins=hist.member("fXaxis").edges(flow=True),
+            ),
         )
     if hist.member("fN") == outfile[key].member("fN"):
         member_data = np.array(
@@ -67,7 +74,14 @@ def hadd_1d(destination, file, key, first, *, n_key=None):
                 member_data,
             ),
             outfile[key].variances(flow=True) + hist.variances(flow=True),
-            hist.member("fXaxis"),
+            uproot.writing.identify.to_TAxis(
+                "fXaxis",
+                "",
+                hist.member("fN"),
+                hist.axis(axis="x").low,
+                hist.axis(axis="x").high,
+                fXbins=hist.member("fXaxis").edges(flow=True),
+            ),
         )
         outfile.close()
         return h_sum
@@ -115,8 +129,21 @@ def hadd_2d(destination, file, key, first, *, n_key=None):
             np.ravel(hist.values(flow=True), order="C"),
             *member_data,
             np.ravel(hist.variances(flow=True), order="C"),
-            hist.member("fXaxis"),
-            hist.member("fYaxis"),
+            uproot.writing.identify.to_TAxis(
+                "fXaxis",
+                "",
+                hist.member("fXaxis").member("fNbins"),
+                hist.axis(axis="x").low,
+                hist.axis(axis="x").high,
+                fXbins=hist.member("fXaxis").edges(flow=True),
+            ),
+            uproot.writing.identify.to_TAxis(
+                "fYaxis",
+                "",
+                hist.member("fYaxis").member("fNbins"),
+                hist.axis(axis="y").low,
+                hist.axis(axis="y").high,
+            ),
         )
     if hist.member("fN") == outfile[key].member("fN"):
         member_data = np.array(
@@ -131,13 +158,11 @@ def hadd_2d(destination, file, key, first, *, n_key=None):
                 hist.member("fTsumwxy"),
             ]
         )
-
         h_sum = uproot.writing.identify.to_TH2x(
             hist.member("fName"),
             hist.member("fTitle"),
-            np.ravel(
-                outfile[key].values(flow=True) + hist.values(flow=True), order="C"
-            ),
+            np.ravel(outfile[key].values(flow=True), order="C")
+            + np.ravel(hist.values(flow=True), order="C"),
             *np.add(
                 np.array(
                     [
@@ -156,8 +181,21 @@ def hadd_2d(destination, file, key, first, *, n_key=None):
             np.ravel(
                 outfile[key].variances(flow=True) + hist.variances(flow=True), order="C"
             ),
-            hist.member("fXaxis"),
-            hist.member("fYaxis"),
+            uproot.writing.identify.to_TAxis(
+                "fXaxis",
+                "",
+                hist.member("fXaxis").member("fNbins"),
+                hist.axis(axis="x").low,
+                hist.axis(axis="x").high,
+                fXbins=hist.member("fXaxis").edges(flow=True),
+            ),
+            uproot.writing.identify.to_TAxis(
+                "fYaxis",
+                "",
+                hist.member("fYaxis").member("fNbins"),
+                hist.axis(axis="y").low,
+                hist.axis(axis="y").high,
+            ),
         )
         outfile.close()
         return h_sum
@@ -209,9 +247,28 @@ def hadd_3d(destination, file, key, first, *, n_key=None):
             np.ravel(hist.values(flow=True), order="C"),
             *member_data,
             np.ravel(hist.variances(flow=True), order="C"),
-            hist.member("fXaxis"),
-            hist.member("fYaxis"),
-            hist.member("fZaxis"),
+            uproot.writing.identify.to_TAxis(
+                "fXaxis",
+                "",
+                hist.member("fXaxis").member("fNbins"),
+                hist.axis(axis="x").low,
+                hist.axis(axis="x").high,
+                fXbins=hist.member("fXaxis").edges(flow=True),
+            ),
+            uproot.writing.identify.to_TAxis(
+                "fYaxis",
+                "",
+                hist.member("fYaxis").member("fNbins"),
+                hist.axis(axis="y").low,
+                hist.axis(axis="y").high,
+            ),
+            uproot.writing.identify.to_TAxis(
+                "fZaxis",
+                "",
+                hist.member("fZaxis").member("fNbins"),
+                hist.axis(axis="z").low,
+                hist.axis(axis="z").high,
+            ),
         )
     if hist.member("fN") == outfile[key].member("fN"):
         member_data = np.add(
@@ -255,13 +312,35 @@ def hadd_3d(destination, file, key, first, *, n_key=None):
                 outfile[key].values(flow=True) + hist.values(flow=True), order="C"
             ),
             *member_data,
-            np.ravel(
-                (outfile[key].variances(flow=True) + hist.variances(flow=True)),
-                order="C",
+            (
+                np.ravel(outfile[key].variances(flow=True), order="C")
+                + np.ravel(
+                    hist.variances(flow=True),
+                    order="C",
+                )
             ),
-            hist.member("fXaxis"),
-            hist.member("fYaxis"),
-            hist.member("fZaxis"),
+            uproot.writing.identify.to_TAxis(
+                "fXaxis",
+                "",
+                hist.member("fXaxis").member("fNbins"),
+                hist.axis(axis="x").low,
+                hist.axis(axis="x").high,
+                fXbins=hist.member("fXaxis").edges(flow=True),
+            ),
+            uproot.writing.identify.to_TAxis(
+                "fYaxis",
+                "",
+                hist.member("fYaxis").member("fNbins"),
+                hist.axis(axis="y").low,
+                hist.axis(axis="y").high,
+            ),
+            uproot.writing.identify.to_TAxis(
+                "fZaxis",
+                "",
+                hist.member("fZaxis").member("fNbins"),
+                hist.axis(axis="z").low,
+                hist.axis(axis="z").high,
+            ),
         )
         outfile.close()
         return h_sum
@@ -359,36 +438,24 @@ def hadd(
         raise ValueError(msg) from None
 
     with uproot.open(files[0]) as file:
-        keys = file.keys(
-            filter_classname="[TH[1|2|3][I|S|F|D|C]]|[Profile]", cycle=False
-        )
+        keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
     if same_names:
         if union:
             for i, _value in enumerate(files[1:]):
                 with uproot.open(files[i]) as file:
                     keys = np.union1d(
                         keys,
-                        file.keys(
-                            filter_classname="[TH[1|2|3][I|S|F|D|C]]|[Profile]",
-                            cycle=False,
-                        ),
+                        file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False),
                     )
-                    all_keys = np.union1d(files.keys(), keys)
         else:
             for i, _value in enumerate(files[1:]):
                 with uproot.open(files[i]) as file:
                     keys = np.intersect1d(
                         keys,
-                        file.keys(
-                            filter_classname="[TH[1|2|3][I|S|F|D|C]]|[Profile]",
-                            cycle=False,
-                        ),
+                        file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False),
                     )
-                    all_keys = np.intersect1d(files.keys(), keys)
     else:
-        keys = file.keys(
-            filter_classname="[TH[1|2|3][I|S|F|D|C]]|[Profile]", cycle=False
-        )
+        keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
 
     first = True
     for input_file in files:
@@ -429,9 +496,7 @@ def hadd(
                     h_sum = hadd_3d(destination, file, key, first)
 
         else:
-            n_keys = file.keys(
-                filter_classname="[TH[1|2|3][I|S|F|D|C]]|[Profile]", cycle=False
-            )
+            n_keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
             for i, _value in enumerate(keys):
                 if len(file[n_keys[i]].axes) == 1:
                     h_sum = hadd_1d(destination, file, keys[i], first, n_key=n_keys[i])
@@ -447,11 +512,6 @@ def hadd(
 
         first = False
         file.close()
-
-
-def setup_file(all_keys, file, destination):
-    with uproot.open(file) as to_copy:
-        destination.copy_from(file, filter_name=all_keys)
 
 
 def main():
@@ -516,3 +576,6 @@ def main():
         skip_bad_files=args.skip_bad_files,
         union=args.union,
     )
+
+
+# def hadd_in_merge():
