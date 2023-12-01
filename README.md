@@ -26,6 +26,14 @@
 
 The odapt library is a bridge between columnar file formats **ROOT, Parquet, Feather, and HDF5.** It aims to simplify file conversions in Python, replacing what is usually a multi-step process with one line of code, with builtin features for managing large datasets and choosing compression levels.
 
+# Installation
+
+Awkward Array can be installed from [PyPI](https://pypi.org/project/odapt) using pip:
+
+```bash
+pip install odapt
+```
+
 # Getting started
 
 ```python
