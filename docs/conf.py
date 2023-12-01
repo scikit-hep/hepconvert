@@ -52,4 +52,3 @@ nbsphinx_execute_arguments = [
 ]
 
 nbsphinx_kernel_name = "python3"
-
