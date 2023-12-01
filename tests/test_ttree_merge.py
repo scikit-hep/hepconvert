@@ -4,17 +4,17 @@ import awkward as ak
 import numpy as np
 import pytest
 import uproot
-from skhep_testdata import data_path
 
 from odapt import merge
 
-ROOT = pytest.importorskip("ROOT")
+skhep_testdata = pytest.importorskip("skhep_testdata")
+
 
 
 def test_simple():
     merge.hadd_and_merge(
         "od_test_simple.root",
-        [data_path("uproot-HZZ.root"), data_path("uproot-HZZ.root")],
+        [skhep_testdata.data_path("uproot-HZZ.root"), skhep_testdata.data_path("uproot-HZZ.root")],
         counter_name=lambda counted: "N" + counted,
     )
     odapt_file = uproot.open("od_test_hist.root")
@@ -32,8 +32,8 @@ def test_hists():
     merge.hadd_and_merge(
         "od_test_hists.root",
         [
-            data_path("uproot-hepdata-example.root"),
-            data_path("uproot-hepdata-example.root"),
+            skhep_testdata.data_path("uproot-hepdata-example.root"),
+            skhep_testdata.data_path("uproot-hepdata-example.root"),
         ],
         step_size=100,
         counter_name=lambda counted: "N" + counted,
@@ -51,8 +51,8 @@ def test_force():
     merge.hadd_and_merge(
         "od_test_force.root",
         [
-            data_path("uproot-HZZ.root"),
-            data_path("uproot-HZZ.root"),
+            skhep_testdata.data_path("uproot-HZZ.root"),
+            skhep_testdata.data_path("uproot-HZZ.root"),
             "nonexistent_file.root",
         ],
         force=False,
@@ -61,8 +61,8 @@ def test_force():
         merge.hadd_and_merge(
             "od_test_force.root",
             [
-                data_path("uproot-HZZ.root"),
-                data_path("uproot-HZZ.root"),
+                skhep_testdata.data_path("uproot-HZZ.root"),
+                skhep_testdata.data_path("uproot-HZZ.root"),
                 "nonexistent_file.root",
             ],
             force=False,
@@ -72,8 +72,8 @@ def test_force():
         merge.hadd_and_merge(
             "od_test_force.root",
             [
-                data_path("uproot-HZZ.root"),
-                data_path("uproot-HZZ.root"),
+                skhep_testdata.data_path("uproot-HZZ.root"),
+                skhep_testdata.data_path("uproot-HZZ.root"),
                 "nonexistent_file.root",
             ],
             force=True,
@@ -86,8 +86,8 @@ def test_skip_bad_files():
     merge.hadd_and_merge(
         "od_test_skip_files.root",
         [
-            data_path("uproot-HZZ.root"),
-            data_path("uproot-HZZ.root"),
+            skhep_testdata.data_path("uproot-HZZ.root"),
+            skhep_testdata.data_path("uproot-HZZ.root"),
             "nonexistent_file.root",
         ],
         skip_bad_files=True,
@@ -97,8 +97,8 @@ def test_skip_bad_files():
         merge.hadd_and_merge(
             "od_test_skip_files.root",
             [
-                data_path("uproot-HZZ.root"),
-                data_path("uproot-HZZ.root"),
+                skhep_testdata.data_path("uproot-HZZ.root"),
+                skhep_testdata.data_path("uproot-HZZ.root"),
                 "nonexistent_file.root",
             ],
             skip_bad_files=False,
@@ -110,9 +110,9 @@ def realistic_data():
     merge.hadd_and_merge(
         "test_existing_file.root",
         [
-            data_path("nanoAOD_2015_CMS_Open_Data_ttbar.root"),
-            data_path("nanoAOD_2015_CMS_Open_Data_ttbar.root"),
-            data_path("nanoAOD_2015_CMS_Open_Data_ttbar.root"),
+            skhep_testdata.data_path("nanoAOD_2015_CMS_Open_Data_ttbar.root"),
+            skhep_testdata.data_path("nanoAOD_2015_CMS_Open_Data_ttbar.root"),
+            skhep_testdata.data_path("nanoAOD_2015_CMS_Open_Data_ttbar.root"),
         ],
         step_size="100 MB",
     )
