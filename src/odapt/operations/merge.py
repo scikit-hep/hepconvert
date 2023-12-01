@@ -8,7 +8,6 @@ import uproot
 from odapt.operations.hadd import hadd_1d, hadd_2d, hadd_3d
 
 
-# Could just automatically filter with typenames
 def hadd_and_merge(
     destination,
     files,
@@ -33,7 +32,15 @@ def hadd_and_merge(
         files (Str or list of str): List of local ROOT files to read histograms from.
             May contain glob patterns.
         branch_types (dict or pairs of str → NumPy dtype/Awkward type): Name and type specification for the TBranches.
-        step_size (int or str): should be >100 kB
+        field_name (callable of str → str): Function to generate TBranch names for columns
+            of an Awkward record array or a Pandas DataFrame.
+        initial_basket_capacity (int): Number of TBaskets that can be written to the TTree
+            without rewriting the TTree metadata to make room.
+        resize_factor (float): When the TTree metadata needs to be rewritten, this specifies how
+            many more TBasket slots to allocate as a multiplicative factor.
+        step_size (int or str): If an integer, the maximum number of entries to include in each 
+            iteration step; if a string, the maximum memory size to include. The string must be 
+            a number followed by a memory unit, such as “100 MB”. Recommended to be >100 kB.
         force (bool): If True, overwrites destination file if it exists. Force and append
             cannot both be True.
         append (bool): If True, appends histograms to an existing file. Force and append
@@ -43,17 +50,11 @@ def hadd_and_merge(
         compression_level (int): Use a compression level particular to the chosen compressor..
             By default the compression level is 1.
         skip_bad_files (bool): If True, skips corrupt or non-existent files without exiting.
-        max_opened_files (int): Limits the number of files to be open at the same time. If 0,
-            this gets set to system limit.
-        union (bool): If True, adds the histograms that have the same name and copies all others
-            to the new file.
-        batch (bool): If True, branches and TTrees (when applicable) are written to the out-file in
-        batches of size defined by the step_size argument.
 
-    Adds together histograms from local ROOT files of a collection of ROOT files, and writes them to
-        a new or existing ROOT file.
+    Merges TTrees together, and adds values in histograms from local ROOT files, and writes 
+        them to a new ROOT file.
 
-        >>> odapt.add_histograms("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
+        >>> odapt.hadd_and_merge("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
 
     """
     if compression in ("LZMA", "lzma"):
@@ -129,7 +130,6 @@ def hadd_and_merge(
     )
     for key in f.keys(cycle=False, recursive=False):
         if key in hist_keys:
-            # first_layer_hists.append(hist)
             if len(f[key].axes) == 1:
                 h_sum = hadd_1d(destination, f, key, True)
                 out_file[key] = h_sum
