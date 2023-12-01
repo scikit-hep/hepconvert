@@ -24,7 +24,7 @@ def parquet_to_root(
 
     # dak.from_parquet(read_path, split_row_groups=True)
     metadata = ak.metadata_from_parquet(in_file)
-    
+
     of = uproot.recreate(out_file)
 
     data = ak.from_parquet(in_file, row_groups=[0])
@@ -40,7 +40,7 @@ def parquet_to_root(
 
     for i in range(1,metadata['num_row_groups']):
         of[name].extend(ak.from_parquet(in_file, row_groups=[i])) # Set size with extend.
-    
+
 # from skhep_testdata import data_path
 
 # file = uproot.open(data_path("uproot-HZZ.root"))
