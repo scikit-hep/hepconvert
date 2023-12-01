@@ -10,11 +10,13 @@ from odapt import merge
 skhep_testdata = pytest.importorskip("skhep_testdata")
 
 
-
 def test_simple():
     merge.hadd_and_merge(
         "od_test_simple.root",
-        [skhep_testdata.data_path("uproot-HZZ.root"), skhep_testdata.data_path("uproot-HZZ.root")],
+        [
+            skhep_testdata.data_path("uproot-HZZ.root"),
+            skhep_testdata.data_path("uproot-HZZ.root"),
+        ],
         counter_name=lambda counted: "N" + counted,
     )
     odapt_file = uproot.open("od_test_hist.root")
