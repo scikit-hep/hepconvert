@@ -38,8 +38,8 @@ def hadd_and_merge(
             without rewriting the TTree metadata to make room.
         resize_factor (float): When the TTree metadata needs to be rewritten, this specifies how
             many more TBasket slots to allocate as a multiplicative factor.
-        step_size (int or str): If an integer, the maximum number of entries to include in each 
-            iteration step; if a string, the maximum memory size to include. The string must be 
+        step_size (int or str): If an integer, the maximum number of entries to include in each
+            iteration step; if a string, the maximum memory size to include. The string must be
             a number followed by a memory unit, such as “100 MB”. Recommended to be >100 kB.
         force (bool): If True, overwrites destination file if it exists. Force and append
             cannot both be True.
@@ -51,7 +51,7 @@ def hadd_and_merge(
             By default the compression level is 1.
         skip_bad_files (bool): If True, skips corrupt or non-existent files without exiting.
 
-    Merges TTrees together, and adds values in histograms from local ROOT files, and writes 
+    Merges TTrees together, and adds values in histograms from local ROOT files, and writes
         them to a new ROOT file.
 
         >>> odapt.hadd_and_merge("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
