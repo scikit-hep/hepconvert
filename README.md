@@ -22,7 +22,7 @@
 [pypi-platforms]:           https://img.shields.io/pypi/pyversions/odapt
 [pypi-version]:             https://img.shields.io/pypi/v/odapt
 [rtd-badge]:                https://readthedocs.org/projects/odapt/badge/?version=latest
-[rtd-link]:                 https://odapt.readthedocs.io/en/latest/?badge=latest
+[rtd-link]:                 https://odapt.readthedocs.io/en/latest/
 
 IN BETA
 

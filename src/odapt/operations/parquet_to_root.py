@@ -1,11 +1,13 @@
 import awkward as ak
 import dask_awkward as dak
 import uproot
+import numpy as np
+
 def parquet_to_root(
     in_file,
     out_file,
     name,
-    fieldname_separator="_",
+    field_name_separator="_",
     *,
     columns=None,
     row_groups=None,
@@ -28,6 +30,11 @@ def parquet_to_root(
     data = ak.from_parquet(in_file, row_groups=[0])
     print(type(data))
     typenames = {name: data[name].type for name in data.fields}
+    groups = np.empty(len(data)) #this may be the wrong length
+    for i in data:
+
+
+    print(ak.str.starts_with(data, "Jet"))
     of.mktree(name, typenames)
     of[name].extend(data)
 
@@ -44,4 +51,3 @@ def parquet_to_root(
 
 parquet_to_root("tests/samples/uproot-HZZ.parquet", "tests/samples/parquet_test.parquet", "tree")
 test = uproot.open("tests/samples/parquet_test.parquet")
-print(test[""].show())
