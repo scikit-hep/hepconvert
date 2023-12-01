@@ -56,10 +56,10 @@ def hadd_and_merge(
         >>> odapt.add_histograms("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
 
     """
-    if compression in ("ZLIB", "zlib"):
-        compression_code = uproot.const.kZLIB
-    elif compression in ("LZMA", "lzma"):
+    if compression in ("LZMA", "lzma"):
         compression_code = uproot.const.kLZMA
+    elif compression in ("ZLIB", "zlib"):
+        compression_code = uproot.const.kZLIB
     elif compression in ("LZ4", "lz4"):
         compression_code = uproot.const.kLZ4
     elif compression in ("ZSTD", "zstd"):
@@ -67,8 +67,8 @@ def hadd_and_merge(
     else:
         msg = f"unrecognized compression algorithm: {compression}. Only ZLIB, LZMA, LZ4, and ZSTD are accepted."
         raise ValueError(msg)
-    p = Path(destination)
-    if Path.is_file(p):
+    path = Path(destination)
+    if Path.is_file(path):
         if not force and not append:
             raise FileExistsError
         if force and append:
