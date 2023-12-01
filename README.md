@@ -24,8 +24,6 @@
 [rtd-badge]:                https://readthedocs.org/projects/odapt/badge/?version=latest
 [rtd-link]:                 https://odapt.readthedocs.io/en/latest/
 
-IN BETA
-
 The odapt library is a bridge between columnar file formats **ROOT, Parquet, Feather, and HDF5.** It aims to simplify file conversions in Python, replacing what is usually a multi-step process with one line of code, with builtin features for managing large datasets and choosing compression levels.
 
 # Getting started
@@ -33,7 +31,7 @@ The odapt library is a bridge between columnar file formats **ROOT, Parquet, Fea
 ```python
 import odapt as od
 
-od.operations.hadd("destination.root",
+od.operations.hadd_and_merge("destination.root",
 ["file1.root", "file2.root"])
 ```
 
