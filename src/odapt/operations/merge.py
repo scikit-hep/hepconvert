@@ -251,7 +251,7 @@ def hadd_and_merge(
         except FileNotFoundError:
             if skip_bad_files:
                 continue
-            msg = "File: {input_file} does not exist or is corrupt."
+            msg = "File: {file} does not exist or is corrupt."
             raise FileNotFoundError(msg) from None
 
         for key in f.keys(cycle=False, recursive=False):
