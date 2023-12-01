@@ -32,6 +32,8 @@ def hadd_and_merge(
         files (Str or list of str): List of local ROOT files to read histograms from.
             May contain glob patterns.
         branch_types (dict or pairs of str → NumPy dtype/Awkward type): Name and type specification for the TBranches.
+        fieldname_separator (str): Character that separates TBranch names for columns, used 
+            for grouping columns (to avoid duplicate counters in ROOT file).
         field_name (callable of str → str): Function to generate TBranch names for columns
             of an Awkward record array or a Pandas DataFrame.
         initial_basket_capacity (int): Number of TBaskets that can be written to the TTree
