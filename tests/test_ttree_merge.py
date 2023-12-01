@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import awkward as ak
-import merge
+import numpy as np
 import pytest
 import uproot
 from skhep_testdata import data_path
+
+from odapt import merge
 
 ROOT = pytest.importorskip("ROOT")
 
@@ -115,9 +117,12 @@ def realistic_data():
         step_size="100 MB",
     )
 
-    # odapt_file = uproot.open("test_existing_file.root")
-    # hadd_file = uproot.open(
-    #     "/Users/zobil/Documents/odapt/tests/samples/test_existing.root"
-    # )
-    # for key in hadd_file['Events'].keys():
-    #     assert np.equal(odapt_file['Events'].arrays()[key].to_numpy, hadd_file['Events'].arrays()[key].to_numpy).all
+    odapt_file = uproot.open("test_existing_file.root")
+    hadd_file = uproot.open(
+        "/Users/zobil/Documents/odapt/tests/samples/test_existing.root"
+    )
+    for key in hadd_file["Events"]:
+        assert np.equal(
+            odapt_file["Events"].arrays()[key].to_numpy,
+            hadd_file["Events"].arrays()[key].to_numpy,
+        ).all
