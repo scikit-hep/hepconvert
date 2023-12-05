@@ -57,6 +57,16 @@ repos:
     language: pygrep
     entry: PyBind|Cmake|CCache|Github|PyTest
     exclude: .pre-commit-config.yaml
+  - id: pylint
+    name: pylint
+    entry: pylint
+    language: system
+    types: [python]
+    args:
+      [
+        "-rn", # Only display messages
+        "-sn", # Don't display the score
+      ]
 
 - repo: https://github.com/shellcheck-py/shellcheck-py
   rev: "v0.9.0.5"

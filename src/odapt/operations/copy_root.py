@@ -5,7 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-# from odapt.operations.hadd import hadd_1d, hadd_2d, hadd_3d 
+# from odapt.operations.hadd import hadd_1d, hadd_2d, hadd_3d
 from hadd import hadd_1d, hadd_2d, hadd_3d
 
 # Need hadd to create proper writable histogram
@@ -15,8 +15,8 @@ def copy_root(
     destination,
     file,
     *,
-    drop_branches=None, #just list of keys as strs
-    add_branches=None, #dict or ak.array or numpy I assume
+    drop_branches=None,  # just list of keys as strs
+    add_branches=None,  # dict or ak.array or numpy I assume
     force=True,
     fieldname_separator="_",
     branch_types=None,
@@ -86,21 +86,21 @@ def copy_root(
                     compression_code, compression_level
                 ),
             )
-            first=True,
+            first = (True,)
     else:
         out_file = uproot.recreate(
-                destination,
-                compression=uproot.compression.Compression.from_code_pair(
-                    compression_code, compression_level
-                ),
-            )
-        first=True,
+            destination,
+            compression=uproot.compression.Compression.from_code_pair(
+                compression_code, compression_level
+            ),
+        )
+        first = (True,)
     try:
         f = uproot.open(file)
     except FileNotFoundError:
         msg = "File: {files[0]} does not exist or is corrupt."
         raise FileNotFoundError(msg) from None
-    
+
     hist_keys = f.keys(
         filter_classname=["TH*", "TProfile"], cycle=False, recursive=False
     )
@@ -114,11 +114,12 @@ def copy_root(
             else:
                 out_file[key] = hadd_3d(destination, f, key, True)
 
-    trees = f.keys(filter_classname="TTree", cycle=False, recursive=False) # or tuple - it seems tuples have "TTree classname?"
+    trees = f.keys(
+        filter_classname="TTree", cycle=False, recursive=False
+    )  # or tuple - it seems tuples have "TTree classname?"
 
     for t in trees:
         # if add_branches:
-
 
         tree = f[t]
         histograms = tree.keys(filter_typename=["TH*", "TProfile"], recursive=False)
@@ -149,10 +150,19 @@ def copy_root(
             cur_group += 1
 
         if drop_branches:
-            keep_branches = [branch.name for branch in tree.branches if branch.name not in drop_branches and branch.name not in count_branches]
+            keep_branches = [
+                branch.name
+                for branch in tree.branches
+                if branch.name not in drop_branches
+                and branch.name not in count_branches
+            ]
         # elif add_branches?:
         else:
-            keep_branches = [branch.name for branch in tree.branches if branch.name not in count_branches] 
+            keep_branches = [
+                branch.name
+                for branch in tree.branches
+                if branch.name not in count_branches
+            ]
 
         writable_hists = {}
         if len(histograms) > 1:
@@ -179,7 +189,12 @@ def copy_root(
         first = True
         steps = 0
 
-        for chunk in uproot.iterate(tree, step_size=step_size, how=dict, filter_branch=(lambda branch: branch.name in keep_branches)):
+        for chunk in uproot.iterate(
+            tree,
+            step_size=step_size,
+            how=dict,
+            filter_branch=(lambda branch: branch.name in keep_branches),
+        ):
             # for key in count_branches:
             #     del chunk[key]
             for group in groups:
@@ -206,9 +221,15 @@ def copy_root(
                 if branch_types is None and not drop_branches:
                     branch_types = {name: array.type for name, array in chunk.items()}
                 elif branch_types is None and drop_branches:
-                    branch_types = {name: array.type for name, array in chunk.items() if name not in drop_branches}
+                    branch_types = {
+                        name: array.type
+                        for name, array in chunk.items()
+                        if name not in drop_branches
+                    }
                 if branch_types is None and add_branches:
-                    branch_types.update({name: array.type for name, array in add_branches.items()})
+                    branch_types.update(
+                        {name: array.type for name, array in add_branches.items()}
+                    )
                 out_file.mktree(
                     tree.name,
                     branch_types,
@@ -220,8 +241,10 @@ def copy_root(
                 )
                 try:
                     if add_branches:
-                        out_file[tree.name].extend(chunk, add_branches[:][steps:steps + step_size]) #huh
-                    else:   
+                        out_file[tree.name].extend(
+                            chunk, add_branches[:][steps : steps + step_size]
+                        )  # huh
+                    else:
                         out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "Are the branch_names correct?"
@@ -230,8 +253,10 @@ def copy_root(
             else:
                 try:
                     if add_branches:
-                        out_file[tree.name].extend(chunk, add_branches[:][steps:steps + step_size]) #huh
-                    else:   
+                        out_file[tree.name].extend(
+                            chunk, add_branches[:][steps : steps + step_size]
+                        )  # huh
+                    else:
                         out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "Are the branch-names correct?"
@@ -246,9 +271,14 @@ def copy_root(
 
 
 from skhep_testdata import data_path
+
 file = uproot.open(data_path("uproot-HZZ.root"))
 
-copy_root("/Users/zobil/Documents/odapt/tests/samples/copy_test.root", data_path("uproot-HZZ.root"), drop_branch=["MClepton_py", "Jet_Px"])
+copy_root(
+    "/Users/zobil/Documents/odapt/tests/samples/copy_test.root",
+    data_path("uproot-HZZ.root"),
+    drop_branch=["MClepton_py", "Jet_Px"],
+)
 
 file = uproot.open("/Users/zobil/Documents/odapt/tests/samples/copy_test.root")
-file['events'].show()
+file["events"].show()
