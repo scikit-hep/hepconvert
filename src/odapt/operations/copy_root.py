@@ -5,13 +5,19 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-from odapt.operations.hadd import hadd_1d, hadd_2d, hadd_3d
+# from odapt.operations.hadd import hadd_1d, hadd_2d, hadd_3d 
+from hadd import hadd_1d, hadd_2d, hadd_3d
+
+# Need hadd to create proper writable histogram
 
 
-def hadd_and_merge(
+def copy_root(
     destination,
-    files,
+    file,
     *,
+    drop_branches=None, #just list of keys as strs
+    add_branches=None, #dict or ak.array or numpy I assume
+    force=True,
     fieldname_separator="_",
     branch_types=None,
     title="",
@@ -20,8 +26,6 @@ def hadd_and_merge(
     resize_factor=10.0,
     counter_name=lambda counted: "n" + counted,
     step_size="100 MB",
-    force=True,
-    append=False,
     compression="LZ4",
     compression_level=1,
     skip_bad_files=False,
@@ -31,6 +35,8 @@ def hadd_and_merge(
         destination (path-like): Name of the output file or file path.
         files (Str or list of str): List of local ROOT files to read histograms from.
             May contain glob patterns.
+        drop_branches (list of strs):
+        add_branches (dict, Awkward array, or ):
         branch_types (dict or pairs of str → NumPy dtype/Awkward type): Name and type specification for the TBranches.
         fieldname_separator (str): Character that separates TBranch names for columns, used
             for grouping columns (to avoid duplicate counters in ROOT file).
@@ -53,8 +59,7 @@ def hadd_and_merge(
             By default the compression level is 1.
         skip_bad_files (bool): If True, skips corrupt or non-existent files without exiting.
 
-    Merges TTrees together, and adds values in histograms from local ROOT files, and writes
-        them to a new ROOT file.
+    Copies contents of one ROOT to an empty file, if nanoAOD-format, can add or drop columns from a tree while copying.
 
         >>> odapt.hadd_and_merge("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
 
@@ -72,61 +77,30 @@ def hadd_and_merge(
         raise ValueError(msg)
     path = Path(destination)
     if Path.is_file(path):
-        if not force and not append:
+        if not force:
             raise FileExistsError
-        if force and append:
-            msg = "Cannot append to an empty file. Either force or append can be true."
-            raise ValueError(msg)
-        if append:
-            out_file = uproot.update(
-                destination,
-                compression=uproot.compression.Compression.from_code_pair(
-                    compression_code, compression_level
-                ),
-            )
-            first = False
         else:
             out_file = uproot.recreate(
                 destination,
                 compression=uproot.compression.Compression.from_code_pair(
                     compression_code, compression_level
                 ),
-                first=True,
             )
+            first=True,
     else:
-        if append:
-            raise FileNotFoundError(
-                "File %s" + destination + " not found. File must exist to append."
-            )
         out_file = uproot.recreate(
-            destination,
-            compression=uproot.compression.Compression.from_code_pair(
-                compression_code, compression_level
-            ),
-        )
-        first = True
-
-    if not isinstance(files, list):
-        path = Path(files)
-        files = sorted(path.glob("**/*.root"))
-
-    if len(files) <= 1:
-        msg = "Only one file was input. Use root_to_root to copy a ROOT file."
-        raise ValueError(msg) from None
-
+                destination,
+                compression=uproot.compression.Compression.from_code_pair(
+                    compression_code, compression_level
+                ),
+            )
+        first=True,
     try:
-        f = uproot.open(files[0])
+        f = uproot.open(file)
     except FileNotFoundError:
-        if skip_bad_files:
-            for file in files:
-                try:
-                    f = uproot.open(file)
-                    break
-                except FileNotFoundError:
-                    continue
-
         msg = "File: {files[0]} does not exist or is corrupt."
         raise FileNotFoundError(msg) from None
+    
     hist_keys = f.keys(
         filter_classname=["TH*", "TProfile"], cycle=False, recursive=False
     )
@@ -140,9 +114,12 @@ def hadd_and_merge(
             else:
                 out_file[key] = hadd_3d(destination, f, key, True)
 
-    trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
+    trees = f.keys(filter_classname="TTree", cycle=False, recursive=False) # or tuple - it seems tuples have "TTree classname?"
 
     for t in trees:
+        # if add_branches:
+
+
         tree = f[t]
         histograms = tree.keys(filter_typename=["TH*", "TProfile"], recursive=False)
         groups = []
@@ -171,6 +148,12 @@ def hadd_and_merge(
             temp_branches.remove(branch)
             cur_group += 1
 
+        if drop_branches:
+            keep_branches = [branch.name for branch in tree.branches if branch.name not in drop_branches and branch.name not in count_branches]
+        # elif add_branches?:
+        else:
+            keep_branches = [branch.name for branch in tree.branches if branch.name not in count_branches] 
+
         writable_hists = {}
         if len(histograms) > 1:
             for key in histograms:
@@ -194,9 +177,11 @@ def hadd_and_merge(
                 writable_hists = hadd_3d(destination, f, histograms[0], True)
 
         first = True
-        for chunk in uproot.iterate(tree, step_size=step_size, how=dict):
-            for key in count_branches:
-                del chunk[key]
+        steps = 0
+
+        for chunk in uproot.iterate(tree, step_size=step_size, how=dict, filter_branch=(lambda branch: branch.name in keep_branches)):
+            # for key in count_branches:
+            #     del chunk[key]
             for group in groups:
                 if (len(group)) > 1:
                     chunk.update(
@@ -215,12 +200,15 @@ def hadd_and_merge(
                         }
                     )
                 for key in group:
-                    del chunk[key]
-
-            if branch_types is None:
-                branch_types = {name: array.type for name, array in chunk.items()}
-
+                    if key in keep_branches:
+                        del chunk[key]
             if first:
+                if branch_types is None and not drop_branches:
+                    branch_types = {name: array.type for name, array in chunk.items()}
+                elif branch_types is None and drop_branches:
+                    branch_types = {name: array.type for name, array in chunk.items() if name not in drop_branches}
+                if branch_types is None and add_branches:
+                    branch_types.update({name: array.type for name, array in add_branches.items()})
                 out_file.mktree(
                     tree.name,
                     branch_types,
@@ -231,87 +219,36 @@ def hadd_and_merge(
                     resize_factor=resize_factor,
                 )
                 try:
-                    out_file[tree.name].extend(chunk)
+                    if add_branches:
+                        out_file[tree.name].extend(chunk, add_branches[:][steps:steps + step_size]) #huh
+                    else:   
+                        out_file[tree.name].extend(chunk)
                 except AssertionError:
-                    msg = "TTrees must have the same structure to be merged. Are the branch_names correct?"
+                    msg = "Are the branch_names correct?"
                 first = False
 
             else:
                 try:
-                    out_file[tree.name].extend(chunk)
+                    if add_branches:
+                        out_file[tree.name].extend(chunk, add_branches[:][steps:steps + step_size]) #huh
+                    else:   
+                        out_file[tree.name].extend(chunk)
                 except AssertionError:
-                    msg = "TTrees must have the same structure to be merged. Are the branch_names correct?"
+                    msg = "Are the branch-names correct?"
 
         for i, _value in enumerate(histograms):
             out_file[histograms[i]] = writable_hists[i]
 
         f.close()
 
-    for file in files[1:]:
-        try:
-            f = uproot.open(file)
-        except FileNotFoundError:
-            if skip_bad_files:
-                continue
-            msg = "File: {file} does not exist or is corrupt."
-            raise FileNotFoundError(msg) from None
 
-        for key in f.keys(cycle=False, recursive=False):
-            if key in hist_keys:
-                if len(f[key].axes) == 1:
-                    h_sum = hadd_1d(destination, f, key, False)
-                elif len(f[key].axes) == 2:
-                    h_sum = hadd_2d(destination, f, key, False)
-                else:
-                    h_sum = hadd_3d(destination, f, key, False)
+# def add_branches_write():
 
-                out_file[key] = h_sum
 
-        writable_hists = {}
-        for t in trees:
-            tree = f[t]
-            writable_hists = []
-            for key in histograms:
-                if len(f[key].axes) == 1:
-                    writable_hists[key] = hadd_1d(destination, out_file, key, False)
+from skhep_testdata import data_path
+file = uproot.open(data_path("uproot-HZZ.root"))
 
-                elif len(f[key].axes) == 2:
-                    writable_hists[key] = hadd_2d(destination, out_file, key, False)
+copy_root("/Users/zobil/Documents/odapt/tests/samples/copy_test.root", data_path("uproot-HZZ.root"), drop_branch=["MClepton_py", "Jet_Px"])
 
-                else:
-                    writable_hists[key] = hadd_3d(destination, out_file, key, False)
-
-            for chunk in uproot.iterate(tree, step_size=step_size, how=dict):
-                for group in groups:
-                    if len(group) > 1:
-                        chunk.update(
-                            {
-                                group[0][
-                                    0 : (group[0].index(fieldname_separator))
-                                ]: ak.zip(
-                                    {
-                                        name[
-                                            group[0].index(fieldname_separator) + 1 :
-                                        ]: array
-                                        for name, array in zip(
-                                            ak.fields(chunk), ak.unzip(chunk)
-                                        )
-                                        if name in group
-                                    }
-                                )
-                            }
-                        )
-                    for key in group:
-                        del chunk[key]
-                for key in count_branches:
-                    del chunk[key]
-                try:
-                    out_file[tree.name].extend(chunk)
-
-                except AssertionError:
-                    msg = "TTrees must have the same structure to be merged"
-
-            for key in histograms:
-                out_file[key] = writable_hists[key]
-
-        f.close()
+file = uproot.open("/Users/zobil/Documents/odapt/tests/samples/copy_test.root")
+file['events'].show()
