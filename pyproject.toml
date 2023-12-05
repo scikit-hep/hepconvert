@@ -159,6 +159,7 @@ messages_control.disable = [
   "line-too-long",
   "missing-module-docstring",
   "wrong-import-position",
+  "duplicate-code",
 ]
 
 [project.scripts]
