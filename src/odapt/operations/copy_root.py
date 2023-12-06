@@ -27,7 +27,6 @@ def copy_root(
     step_size=100,
     compression="LZ4",
     compression_level=1,
-    skip_bad_files=False,
 ):
     """
     Args:
@@ -77,14 +76,13 @@ def copy_root(
     if Path.is_file(path):
         if not force:
             raise FileExistsError
-        else:
-            out_file = uproot.recreate(
-                destination,
-                compression=uproot.compression.Compression.from_code_pair(
-                    compression_code, compression_level
-                ),
-            )
-            first = (True,)
+        out_file = uproot.recreate(
+            destination,
+            compression=uproot.compression.Compression.from_code_pair(
+                compression_code, compression_level
+            ),
+        )
+        first = (True,)
     else:
         out_file = uproot.recreate(
             destination,
@@ -182,16 +180,12 @@ def copy_root(
                 writable_hists = hadd_3d(destination, f, histograms[0], True)
 
         first = True
-        steps = 0
-
         for chunk in uproot.iterate(
             tree,
             step_size=step_size,
             how=dict,
             filter_branch=(lambda branch: branch.name in keep_branches),
         ):
-            # for key in count_branches:
-            #     del chunk[key]
             for group in groups:
                 if (len(group)) > 1:
                     chunk.update(
@@ -250,4 +244,71 @@ def copy_root(
         f.close()
 
 
-# def add_branches_write():
+import awkward as ak
+import uproot
+from skhep_testdata import data_path
+
+
+def test_copy():
+    copy_root(
+        "/Users/zobil/Documents/odapt/tests/samples/copy.root",
+        data_path("uproot-HZZ.root"),
+        counter_name=lambda counted: "N" + counted,
+    )
+    od_file = uproot.open("/Users/zobil/Documents/odapt/tests/samples/copy.root")
+    file = uproot.open(data_path("uproot-HZZ.root"))
+    print(file["events"].keys())
+    for key in od_file["events"]:
+        print(key)
+        assert key in file["events"]
+
+    assert ak.all(od_file["events"].arrays() == file["events"].arrays())
+
+
+def test_drop_branch():
+    copy_root(
+        "/Users/zobil/Documents/odapt/tests/samples/drop_branches.root",
+        data_path("uproot-HZZ.root"),
+        drop_branches=["MClepton_py", "Jet_Px"],
+    )
+    original = uproot.open(data_path("uproot-HZZ.root"))
+    file = uproot.open("/Users/zobil/Documents/odapt/tests/samples/drop_branches.root")
+    assert "MClepton_py" not in file["events"]
+    assert "Jet_Px" not in file["events"]
+
+    for key in original["events"]:
+        if key != "MClepton_py" or key != "Jet_Px":
+            assert key in file["events"]
+            assert ak.all(
+                file["events"][key].arrays() == original["events"][key].arrays()
+            )
+
+
+def test_add_branch():
+    copy_root(
+        "/Users/zobil/Documents/odapt/tests/samples/drop_branches.root",
+        data_path("uproot-HZZ.root"),
+        drop_branches=["MClepton_py", "Jet_Px"],
+    )
+    arrays = file["events"].arrays()
+    branch_types = {
+        name: array.type
+        for name, array in zip(ak.fields(arrays), ak.unzip(arrays))
+        if not name.startswith("n") and not name.startswith("N")
+    }
+
+    branches = {
+        file["events"]["MClepton_py"].name: file["events"]["MClepton_py"].arrays(),
+        file["events"]["Jet_Px"].name: file["events"]["Jet_Px"].arrays(),
+    }
+    jet_px = {file["events"]["Jet_Px"].name: file["events"]["Jet_Px"].arrays()}
+    copy_root(
+        "/Users/zobil/Documents/odapt/tests/samples/add_branches.root",
+        "/Users/zobil/Documents/odapt/tests/samples/drop_branches.root",
+        branch_types=branch_types,
+    )
+
+    file = uproot.open("/Users/zobil/Documents/odapt/tests/samples/add_branches.root")
+
+
+test_copy()
