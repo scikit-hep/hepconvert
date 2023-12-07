@@ -34,13 +34,13 @@ odapt can be installed `from PyPI <https://pypi.org/project/odapt>`__ using pip.
 .. code-block:: bash
 
     pip install odapt
-   
+
 odapt is not yet available using conda.
 
 Introduction
 ============
 
-``odapt`` is an easy-to-use file converter tool for columnar file formats like ROOT, Parquet, Feather, and HDF5. This is a user-request driven package, feature requests, feedback, 
+``odapt`` is an easy-to-use file converter tool for columnar file formats like ROOT, Parquet, Feather, and HDF5. This is a user-request driven package, feature requests, feedback,
 
 Motivation
 **********
@@ -48,7 +48,7 @@ The goal of this package is to simplify the process of converting large files be
 
 Limitations:
 ************
-Currently works best with data in nanoAOD formats. Will expand at user request. 
+Currently works best with data in nanoAOD formats. Will expand at user request.
 
 odapt.operations
 

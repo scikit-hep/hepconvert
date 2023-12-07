@@ -5,7 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-from odapt.operations.hadd import hadd_1d, hadd_2d, hadd_3d
+from odapt.hadd import hadd_1d, hadd_2d, hadd_3d
 
 
 def hadd_and_merge(
