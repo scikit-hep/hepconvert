@@ -7,6 +7,7 @@ import uproot
 
 from odapt.operations.hadd import hadd_1d, hadd_2d, hadd_3d
 
+# ruff: disable=B023
 
 def copy_root(
     destination,
@@ -185,7 +186,7 @@ def copy_root(
             tree,
             step_size=step_size,
             how=dict,
-            filter_branch=lambda b: b.name in keep_branches,  # noqa
+            filter_branch=lambda b: b.name in keep_branches,
         ):
             for group in groups:
                 if (len(group)) > 1:
