@@ -91,8 +91,8 @@ def hadd_and_merge(
                 compression=uproot.compression.Compression.from_code_pair(
                     compression_code, compression_level
                 ),
-                first=True,
             )
+            first = True
     else:
         if append:
             raise FileNotFoundError(
