@@ -28,7 +28,7 @@ The odapt library is a bridge between columnar file formats **ROOT, Parquet, Fea
 
 # Installation
 
-Awkward Array can be installed from [PyPI](https://pypi.org/project/odapt) using pip:
+odapt can be installed from [PyPI](https://pypi.org/project/odapt) using pip:
 
 ```bash
 pip install odapt
