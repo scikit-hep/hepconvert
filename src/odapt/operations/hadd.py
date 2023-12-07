@@ -358,6 +358,14 @@ def hadd_3d(destination, file, key, first, *, n_key=None):
 
 
 def tprofile_1d(destination, file, key, first, *, n_key=None):
+    """
+    Args:
+    destination (path-like): Name of the output file or file path.
+    file (ReadOnlyDirectory): ROOT file to read histogram from.
+    key (str): key to reference histogram to be added.
+    first (bool): if True, special case for first of a certain histogram
+        to be added to the new file.
+    """
     hist = file[key] if n_key is None else file[n_key]
     outfile = uproot.open(destination)
     if first:
