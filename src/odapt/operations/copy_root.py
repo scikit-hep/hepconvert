@@ -8,7 +8,6 @@ import uproot
 from odapt.operations.hadd import hadd_1d, hadd_2d, hadd_3d
 
 # ruff: noqa: B023
-# ruff: noqa: W0640
 
 
 def copy_root(

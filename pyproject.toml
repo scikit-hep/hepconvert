@@ -160,6 +160,7 @@ messages_control.disable = [
   "missing-module-docstring",
   "wrong-import-position",
   "duplicate-code",
+  "cell-var-from-loop",
 ]
 
 [project.scripts]
