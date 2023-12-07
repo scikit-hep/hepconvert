@@ -4,7 +4,7 @@ from pathlib import Path
 
 import awkward as ak
 import uproot
-from hadd import hadd_1d, hadd_2d, hadd_3d
+from odapt.operations.hadd import hadd_1d, hadd_2d, hadd_3d
 
 
 def copy_root(
@@ -27,12 +27,12 @@ def copy_root(
     """
     Args:
         destination (path-like): Name of the output file or file path.
-        files (Str or list of str): List of local ROOT files to read histograms from.
+        files (Str): Local ROOT file to copy.
             May contain glob patterns.
         drop_branches (list of strs): Names of branches to be removed from the tree.
-        branch_types (dict or pairs of str → NumPy dtype/Awkward type): Name and type specification for the TBranches.
         fieldname_separator (str): Character that separates TBranch names for columns, used
             for grouping columns (to avoid duplicate counters in ROOT file).
+        branch_types (dict or pairs of str → NumPy dtype/Awkward type): Name and type specification for the TBranches.
         field_name (callable of str → str): Function to generate TBranch names for columns
             of an Awkward record array or a Pandas DataFrame.
         initial_basket_capacity (int): Number of TBaskets that can be written to the TTree
@@ -50,7 +50,6 @@ def copy_root(
             "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".
         compression_level (int): Use a compression level particular to the chosen compressor.
             By default the compression level is 1.
-        skip_bad_files (bool): If True, skips corrupt or non-existent files without exiting.
 
     Copies contents of one ROOT to an empty file. If the file is in nanoAOD-format, ::copy_root:: can drop branches from a tree while copying. TProfile and RNTuple can not yet be copied.
 
