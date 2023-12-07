@@ -185,7 +185,7 @@ def copy_root(
             tree,
             step_size=step_size,
             how=dict,
-            filter_branch=(lambda branch: branch.name in keep_branches),  # noqa: B023
+            filter_branch=lambda b: b.name in keep_branches,  # noqa: B023 noqa: W0640
         ):
             for group in groups:
                 if (len(group)) > 1:

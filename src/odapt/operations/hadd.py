@@ -357,7 +357,7 @@ def hadd_3d(destination, file, key, first, *, n_key=None):
     ) from None
 
 
-def TProfile_1d(destination, file, key, first, *, n_key=None):
+def tprofile_1d(destination, file, key, first, *, n_key=None):
     hist = file[key] if n_key is None else file[n_key]
     outfile = uproot.open(destination)
     if first:
@@ -448,7 +448,7 @@ def TProfile_1d(destination, file, key, first, *, n_key=None):
     ) from None
 
 
-def TProfile_2d(destination, file, key, first, *, n_key=None):
+def tprofile_2d(destination, file, key, first, *, n_key=None):
     """
     Args:
     destination (path-like): Name of the output file or file path.
@@ -574,7 +574,7 @@ def TProfile_2d(destination, file, key, first, *, n_key=None):
     ) from None
 
 
-def TProfile_3d(destination, file, key, first, *, n_key=None):
+def tprofile_3d(destination, file, key, first, *, n_key=None):
     """
     Args:
     destination (path-like): Name of the output file or file path.
