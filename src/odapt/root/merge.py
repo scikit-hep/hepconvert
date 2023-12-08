@@ -29,7 +29,7 @@ def hadd_and_merge(
     """
     Args:
         destination (path-like): Name of the output file or file path.
-        files (Str or list of str): List of local ROOT files to read histograms from.
+        files (Str or list of str): List of local ROOT files to merge.
             May contain glob patterns.
         branch_types (dict or pairs of str → NumPy dtype/Awkward type): Name and type specification for the TBranches.
         fieldname_separator (str): Character that separates TBranch names for columns, used
@@ -45,11 +45,11 @@ def hadd_and_merge(
             a number followed by a memory unit, such as “100 MB”. Recommended to be >100 kB.
         force (bool): If True, overwrites destination file if it exists. Force and append
             cannot both be True.
-        append (bool): If True, appends histograms to an existing file. Force and append
+        append (bool): If True, appends data to an existing file. Force and append
             cannot both be True.
         compression (str): Sets compression level for root file to write to. Can be one of
             "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".
-        compression_level (int): Use a compression level particular to the chosen compressor..
+        compression_level (int): Use a compression level particular to the chosen compressor.
             By default the compression level is 1.
         skip_bad_files (bool): If True, skips corrupt or non-existent files without exiting.
 
@@ -111,7 +111,7 @@ def hadd_and_merge(
         files = sorted(path.glob("**/*.root"))
 
     if len(files) <= 1:
-        msg = "Only one file was input. Use root_to_root to copy a ROOT file."
+        msg = "Only one file was input. Use copy_root to copy a ROOT file."
         raise ValueError(msg) from None
 
     try:
