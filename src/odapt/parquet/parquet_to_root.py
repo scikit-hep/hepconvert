@@ -11,8 +11,6 @@ def to_root(
     file,
     *,
     name="tree",
-    # columns=None,
-    # row_groups=None, # a range or something?
     branch_types=None,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
@@ -73,6 +71,4 @@ def to_root(
     out_file[name].extend({name: chunk[name] for name in chunk.fields})
 
     for i in range(1, metadata["num_row_groups"]):
-        out_file[name].extend(
-            ak.from_parquet(file, row_groups=[i])
-        )  # Set size with extend.
+        out_file[name].extend(ak.from_parquet(file, row_groups=[i]))
