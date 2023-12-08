@@ -6,13 +6,19 @@ import awkward as ak
 import uproot
 
 
-def parquet_to_root(
+def to_root(
     destination,
     file,
     *,
     name="tree",
     # columns=None,
     # row_groups=None, # a range or something?
+    branch_types=None,
+    title="",
+    field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
+    initial_basket_capacity=10,
+    counter_name=lambda counted: "n" + counted,
+    resize_factor=10.0,
     compression="lz4",
     compression_level=1,
     force=True,
@@ -43,9 +49,6 @@ def parquet_to_root(
     path = Path(destination)
     if Path.is_file(path) and not force:
         raise FileExistsError
-
-    # Will users want to control which columns/row_groups get written?
-    # dak.from_parquet(read_path, split_row_groups=True)
     metadata = ak.metadata_from_parquet(file)
 
     out_file = uproot.recreate(
@@ -54,10 +57,19 @@ def parquet_to_root(
             compression_code, compression_level
         ),
     )
-    chunk = ak.from_parquet(file, row_groups=[0])
-    typenames = {name: chunk[name].type for name in chunk.fields}
 
-    out_file.mktree(name, typenames)
+    chunk = ak.from_parquet(file, row_groups=[0])
+    if not branch_types:
+        branch_types = {name: chunk[name].type for name in chunk.fields}
+    out_file.mktree(
+        name,
+        branch_types,
+        title=title,
+        counter_name=counter_name,
+        field_name=field_name,
+        initial_basket_capacity=initial_basket_capacity,
+        resize_factor=resize_factor,
+    )
     out_file[name].extend({name: chunk[name] for name in chunk.fields})
 
     for i in range(1, metadata["num_row_groups"]):
