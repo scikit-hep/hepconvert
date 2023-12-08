@@ -7,10 +7,10 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 from __future__ import annotations
 
-import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath("../../odapt/"))
+sys.path.insert(0, Path.resolve("../../odapt/"))
 
 project = "odapt"
 copyright = "2023, Zoë Bilodeau"

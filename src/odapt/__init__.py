@@ -7,9 +7,9 @@ from __future__ import annotations
 
 from odapt._version import __version__
 from odapt.root import (
-    hadd,
-    merge,
-    copy,
+    copy,  # noqa: F401
+    hadd,  # noqa: F401
+    merge,  # noqa: F401
 )
 
 __all__ = ["__version__"]
