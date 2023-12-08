@@ -39,7 +39,7 @@ pip install odapt
 ```python
 import odapt as od
 
-od.operations.hadd_and_merge("destination.root",
+od.root.hadd_and_merge("destination.root",
 ["file1.root", "file2.root"])
 ```
 
