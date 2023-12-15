@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import uproot
 
@@ -396,7 +398,6 @@ def hadd(
         >>> odapt.hadd("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
 
     """
-    from pathlib import Path
 
     if compression in ("ZLIB", "zlib"):
         compression_code = uproot.const.kZLIB
