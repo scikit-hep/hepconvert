@@ -1,18 +1,39 @@
 odapt package
-=============
+========================
 
-Subpackages
------------
+Submodules
+----------
 
-.. toctree::
-   :maxdepth: 4
+odapt.root.hadd module
+----------------------------
 
-   odapt.operations
+.. autoclass:: odapt.root.hadd
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+odapt.root.merge module
+-----------------------------
+
+.. autoclass:: odapt.root.merge
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
 
-.. automodule:: odapt
+.. autoclass:: odapt.root
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+odapt.parquet.parquet_to_root module
+-----------------------------------------
+
+.. autoclass:: odapt.parquet.parquet_to_root module
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

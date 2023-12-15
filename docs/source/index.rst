@@ -4,15 +4,10 @@
    contain the root `toctree` directive.
 
 .. toctree::
-    :hidden:
-
-    changelog
-
-.. toctree::
     :caption: Tutorials
     :hidden:
 
-    examples
+    intro
 
 .. include:: main.toctree
 
@@ -22,8 +17,11 @@
 
 .. include:: odapt.toctree
 
-.. include:: odapt.operations.toctree
+.. include:: odapt.root.toctree
 
+.. include:: odapt.parquet.toctree
+
+.
 Welcome to odapt's documentation!
 =================================
 
@@ -47,11 +45,8 @@ Limitations:
 ************
 Currently works best with data in nanoAOD formats. Will expand at user request.
 
-odapt.operations
+.. Indices and tables
+.. ==================
 
-
-Indices and tables
-==================
-
-* :ref:`modindex`
-* :ref:`search`
+.. * :ref:`modindex`
+.. * :ref:`search`
