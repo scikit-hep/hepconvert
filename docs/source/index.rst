@@ -4,15 +4,10 @@
    contain the root `toctree` directive.
 
 .. toctree::
-    :hidden:
-
-    changelog
-
-.. toctree::
     :caption: Tutorials
     :hidden:
 
-    examples
+    intro
 
 .. include:: main.toctree
 
@@ -22,10 +17,15 @@
 
 .. include:: odapt.toctree
 
-.. include:: odapt.operations.toctree
+.. include:: odapt.root.toctree
 
+.. include:: odapt.parquet.toctree
+
+.
 Welcome to odapt's documentation!
 =================================
+
+``odapt`` is an easy-to-use file converter tool for columnar file formats like ROOT, Parquet, Feather, and HDF5. This is a user-request driven package, feature requests, feedback,
 
 How to install
 ==============
@@ -37,11 +37,6 @@ odapt can be installed `from PyPI <https://pypi.org/project/odapt>`__ using pip.
 
 odapt is not yet available using conda.
 
-Introduction
-============
-
-``odapt`` is an easy-to-use file converter tool for columnar file formats like ROOT, Parquet, Feather, and HDF5. This is a user-request driven package, feature requests, feedback,
-
 Motivation
 **********
 The goal of this package is to simplify the process of converting large files between common columnar file formats while maintaining the correct structure.
@@ -50,11 +45,8 @@ Limitations:
 ************
 Currently works best with data in nanoAOD formats. Will expand at user request.
 
-odapt.operations
+.. Indices and tables
+.. ==================
 
-
-Indices and tables
-==================
-
-* :ref:`modindex`
-* :ref:`search`
+.. * :ref:`modindex`
+.. * :ref:`search`
