@@ -39,8 +39,15 @@ pip install odapt
 ```python
 import odapt as od
 
+# To merge two or more root files with TTrees, and add together any histograms:
 od.root.hadd_and_merge("destination.root",
-["file1.root", "file2.root"])
+["ttree_file1.root", "ttree_file2.root"])
+
+
+# To add merge files with only histograms:
+od.root.hadd("destination.root",
+["hist_file1.root", "hist_file2.root"])
+
 ```
 
 
