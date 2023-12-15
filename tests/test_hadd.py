@@ -111,7 +111,7 @@ def test_simple(tmp_path, file_paths):
 
     path = Path(tmp_path)
     destination = path / "destination.root"
-    od.operations.hadd(destination, file_paths, force=True)
+    od.root.hadd(destination, file_paths, force=True)
 
     with uproot.open(destination) as file:
         added = uproot.from_pyroot(
@@ -192,7 +192,7 @@ def mult_1D(tmp_path, file_paths):
 
     path = Path(tmp_path)
     destination = path / "destination.root"
-    od.operations.hadd(destination, file_paths, force=True, same_names=False)
+    od.root.hadd(destination, file_paths, force=True, same_names=False)
 
     with uproot.open(destination) as file:
         added = uproot.from_pyroot(
@@ -218,7 +218,7 @@ def mult_1D(tmp_path, file_paths):
 def test_3_glob(file_paths):
     h1, h2, h3 = generate_1D_gaussian(file_paths)
 
-    od.operations.hadd("tests/place.root", "tests/samples", force=True)
+    od.root.hadd("tests/place.root", "tests/samples", force=True)
 
     with uproot.open("tests/place.root") as file:
         assert file["name"].member("fN") == h1.member("fN")
@@ -235,7 +235,7 @@ def test_3_glob(file_paths):
 
 def simple_1dim_F():
     h1, h2 = generate_1D_simple()
-    od.operations.hadd(
+    od.root.hadd(
         "tests/place2.root",
         ["tests/file1dim1.root", "tests/file2dim1.root"],
         force=True,
@@ -355,7 +355,7 @@ def mult_2D_hists():
     outHistFile.Close()
     h4 = uproot.from_pyroot(h4)
 
-    od.operations.hadd(
+    od.root.hadd(
         "tests/place2.root",
         ["tests/file3dim2.root", "tests/file4dim2.root"],
         force=True,
@@ -445,7 +445,7 @@ def simple_2dim_F():
 
     h2 = uproot.from_pyroot(h2)
 
-    od.operations.hadd(
+    od.root.hadd(
         "tests/place2.root",
         ["tests/file1dim2.root", "tests/file2dim2.root"],
         force=True,
@@ -521,7 +521,7 @@ def simple_2D():
     outHistFile.Close()
     h1 = uproot.from_pyroot(h1)
 
-    od.operations.hadd(
+    od.root.hadd(
         "tests/place2.root",
         ["tests/file1dim2.root", "tests/file2dim2.root"],
         force=True,
@@ -578,7 +578,7 @@ def break_bins():
     outHistFile.Close()
     h2 = uproot.from_pyroot(h2)
 
-    od.operations.hadd(
+    od.root.hadd(
         "tests/place2break.root",
         ["tests/file1dim1break.root", "tests/file2dim1break.root"],
         force=True,
