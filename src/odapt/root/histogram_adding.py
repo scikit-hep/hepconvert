@@ -356,6 +356,7 @@ def hadd_3d(destination, file, key, first, *, n_key=None):
         outfile[key].member("fN"),
     ) from None
 
+
 def hadd(
     destination,
     files,
@@ -396,7 +397,7 @@ def hadd(
 
     """
     from pathlib import Path
-    
+
     if compression in ("ZLIB", "zlib"):
         compression_code = uproot.const.kZLIB
     elif compression in ("LZMA", "lzma"):
@@ -516,70 +517,6 @@ def hadd(
 
         first = False
         file.close()
-
-
-def main():
-    """
-    Implementation of cmd-line executables.
-    """
-    argparser = argparse.ArgumentParser(description="Hadd ROOT histograms with Uproot")
-    argparser.add_argument("destination", type=str, help="path of output file")
-    argparser.add_argument(
-        "input_files",
-        type=str,
-        nargs="+",
-        help="list or directory (glob syntax accepted) of input files",
-    )
-    argparser.add_argument(
-        "-f",
-        "--force",
-        action="store_true",
-        default=True,
-        help="force overwrite of output file",
-    )
-    argparser.add_argument(
-        "-a", "--append", action="store", default=False, help="append to existing file"
-    )
-    argparser.add_argument(
-        "-c",
-        "--compression",
-        action="store",
-        default="lz4",
-        help="set compression level between 1-9",
-    )
-    argparser.add_argument(
-        "-c[0-9]",
-        "--compression_level",
-        action="store",
-        default=1,
-        help="set compression level between 1-9",
-    )
-    argparser.add_argument(
-        "-k",
-        "--skip_bad_files",
-        action="store",
-        default=False,
-        help="corrupt or non-existent input files are ignored",
-    )
-    argparser.add_argument(
-        "-u",
-        action="union",
-        default=True,
-        help="all histograms get copied to new file, only those with same name get added",
-    )
-
-    args = argparser.parse_args()
-
-    hadd(
-        args.destination,
-        args.input_file,
-        force=args.force,
-        append=args.append,
-        compression=args.compression,
-        compression_level=args.compression_level,
-        skip_bad_files=args.skip_bad_files,
-        union=args.union,
-    )
 
 
 def tprofile_1d(destination, file, key, first, *, n_key=None):
