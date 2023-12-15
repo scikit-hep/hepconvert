@@ -11,7 +11,7 @@ from odapt.parquet import (
 )
 from odapt.root import (
     copy,  # noqa: F401
-    hadd,  # noqa: F401
+    histogram_adding,  # noqa: F401
     merge,  # noqa: F401
 )
 
