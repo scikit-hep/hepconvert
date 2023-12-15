@@ -7,10 +7,10 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 import os
-sys.path.insert(0, os.path.abspath("../../odapt/")) # noqa
+import sys
+
+sys.path.insert(0, os.path.abspath("../../odapt/"))  # noqa: PTH100
 
 project = "odapt"
 copyright = "2023, Zoë Bilodeau"
@@ -35,5 +35,5 @@ html_static_path = ["_static"]
 # Additional stuff
 master_doc = "index"
 
-exec(open("prepare_docstrings.py").read(), dict(globals()))
-exec(open("make_changelog.py").read(), dict(globals()))
+exec(open("prepare_docstrings.py").read(), dict(globals()))  # noqa: PTH123, SIM115
+exec(open("make_changelog.py").read(), dict(globals()))  # noqa: PTH123, SIM115

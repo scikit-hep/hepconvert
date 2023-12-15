@@ -36,4 +36,3 @@ odapt.parquet.parquet_to_root module
    :members:
    :undoc-members:
    :show-inheritance:
-
