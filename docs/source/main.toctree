@@ -1,0 +1,11 @@
+.. toctree::
+    :caption: Main Interface
+    :hidden:
+
+    odapt.parquet.to_root
+    odapt.root.copy_root
+    odapt.root.hadd_and_merge
+    odapt.root.hadd
+    odapt.root.hadd_1d
+    odapt.root.hadd_2d
+    odapt.root.hadd_3d

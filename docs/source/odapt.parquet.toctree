@@ -1,0 +1,7 @@
+.. toctree::
+    :caption: parquet
+    :hidden:
+
+    odapt.parquet (module) <odapt.parquet>
+    odapt.parquet.parquet_to_root (module) <odapt.parquet.parquet_to_root>
+    odapt.parquet.parquet_to_root.to_root

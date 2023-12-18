@@ -1,0 +1,16 @@
+.. toctree::
+    :caption: root
+    :hidden:
+
+    odapt.root (module) <odapt.root>
+    odapt.root.copy (module) <odapt.root.copy>
+    odapt.root.copy.copy_root
+    odapt.root.hadd (module) <odapt.root.hadd>
+    odapt.root.hadd.hadd_1d
+    odapt.root.hadd.hadd_2d
+    odapt.root.hadd.hadd_3d
+    odapt.root.hadd.tprofile_1d
+    odapt.root.hadd.tprofile_2d
+    odapt.root.hadd.tprofile_3d
+    odapt.root.merge (module) <odapt.root.merge>
+    odapt.root.merge.hadd_and_merge
