@@ -7,10 +7,11 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 import os
-sys.path.insert(0, os.path.abspath("../../odapt/")) # noqa
+import sys
+
+sys.path.insert(0, os.path.abspath("../../odapt/"))  # noqa: PTH100
+
 
 project = "odapt"
 copyright = "2023, Zoë Bilodeau"
