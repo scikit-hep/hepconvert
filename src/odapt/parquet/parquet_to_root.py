@@ -21,17 +21,25 @@ def to_root(
     compression_level=1,
     force=True,
 ):
-    """_summary_
+    """
+    :param destination: Name of the output file or file path.
+    :type destination: path-like
+    :param file: Local parquet file to convert.
+    :type file: path-like
+    :param name: Name of tree to write to ROOT file (this will be the key to access
+        the tree in the ROOT file). Defaults to "tree".
+    :type name: str, optional
+    :param compression: Sets compression level for root file to write to. Can be one of
+        "ZLIB", "LZMA", "LZ4", or "ZSTD". Defaults to "lz4".
+    :type compression: str, optional
+    :param compression_level: Use a compression level particular to the chosen compressor. Defaults to 1.
+    :type compression_level: int, optional
+    :param force: If True, overwrites destination file if it exists.
+    :type force: boolean, optional
 
-    Args:
-        destination (path-like): Name of the output file or file path.
-        file (path-like): Local parquet file to convert.
-        name (str, optional): Name of tree to write to ROOT file (this will be the key to access
-            the tree in the ROOT file). Defaults to "tree".
-        compression (str, optional): Sets compression level for root file to write to. Can be one of
-            "ZLIB", "LZMA", "LZ4", or "ZSTD". Defaults to "lz4".
-        compression_level (int, optional): Use a compression level particular to the chosen compressor. Defaults to 1.
-        force (boolean, optional): If True, overwrites destination file if it exists.
+    Converts a Parquet file into 
+    .. code-block:: python
+
     """
     if compression in ("LZMA", "lzma"):
         compression_code = uproot.const.kLZMA
