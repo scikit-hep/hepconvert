@@ -37,7 +37,7 @@ def to_root(
     :param force: If True, overwrites destination file if it exists.
     :type force: boolean, optional
 
-    Converts a Parquet file into 
+    Converts a Parquet file into
     .. code-block:: python
 
     """

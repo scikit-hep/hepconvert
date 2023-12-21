@@ -1,3 +1,4 @@
+from __future__ import annotations
 
 import importlib
 import inspect
@@ -22,7 +23,6 @@ common = [
     "odapt.root.hadd_1d",
     "odapt.root.hadd_2d",
     "odapt.root.hadd_3d",
-
 ]
 
 latest_commit = (
@@ -80,7 +80,8 @@ def handle_module(modulename, module):
         toctree2.write("    " + modulename + " (module) <" + modulename + ">\n")
 
     if modulename != "odapt" and all(
-        not x.startswith("test") and not x.startswith("_") for x in modulename.split(".")
+        not x.startswith("test") and not x.startswith("_")
+        for x in modulename.split(".")
     ):
 
         def good(obj):
@@ -142,7 +143,11 @@ def handle_class(classname, cls):
                 return False
 
             for name, obj in inspect.getmembers(basecls, good):
-                if name in basecls.__dict__ and not name.startswith("_") and not name.startswith("test"):
+                if (
+                    name in basecls.__dict__
+                    and not name.startswith("_")
+                    and not name.startswith("test")
+                ):
                     fill = []
                     fill.append(".. _" + classname + "." + name + ":" + "\n")
                     fill.append(name)
@@ -188,7 +193,7 @@ def handle_class(classname, cls):
     inheritance_sep = ""
     inheritance = [prettymro(c) for c in cls.__mro__[1:] if c is not object]
     if len(inheritance) > 0:
-        longest_cell = max(max(len(x) for x in inheritance), 22)
+        longest_cell = max(*(len(x) for x in inheritance), 22)
         inheritance_header = """.. table::
     :class: note
 
@@ -248,8 +253,10 @@ def handle_function(functionname, cls):
     link = "`{} <https://github.com/zbilodea/odapt/blob/{}/src/{}>`__".format(
         cls.__module__, latest_commit, shortfilename
     )
-    linelink = "`line {0} <https://github.com/zbilodea/odapt/blob/{1}/src/{2}#L{0}>`__".format(
-        inspect.getsourcelines(cls)[1], latest_commit, shortfilename
+    linelink = (
+        "`line {0} <https://github.com/zbilodea/odapt/blob/{1}/src/{2}#L{0}>`__".format(
+            inspect.getsourcelines(cls)[1], latest_commit, shortfilename
+        )
     )
 
     content = """{}

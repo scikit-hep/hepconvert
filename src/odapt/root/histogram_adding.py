@@ -412,7 +412,7 @@ def hadd(
 
     Adds together histograms from local ROOT files of a collection of ROOT files, and writes them to
         a new or existing ROOT file.
-        
+
     .. code-block:: python
         >>> odapt.hadd("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
 
