@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from odapt._version import __version__
 
-import odapt.histogram_adding  # noqa: F401
 from odapt.histogram_adding import hadd  # noqa: F401
 from odapt.merge import hadd_and_merge  # noqa: F401
 from odapt.copy_root import copy_root  # noqa: F401
