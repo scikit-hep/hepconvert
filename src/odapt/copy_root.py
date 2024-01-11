@@ -5,7 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-from odapt.root.histogram_adding import hadd_1d, hadd_2d, hadd_3d
+from odapt.histogram_adding import hadd_1d, hadd_2d, hadd_3d
 
 # ruff: noqa: B023
 
@@ -64,14 +64,13 @@ def copy_root(
     :type compression_level: int
 
 
-
+    Examples:
+    ---------
     Copies contents of one ROOT to an empty file. If the file is in nanoAOD-format, ``copy_root`` can drop branches from a tree while copying. TProfile and RNTuple can not yet be copied.
-    .. code-block:: python
 
         >>> odapt.copy_root("copied_file.root", "original_file.root")
 
     To copy a file and drop branches with names "branch1" and "branch2":
-    .. code-block:: python
 
         >>> odapt.copy_root("copied_file.root", "original_file.root", drop_branches=["branch1", "branch2"])
 
@@ -152,7 +151,7 @@ def copy_root(
     try:
         f = uproot.open(file)
     except FileNotFoundError:
-        msg = "File: {files[0]} does not exist or is corrupt."
+        msg = "File: ", file, " does not exist or is corrupt."
         raise FileNotFoundError(msg) from None
 
     hist_keys = f.keys(

@@ -9,10 +9,6 @@
     :caption: Modules
     :hidden:
 
-.. include:: odapt.root.toctree
-
-.. include:: odapt.parquet.toctree
-
 
 Welcome to odapt's documentation!
 =================================

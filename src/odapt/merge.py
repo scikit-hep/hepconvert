@@ -5,7 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-from odapt.root.histogram_adding import hadd_1d, hadd_2d, hadd_3d
+from odapt.histogram_adding import hadd_1d, hadd_2d, hadd_3d
 
 
 def hadd_and_merge(
@@ -26,7 +26,8 @@ def hadd_and_merge(
     compression_level=1,
     skip_bad_files=False,
 ):
-    """
+    """Merges TTrees together, and adds values in histograms from local ROOT files, and writes them to a new ROOT file.
+
     :param destination: Name of the output file or file path.
     :type destination: path-like
     :param files: List of local ROOT files to merge.
@@ -65,10 +66,8 @@ def hadd_and_merge(
     :param skip_bad_files: If True, skips corrupt or non-existent files without exiting.
     :type skip_bad_files: bool
 
-    Merges TTrees together, and adds values in histograms from local ROOT files, and writes
-        them to a new ROOT file.
-
-    .. code-block:: python
+    Example:
+    --------
         >>> odapt.hadd_and_merge("destination.root", ["file1.root", "file2.root"])
 
     """

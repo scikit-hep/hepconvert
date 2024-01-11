@@ -2,10 +2,7 @@
     :caption: Main Interface
     :hidden:
 
-    odapt.parquet.to_root
-    odapt.root.copy_root
-    odapt.root.hadd_and_merge
-    odapt.root.hadd
-    odapt.root.hadd_1d
-    odapt.root.hadd_2d
-    odapt.root.hadd_3d
+    odapt.parquet_to_root.parquet_to_root
+    odapt.copy_root.copy_root
+    odapt.merge.hadd_and_merge
+    odapt.histogram_adding.hadd

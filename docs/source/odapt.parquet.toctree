@@ -1,5 +1,0 @@
-.. toctree::
-    :caption: parquet
-    :hidden:
-
-    odapt.parquet.to_root

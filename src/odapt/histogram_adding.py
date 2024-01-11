@@ -7,8 +7,8 @@ import uproot
 
 
 def hadd_1d(destination, file, key, first, *, n_key=None):
-    """
-    Args:
+    """Supporting function for hadd.
+
     :param destination: Name of the output file or file path.
     :type destination: path-like
     :param file: ROOT file to read histogram from.
@@ -101,8 +101,8 @@ def hadd_1d(destination, file, key, first, *, n_key=None):
 
 
 def hadd_2d(destination, file, key, first, *, n_key=None):
-    """
-    Args:
+    """Supporting function for hadd.
+
     :param destination: Name of the output file or file path.
     :type destination: path-like
     :param file: ROOT file to read histogram from.
@@ -221,8 +221,8 @@ def hadd_2d(destination, file, key, first, *, n_key=None):
 
 
 def hadd_3d(destination, file, key, first, *, n_key=None):
-    """
-    Args:
+    """Supporting function for hadd.
+
     :param destination: Name of the output file or file path.
     :type destination: path-like
     :param file: ROOT file to read histogram from.
@@ -383,7 +383,8 @@ def hadd(
     union=True,
     same_names=False,
 ):
-    """
+    """Adds together histograms from local ROOT files of a collection of ROOT files, and writes them to a new or existing ROOT file.
+
     :param destination: Name of the output file or file path.
     :type destination: path-like
     :param files: List of local ROOT files to read histograms from.
@@ -410,10 +411,8 @@ def hadd(
         histograms are added together based on TTree structure (bins must be equal). Defaults to True.
     :type same_names: bool, optional
 
-    Adds together histograms from local ROOT files of a collection of ROOT files, and writes them to
-        a new or existing ROOT file.
-
-    .. code-block:: python
+    Example:
+    --------
         >>> odapt.hadd("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
 
     """

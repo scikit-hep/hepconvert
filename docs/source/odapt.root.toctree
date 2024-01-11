@@ -1,7 +1,0 @@
-.. toctree::
-    :caption: root
-    :hidden:
-
-    odapt.root.copy.copy_root
-    odapt.root.histogram_adding.hadd
-    odapt.root.merge.hadd_and_merge

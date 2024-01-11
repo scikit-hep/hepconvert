@@ -6,7 +6,7 @@ import awkward as ak
 import uproot
 
 
-def to_root(
+def parquet_to_root(
     destination,
     file,
     *,
@@ -21,7 +21,8 @@ def to_root(
     compression_level=1,
     force=True,
 ):
-    """
+    """Converts a Parquet file into a ROOT file. Data is stored in one TTree, which has a name defined by argument ``name``.
+
     :param destination: Name of the output file or file path.
     :type destination: path-like
     :param file: Local parquet file to convert.
@@ -37,8 +38,11 @@ def to_root(
     :param force: If True, overwrites destination file if it exists.
     :type force: boolean, optional
 
-    Converts a Parquet file into
-    .. code-block:: python
+    Example:
+    --------
+        >>> od.parquet_to_root("file.root", "file.parquet", name="tree")
+        >>> f = uproot.open("file.root")
+        >>> data = f["tree"]
 
     """
     if compression in ("LZMA", "lzma"):
