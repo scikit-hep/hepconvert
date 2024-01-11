@@ -36,9 +36,3 @@ write code, and work through bugs that may come up in this sometimes finicky pro
 Limitations:
 ************
 Currently works best with data in nanoAOD-like formats.
-
-.. Indices and tables
-.. ==================
-
-.. * :ref:`modindex`
-.. * :ref:`search`
