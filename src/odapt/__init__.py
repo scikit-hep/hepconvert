@@ -6,11 +6,7 @@ odapt: File conversion package.
 from __future__ import annotations
 
 from odapt._version import __version__
-from odapt import (
-    copy_root,
-    histogram_adding,  # noqa: F401
-    merge,  # noqa: F401,  # noqa: F401
-)
+
 import odapt.histogram_adding  # noqa: F401
 from odapt.histogram_adding import hadd  # noqa: F401
 from odapt.merge import hadd_and_merge  # noqa: F401
