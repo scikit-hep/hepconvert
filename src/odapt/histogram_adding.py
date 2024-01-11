@@ -7,13 +7,17 @@ import uproot
 
 
 def hadd_1d(destination, file, key, first, *, n_key=None):
-    """
-    Args:
-    destination (path-like): Name of the output file or file path.
-    file (ReadOnlyDirectory): ROOT file to read histogram from.
-    key (str): key to reference histogram to be added.
-    first (bool): if True, special case for first of a certain histogram
+    """Supporting function for hadd.
+
+    :param destination: Name of the output file or file path.
+    :type destination: path-like
+    :param file: ROOT file to read histogram from.
+    :type file: path-like
+    :param key: key to reference histogram to be added.
+    :type key: str
+    :param first: if True, special case for first of a certain histogram
         to be added to the new file.
+    :type first: bool
     """
     try:
         hist = file[key] if n_key is None else file[n_key]
@@ -97,13 +101,17 @@ def hadd_1d(destination, file, key, first, *, n_key=None):
 
 
 def hadd_2d(destination, file, key, first, *, n_key=None):
-    """
-    Args:
-    destination (path-like): Name of the output file or file path.
-    file (ReadOnlyDirectory): ROOT file to read histogram from.
-    key (str): key to reference histogram to be added.
-    first (bool): if True, special case for first of a certain histogram
+    """Supporting function for hadd.
+
+    :param destination: Name of the output file or file path.
+    :type destination: path-like
+    :param file: ROOT file to read histogram from.
+    :type file: path-like
+    :param key: key to reference histogram to be added.
+    :type key: str
+    :param first: if True, special case for first of a certain histogram
         to be added to the new file.
+    :type first: bool
     """
     try:
         hist = file[key] if n_key is None else file[n_key]
@@ -213,13 +221,17 @@ def hadd_2d(destination, file, key, first, *, n_key=None):
 
 
 def hadd_3d(destination, file, key, first, *, n_key=None):
-    """
-    Args:
-    destination (path-like): Name of the output file or file path.
-    file (ReadOnlyDirectory): ROOT file to read histogram from.
-    key (str): key to reference histogram to be added.
-    first (bool): if True, special case for first of a certain histogram
+    """Supporting function for hadd.
+
+    :param destination: Name of the output file or file path.
+    :type destination: path-like
+    :param file: ROOT file to read histogram from.
+    :type file: path-like
+    :param key: key to reference histogram to be added.
+    :type key: str
+    :param first: if True, special case for first of a certain histogram
         to be added to the new file.
+    :type first: bool
     """
     try:
         hist = file[key] if n_key is None else file[n_key]
@@ -371,30 +383,36 @@ def hadd(
     union=True,
     same_names=False,
 ):
-    """
-    Args:
-        destination (path-like): Name of the output file or file path.
-        files (Str or list of str): List of local ROOT files to read histograms from.
-            May contain glob patterns.
-        force (bool): If True, overwrites destination file if it exists. Force and append
-            cannot both be True.
-        append (bool): If True, appends histograms to an existing file. Force and append
-            cannot both be True.
-        compression (str): Sets compression level for root file to write to. Can be one of
-            "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".
-        compression_level (int): Use a compression level particular to the chosen compressor.
-            By default the compression level is 1.
-        skip_bad_files (bool): If True, skips corrupt or non-existent files without exiting.
-        max_opened_files (int): Limits the number of files to be open at the same time. If 0,
-            this gets set to system limit.
-        union (bool): If True, adds the histograms that have the same name and copies all others
-            to the new file.
-        same_names (bool): If True, only adds together histograms which have the same name (key). If False,
-            histograms are added together based on TTree structure (bins must be equal).
+    """Adds together histograms from local ROOT files of a collection of ROOT files, and writes them to a new or existing ROOT file.
 
-    Adds together histograms from local ROOT files of a collection of ROOT files, and writes them to
-        a new or existing ROOT file.
+    :param destination: Name of the output file or file path.
+    :type destination: path-like
+    :param files: List of local ROOT files to read histograms from.
+        May contain glob patterns.
+    :type files: str or list of str
+    :param force: If True, overwrites destination file if it exists. Force and append
+        cannot both be True. Defaults to True.
+    :type force: bool, optional
+    :param append: If True, appends histograms to an existing file. Force and append
+        cannot both be True. Defaults to False.
+    :type append: bool, optional
+    :param compression: Sets compression level for root file to write to. Can be one of
+        "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".
+    :type compression: path-like, optional
+    :param compression_level: Use a compression level particular to the chosen compressor.
+        By default the compression level is 1.
+    :type compression: int
+    :param skip_bad_files: If True, skips corrupt or non-existent files without exiting.
+    :type skip_bad_files: bool, optional
+    :param union: If True, adds the histograms that have the same name and copies all others
+        to the new file. Defaults to True.
+    :type union: bool, optional
+    :param same_names: If True, only adds together histograms which have the same name (key). If False,
+        histograms are added together based on TTree structure (bins must be equal). Defaults to True.
+    :type same_names: bool, optional
 
+    Example:
+    --------
         >>> odapt.hadd("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
 
     """
@@ -523,11 +541,15 @@ def hadd(
 def tprofile_1d(destination, file, key, first, *, n_key=None):
     """
     Args:
-    destination (path-like): Name of the output file or file path.
-    file (ReadOnlyDirectory): ROOT file to read histogram from.
-    key (str): key to reference histogram to be added.
-    first (bool): if True, special case for first of a certain histogram
+    :param destination: Name of the output file or file path.
+    :type destination: path-like
+    :param file: ROOT file to read histogram from.
+    :type file: ReadOnlyDirectory
+    :key: key to reference histogram to be added.
+    :type key: str
+    :param first: if True, special case for first of a certain histogram
         to be added to the new file.
+    :type first: str
     """
     hist = file[key] if n_key is None else file[n_key]
     outfile = uproot.open(destination)
@@ -622,11 +644,15 @@ def tprofile_1d(destination, file, key, first, *, n_key=None):
 def tprofile_2d(destination, file, key, first, *, n_key=None):
     """
     Args:
-    destination (path-like): Name of the output file or file path.
-    file (ReadOnlyDirectory): ROOT file to read histogram from.
-    key (str): key to reference histogram to be added.
-    first (bool): if True, special case for first of a certain histogram
+    :param destination: Name of the output file or file path.
+    :type destination: path-like
+    :param file: ROOT file to read histogram from.
+    :type file: ReadOnlyDirectory
+    :key: key to reference histogram to be added.
+    :type key: str
+    :param first: if True, special case for first of a certain histogram
         to be added to the new file.
+    :type first: str
     """
     outfile = uproot.open(destination)
     hist = file[key] if n_key is None else file[n_key]
@@ -748,11 +774,15 @@ def tprofile_2d(destination, file, key, first, *, n_key=None):
 def tprofile_3d(destination, file, key, first, *, n_key=None):
     """
     Args:
-    destination (path-like): Name of the output file or file path.
-    file (ReadOnlyDirectory): ROOT file to read histogram from.
-    key (str): key to reference histogram to be added.
-    first (bool): if True, special case for first of a certain histogram
+    :param destination: Name of the output file or file path.
+    :type destination: path-like
+    :param file: ROOT file to read histogram from.
+    :type file: ReadOnlyDirectory
+    :key: key to reference histogram to be added.
+    :type key: str
+    :param first: if True, special case for first of a certain histogram
         to be added to the new file.
+    :type first: str
     """
     outfile = uproot.open(destination)
     hist = file[key] if n_key is None else file[n_key]

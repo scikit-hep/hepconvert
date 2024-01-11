@@ -137,7 +137,10 @@ unfixable = [
   "T20",  # Removes print statements
   "F841", # Removes unused variables
 ]
-exclude = []
+exclude = [
+  "tests/*.py",
+  "src/odapt/__init__.py",
+  "docs/*.py"]
 flake8-unused-arguments.ignore-variadic-names = true
 isort.required-imports = ["from __future__ import annotations"]
 # Uncomment if using a _compat.typing backport

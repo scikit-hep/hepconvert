@@ -3,29 +3,20 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. toctree::
-    :caption: Tutorials
-    :hidden:
-
-    intro
-
 .. include:: main.toctree
 
 .. toctree::
     :caption: Modules
     :hidden:
 
-.. include:: odapt.toctree
 
-.. include:: odapt.root.toctree
-
-.. include:: odapt.parquet.toctree
-
-.
 Welcome to odapt's documentation!
 =================================
 
-``odapt`` is an easy-to-use file converter tool for columnar file formats like ROOT, Parquet, Feather, and HDF5. This is a user-request driven package, feature requests, feedback,
+``odapt`` is an easy-to-use converter tool for columnar file formats ROOT, Parquet, Feather, and HDF5.
+This package aims to allow users to higher control of file conversions (memory management, compression settings, etc.)
+all from one function call. We are adding new features at user request, so please share your ideas on our
+`github page <https://github.com/zbilodea/odapt/discussions/categories/ideas>`__!
 
 How to install
 ==============
@@ -39,11 +30,12 @@ odapt is not yet available using conda.
 
 Motivation
 **********
-The goal of this package is to simplify the process of converting large files between common columnar file formats while maintaining the correct structure.
+Many users are all writing similar blocks of code each time they need to convert columnar files. It takes time to learn how to use different I/O packages,
+write code, and work through bugs that may come up in this sometimes finicky process. ``odapt`` allows users to find and call just one function.
 
 Limitations:
 ************
-Currently works best with data in nanoAOD formats. Will expand at user request.
+Currently works best with data in nanoAOD-like formats.
 
 .. Indices and tables
 .. ==================

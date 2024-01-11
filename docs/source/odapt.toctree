@@ -1,0 +1,5 @@
+.. toctree::
+    :caption: Detailed Reference
+    :hidden:
+
+    odapt (module) <odapt>

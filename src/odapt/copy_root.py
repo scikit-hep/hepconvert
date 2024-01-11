@@ -5,7 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-from odapt.root.histogram_adding import hadd_1d, hadd_2d, hadd_3d
+from odapt.histogram_adding import hadd_1d, hadd_2d, hadd_3d
 
 # ruff: noqa: B023
 
@@ -28,33 +28,45 @@ def copy_root(
     compression_level=1,
 ):
     """
-    Args:
-        destination (path-like): Name of the output file or file path.
-        files (Str): Local ROOT file to copy.
-            May contain glob patterns.
-        drop_branches (list of strs): Names of branches to be removed from the tree.
-        fieldname_separator (str): Character that separates TBranch names for columns, used
-            for grouping columns (to avoid duplicate counters in ROOT file).
-        branch_types (dict or pairs of str → NumPy dtype/Awkward type): Name and type specification for the TBranches.
-        field_name (callable of str → str): Function to generate TBranch names for columns
-            of an Awkward record array or a Pandas DataFrame.
-        initial_basket_capacity (int): Number of TBaskets that can be written to the TTree
-            without rewriting the TTree metadata to make room.
-        resize_factor (float): When the TTree metadata needs to be rewritten, this specifies how
-            many more TBasket slots to allocate as a multiplicative factor.
-        step_size (int or str): If an integer, the maximum number of entries to include in each
-            iteration step; if a string, the maximum memory size to include. The string must be
-            a number followed by a memory unit, such as “100 MB”. Recommended to be >100 kB.
-        force (bool): If True, overwrites destination file if it exists. Force and append
-            cannot both be True.
-        append (bool): If True, appends histograms to an existing file. Force and append
-            cannot both be True.
-        compression (str): Sets compression level for root file to write to. Can be one of
-            "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".
-        compression_level (int): Use a compression level particular to the chosen compressor.
-            By default the compression level is 1.
+    :param destination: Name of the output file or file path.
+    :type destination: path-like
+    :param files: Local ROOT file to copy. May contain glob patterns.
+    :type files: str
+    :param drop_branches: To remove branches from a tree, pass a list of names of branches to remove.
+        Defaults to None.
+    :type drop_branches: list of str, optional
+    :param fieldname_separator: If data includes jagged arrays, pass the character that separates
+        TBranch names for columns, used for grouping columns (to avoid duplicate counters in ROOT file). Defaults to "_".
+    :type fieldname_separator: str, optional
+    :param branch_types: Name and type specification for the TBranches. Defaults to None.
+    :type branch_types: dict or pairs of str → NumPy dtype/Awkward type, optional
+    :param title: to change the title of the ttree, pass a new name. Defaults to None.
+    :type title: str, optional
+    :param field_name: Function to generate TBranch names for columns of an Awkward record array or a
+        Pandas DataFrame. Defaults to ``lambda outer, inner: inner if outer == "" else outer + "_" +
+        inner``.
+    :type field_name: callable of str → str, optional
+    :param initial_basket_capacity: Number of TBaskets that can be written to the TTree without
+        rewriting the TTree metadata to make room. Defaults to 10.
+    :type initial_basket_capacity: int, optional
+    :param resize_factor: When the TTree metadata needs to be rewritten, this specifies how many more
+        TBasket slots to allocate as a multiplicative factor. Defaults to 10.0.
+    :type resize_factor: float, optional.
+    :param counter_name: Function to generate counter-TBranch names for Awkward Arrays of variable-length
+        lists. Defaults to ``lambda counted: "n" + counted``.
+    :type counter_name: callable of str \u2192 str, optional
+    :param step_size: If an integer, the maximum number of entries to include in each iteration step; if
+        a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”. Defaults to \100.
+    :type step_size: int or str, optional
+    :param compression: Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". Defaults to "LZ4".
+    :type compression: str
+    :param compression_level: Use a compression level particular to the chosen compressor. Defaults to 1.
+    :type compression_level: int
 
-    Copies contents of one ROOT to an empty file. If the file is in nanoAOD-format, ::copy_root:: can drop branches from a tree while copying. TProfile and RNTuple can not yet be copied.
+
+    Examples:
+    ---------
+    Copies contents of one ROOT to an empty file. If the file is in nanoAOD-format, ``copy_root`` can drop branches from a tree while copying. TProfile and RNTuple can not yet be copied.
 
         >>> odapt.copy_root("copied_file.root", "original_file.root")
 
@@ -62,7 +74,50 @@ def copy_root(
 
         >>> odapt.copy_root("copied_file.root", "original_file.root", drop_branches=["branch1", "branch2"])
 
+
     """
+
+    # """
+    # Args:
+    #     destination (path-like): Name of the output file or file path.
+    #     files (Str): Local ROOT file to copy. May contain glob patterns.
+    #     drop_branches (list of strs): Names of branches to be removed from
+    #         the tree.
+    #     fieldname_separator (str): Character that separates TBranch names for
+    #         columns, used for grouping columns (to avoid duplicate counters in ROOT file).
+    #     branch_types (dict or pairs of str → NumPy dtype/Awkward type):
+    #         Name and type specification for the TBranches.
+    #     field_name (callable of str → str): Function to generate TBranch names
+    #         for columns of an Awkward record array or a Pandas DataFrame.
+    #     initial_basket_capacity (int): Number of TBaskets that can be written
+    #         to the TTree without rewriting the TTree metadata to make room.
+    #     resize_factor (float): When the TTree metadata needs to be rewritten,
+    #         this specifies how many more TBasket slots to allocate as a multiplicative
+    #         factor.
+    #     step_size (int or str): If an integer, the maximum number of entries to include
+    #         in each iteration step; if a string, the maximum memory size to include. The
+    #         string must be a number followed by a memory unit, such as “100 MB”.
+    #         Recommended to be >100 kB.
+    #     force (bool): If True, overwrites destination file if it exists. Force and append
+    #         cannot both be True.
+    #     append (bool): If True, appends histograms to an existing file. Force and append
+    #         cannot both be True.
+    #     compression (str): Sets compression level for root file to write to. Can be one of
+    #         "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".
+    #     compression_level (int): Use a compression level particular to the chosen compressor.
+    #         By default the compression level is 1.
+
+    # Copies contents of one ROOT to an empty file. If the file is in nanoAOD-format, ``copy_root`` can drop branches from a tree while copying. TProfile and RNTuple can not yet be copied.
+
+    # .. code-blocks:: python
+
+    #     >>> odapt.copy_root("copied_file.root", "original_file.root")
+
+    # To copy a file and drop branches with names "branch1" and "branch2":
+
+    #     >>> odapt.copy_root("copied_file.root", "original_file.root", drop_branches=["branch1", "branch2"])
+
+    # """
     if compression in ("LZMA", "lzma"):
         compression_code = uproot.const.kLZMA
     elif compression in ("ZLIB", "zlib"):
@@ -96,7 +151,7 @@ def copy_root(
     try:
         f = uproot.open(file)
     except FileNotFoundError:
-        msg = "File: {files[0]} does not exist or is corrupt."
+        msg = "File: ", file, " does not exist or is corrupt."
         raise FileNotFoundError(msg) from None
 
     hist_keys = f.keys(

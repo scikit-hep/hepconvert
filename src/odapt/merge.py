@@ -5,7 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-from odapt.root.histogram_adding import hadd_1d, hadd_2d, hadd_3d
+from odapt.histogram_adding import hadd_1d, hadd_2d, hadd_3d
 
 
 def hadd_and_merge(
@@ -26,37 +26,49 @@ def hadd_and_merge(
     compression_level=1,
     skip_bad_files=False,
 ):
-    """
-    Args:
-        destination (path-like): Name of the output file or file path.
-        files (Str or list of str): List of local ROOT files to merge.
-            May contain glob patterns.
-        branch_types (dict or pairs of str → NumPy dtype/Awkward type): Name and type specification for the TBranches.
-        fieldname_separator (str): Character that separates TBranch names for columns, used
-            for grouping columns (to avoid duplicate counters in ROOT file).
-        field_name (callable of str → str): Function to generate TBranch names for columns
-            of an Awkward record array or a Pandas DataFrame.
-        initial_basket_capacity (int): Number of TBaskets that can be written to the TTree
-            without rewriting the TTree metadata to make room.
-        resize_factor (float): When the TTree metadata needs to be rewritten, this specifies how
-            many more TBasket slots to allocate as a multiplicative factor.
-        step_size (int or str): If an integer, the maximum number of entries to include in each
-            iteration step; if a string, the maximum memory size to include. The string must be
-            a number followed by a memory unit, such as “100 MB”. Recommended to be >100 kB.
-        force (bool): If True, overwrites destination file if it exists. Force and append
-            cannot both be True.
-        append (bool): If True, appends data to an existing file. Force and append
-            cannot both be True.
-        compression (str): Sets compression level for root file to write to. Can be one of
-            "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".
-        compression_level (int): Use a compression level particular to the chosen compressor.
-            By default the compression level is 1.
-        skip_bad_files (bool): If True, skips corrupt or non-existent files without exiting.
+    """Merges TTrees together, and adds values in histograms from local ROOT files, and writes them to a new ROOT file.
 
-    Merges TTrees together, and adds values in histograms from local ROOT files, and writes
-        them to a new ROOT file.
+    :param destination: Name of the output file or file path.
+    :type destination: path-like
+    :param files: List of local ROOT files to merge.
+        May contain glob patterns.
+    :type files: str or list of str
+    :param branch_types: Name and type specification for the TBranches.
+    :type branch_types: dict or pairs of str → NumPy dtype/Awkward type
+    :param fieldname_separator: Character that separates TBranch names for columns, used
+        for grouping columns (to avoid duplicate counters in ROOT file).
+    :type fieldname_separator: str
+    :param field_name: Function to generate TBranch names for columns
+        of an Awkward record array or a Pandas DataFrame.
+    :type field_name: callable of str → str
+    :param initial_basket_capacity: Number of TBaskets that can be written to the TTree
+        without rewriting the TTree metadata to make room.
+    :type initial_basket_capacity: int
+    :param resize_factor: When the TTree metadata needs to be rewritten, this specifies how
+        many more TBasket slots to allocate as a multiplicative factor.
+    :type resize_factor: float
+    :param step_size: If an integer, the maximum number of entries to include in each
+        iteration step; if a string, the maximum memory size to include. The string must be
+        a number followed by a memory unit, such as “100 MB”. Recommended to be >100 kB.
+    :type step_size: int or str
+    :param force: If True, overwrites destination file if it exists. Force and append
+        cannot both be True.
+    :type force: bool
+    :param append: If True, appends data to an existing file. Force and append
+        cannot both be True.
+    :type append: bool
+    :param compression: Sets compression level for root file to write to. Can be one of
+        "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".
+    :type compression: str
+    :param compression_level: Use a compression level particular to the chosen compressor.
+        By default the compression level is 1.
+    :type compression_level: int
+    :param skip_bad_files: If True, skips corrupt or non-existent files without exiting.
+    :type skip_bad_files: bool
 
-        >>> odapt.hadd_and_merge("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
+    Example:
+    --------
+        >>> odapt.hadd_and_merge("destination.root", ["file1.root", "file2.root"])
 
     """
     if compression in ("LZMA", "lzma"):
