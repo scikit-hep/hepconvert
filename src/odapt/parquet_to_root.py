@@ -30,6 +30,17 @@ def parquet_to_root(
     :param name: Name of tree to write to ROOT file (this will be the key to access
         the tree in the ROOT file). Defaults to "tree".
     :type name: str, optional
+    :param title: Title for new TTree. Defaults to "".
+    :type title: str, optional
+    :param field_name: Function to generate TBranch names for columns of an Awkward
+        record array or a Pandas DataFrame.
+    :type field_name: callable of str → str, optional
+    :param initial_basket_capacity: Number of TBaskets that can be written to the TTree
+        without rewriting the TTree metadata to make room.
+    :type initial_basket_capacity: int, optional
+    :param resize_factor: When the TTree metadata needs to be rewritten, this specifies how
+      many more TBasket slots to allocate as a multiplicative factor.
+    :type resize_factor: float, optional
     :param compression: Sets compression level for root file to write to. Can be one of
         "ZLIB", "LZMA", "LZ4", or "ZSTD". Defaults to "lz4".
     :type compression: str, optional

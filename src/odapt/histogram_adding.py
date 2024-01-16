@@ -404,7 +404,7 @@ def hadd(
     :type compression: int
     :param skip_bad_files: If True, skips corrupt or non-existent files without exiting.
     :type skip_bad_files: bool, optional
-    :param union: If True, adds the histograms that have the same name and copies all others
+    :param union: If True, adds the histograms that have the same name and appends all others
         to the new file. Defaults to True.
     :type union: bool, optional
     :param same_names: If True, only adds together histograms which have the same name (key). If False,
@@ -416,7 +416,6 @@ def hadd(
         >>> odapt.hadd("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
 
     """
-
     if compression in ("ZLIB", "zlib"):
         compression_code = uproot.const.kZLIB
     elif compression in ("LZMA", "lzma"):
