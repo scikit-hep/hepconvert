@@ -66,7 +66,7 @@ def copy_root(
 
     Examples:
     ---------
-    Copies contents of one ROOT to an empty file. If the file is in nanoAOD-format, ``copy_root`` can drop branches from a tree while copying. TProfile and RNTuple can not yet be copied.
+    Copies contents of one ROOT file to a new file. If the file is in nanoAOD-format, ``copy_root`` can drop branches from a tree while copying. RNTuple can not yet be copied.
 
         >>> odapt.copy_root("copied_file.root", "original_file.root")
 
@@ -76,48 +76,6 @@ def copy_root(
 
 
     """
-
-    # """
-    # Args:
-    #     destination (path-like): Name of the output file or file path.
-    #     files (Str): Local ROOT file to copy. May contain glob patterns.
-    #     drop_branches (list of strs): Names of branches to be removed from
-    #         the tree.
-    #     fieldname_separator (str): Character that separates TBranch names for
-    #         columns, used for grouping columns (to avoid duplicate counters in ROOT file).
-    #     branch_types (dict or pairs of str → NumPy dtype/Awkward type):
-    #         Name and type specification for the TBranches.
-    #     field_name (callable of str → str): Function to generate TBranch names
-    #         for columns of an Awkward record array or a Pandas DataFrame.
-    #     initial_basket_capacity (int): Number of TBaskets that can be written
-    #         to the TTree without rewriting the TTree metadata to make room.
-    #     resize_factor (float): When the TTree metadata needs to be rewritten,
-    #         this specifies how many more TBasket slots to allocate as a multiplicative
-    #         factor.
-    #     step_size (int or str): If an integer, the maximum number of entries to include
-    #         in each iteration step; if a string, the maximum memory size to include. The
-    #         string must be a number followed by a memory unit, such as “100 MB”.
-    #         Recommended to be >100 kB.
-    #     force (bool): If True, overwrites destination file if it exists. Force and append
-    #         cannot both be True.
-    #     append (bool): If True, appends histograms to an existing file. Force and append
-    #         cannot both be True.
-    #     compression (str): Sets compression level for root file to write to. Can be one of
-    #         "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".
-    #     compression_level (int): Use a compression level particular to the chosen compressor.
-    #         By default the compression level is 1.
-
-    # Copies contents of one ROOT to an empty file. If the file is in nanoAOD-format, ``copy_root`` can drop branches from a tree while copying. TProfile and RNTuple can not yet be copied.
-
-    # .. code-blocks:: python
-
-    #     >>> odapt.copy_root("copied_file.root", "original_file.root")
-
-    # To copy a file and drop branches with names "branch1" and "branch2":
-
-    #     >>> odapt.copy_root("copied_file.root", "original_file.root", drop_branches=["branch1", "branch2"])
-
-    # """
     if compression in ("LZMA", "lzma"):
         compression_code = uproot.const.kLZMA
     elif compression in ("ZLIB", "zlib"):
