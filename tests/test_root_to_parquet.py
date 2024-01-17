@@ -2,8 +2,8 @@ import uproot
 import awkward as ak
 import odapt as od
 import pytest
-skhep_testdata = pytest.importorskip("skhep_testdata")
 
+skhep_testdata = pytest.importorskip("skhep_testdata")
 
 
 def HZZ_test():
