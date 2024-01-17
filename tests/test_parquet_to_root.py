@@ -1,13 +1,14 @@
 import uproot
-from odapt.parquet import to_root
+from odapt.parquet_to_root import parquet_to_root
 import awkward as ak
-from skhep_testdata import data_path
+import pytest
+skhep_testdata = pytest.importorskip("skhep_testdata")
 
 
 def test_hepdata():
     arrays = uproot.open(data_path("uproot-hepdata-example.root"))["ntuple;1"].arrays()
     ak.to_parquet(arrays, "uproot-hepdata-example.parquet")
-    to_root(
+    parquet_to_root(
         "uproot-hepdata-example.root", "uproot-hepdata-example.parquet", name="ntuple"
     )
     test = uproot.open("uproot-hepdata-example.root")
@@ -70,7 +71,7 @@ def test_hzz():
             del chunks[key]
     record = ak.Record(chunks)
     ak.to_parquet(record, "uproot-HZZ.parquet")
-    to_root(
+    parquet_to_root(
         "tests/samples/parquet_HZZ.root",
         "uproot-HZZ.parquet",
         name="events",
