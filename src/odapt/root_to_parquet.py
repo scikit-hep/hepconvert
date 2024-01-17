@@ -7,8 +7,8 @@ import uproot
 
 
 def root_to_parquet(
-    input_file=None,
-    output_file=None,
+    in_file=None,
+    out_file=None,
     *,
     list_to32=False,
     string_to32=True,
@@ -36,63 +36,141 @@ def root_to_parquet(
     force=True,
     step_size=100,
 ):
-    """
-    :param destination: Name of the output file or file path.
-    :type destination: path-like
-    :param files: Local ROOT file to copy. May contain glob patterns.
-    :type files: str
-    :param drop_branches: To remove branches from a tree, pass a list of names of branches to remove.
-        Defaults to None.
-    :type drop_branches: list of str, optional
-    :param fieldname_separator: If data includes jagged arrays, pass the character that separates
-        TBranch names for columns, used for grouping columns (to avoid duplicate counters in ROOT file). Defaults to "_".
-    :type fieldname_separator: str, optional
-    :param branch_types: Name and type specification for the TBranches. Defaults to None.
-    :type branch_types: dict or pairs of str → NumPy dtype/Awkward type, optional
-    :param title: to change the title of the ttree, pass a new name. Defaults to None.
-    :type title: str, optional
-    :param field_name: Function to generate TBranch names for columns of an Awkward record array or a
-        Pandas DataFrame. Defaults to ``lambda outer, inner: inner if outer == "" else outer + "_" +
-        inner``.
-    :type field_name: callable of str → str, optional
-    :param initial_basket_capacity: Number of TBaskets that can be written to the TTree without
-        rewriting the TTree metadata to make room. Defaults to 10.
-    :type initial_basket_capacity: int, optional
-    :param resize_factor: When the TTree metadata needs to be rewritten, this specifies how many more
-        TBasket slots to allocate as a multiplicative factor. Defaults to 10.0.
-    :type resize_factor: float, optional.
-    :param counter_name: Function to generate counter-TBranch names for Awkward Arrays of variable-length
-        lists. Defaults to ``lambda counted: "n" + counted``.
-    :type counter_name: callable of str \u2192 str, optional
-    :param step_size: If an integer, the maximum number of entries to include in each iteration step; if
-        a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”. Defaults to \100.
-    :type step_size: int or str, optional
-    :param compression: Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". Defaults to "LZ4".
-    :type compression: str
-    :param compression_level: Use a compression level particular to the chosen compressor. Defaults to 1.
-    :type compression_level: int
+    """Converts ROOT to Parquet file using Uproot and awkward.to_parquet. Data read from 1 tree, converted to single Parquet file.
 
+    :param in_file: Local ROOT file to convert to Parquet. May contain glob patterns.
+    :type in_file: str   
+    :param out_file: Name of the output file or file path.
+    :type out_file: path-like
+    :param list_to32: If True, convert Awkward lists into 32-bit Arrow lists if they’re small enough, even if it means an extra conversion. Otherwise, signed 32-bit ak.types.ListType maps to Arrow ListType, signed 64-bit ak.types.ListType maps to Arrow LargeListType, and unsigned 32-bit ak.types.ListType picks whichever Arrow type its values fit into.
+    :type list_to32: bool
+    :param string_to32: Same as the above for Arrow string and ``large_string``.
+    :type string_to32: bool
+    :param bytestring_to32: Same as the above for Arrow binary and ``large_binary``.
+    :type bytestring_to32: bool
+    :param emptyarray_to: If None, #ak.types.UnknownType maps to Arrow's
+        null type; otherwise, it is converted a given numeric dtype.
+    :type emptyarray_to: None or dtype
+    :param categorical_as_dictionary: If True, #ak.contents.IndexedArray and
+        #ak.contents.IndexedOptionArray labeled with `__array__ = "categorical"`
+        are mapped to Arrow `DictionaryArray`; otherwise, the projection is
+        evaluated before conversion (always the case without
+        `__array__ = "categorical"`).
+    :type categorical_as_dictionary: bool
+    :param extensionarray: If True, this function returns extended Arrow arrays
+        (at all levels of nesting), which preserve metadata so that Awkward \u2192
+        Arrow \u2192 Awkward preserves the array's #ak.types.Type (though not
+        the #ak.forms.Form). If False, this function returns generic Arrow arrays
+        that might be needed for third-party tools that don't recognize Arrow's
+        extensions. Even with `extensionarray=False`, the values produced by
+        Arrow's `to_pylist` method are the same as the values produced by Awkward's
+        #ak.to_list.
+    :type extensionarray: bool
+    :param count_nulls: If True, count the number of missing values at each level
+        and include these in the resulting Arrow array, which makes some downstream
+        applications faster. If False, skip the up-front cost of counting them.
+    :type count_nulls: bool
+    :param compression: Compression algorithm name, passed to
+        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        Parquet supports `{"NONE", "SNAPPY", "GZIP", "BROTLI", "LZ4", "ZSTD"}`
+        (where `"GZIP"` is also known as "zlib" or "deflate"). If a dict, the keys
+        are column names (the same column names that #ak.forms.Form.columns returns
+        and #ak.forms.Form.select_columns accepts) and the values are compression
+        algorithm names, to compress each column differently.
+    :type compression: None, str, or dict
+    :param compression_level: Compression level, passed to
+        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        Compression levels have different meanings for different compression
+        algorithms: GZIP ranges from 1 to 9, but ZSTD ranges from -7 to 22, for
+        example. Generally, higher numbers provide slower but smaller compression.
+    :type compression_level: None, int, or dict None
+    :param row_group_size: Number of entries in each row group (except the last),
+        passed to [pyarrow.parquet.ParquetWriter.write_table](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html#pyarrow.parquet.ParquetWriter.write_table).
+        If None, the Parquet default of 64 MiB is used.
+    :type row_group_size: int or None
+    :param data_page_size: Number of bytes in each data page, passed to
+        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        If None, the Parquet default of 1 MiB is used.
+    :type data_page_size: None or int
+    :param parquet_flavor: If None, the output Parquet file will follow
+        Arrow conventions; if `"spark"`, it will follow Spark conventions. Some
+        systems, such as Spark and Google BigQuery, might need Spark conventions,
+        while others might need Arrow conventions. Passed to
+        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        as `flavor`.
+    :type parquet_flavor: None or `"spark"`
+    :param parquet_version: Parquet file format version.
+        Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        as `version`.
+    :type parquet_version: `"1.0"`, `"2.4"`, or `"2.6"`
+    :param parquet_page_version: Parquet page format version.
+        Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        as `data_page_version`.
+    :type parquet_page_version: `"1.0"` or `"2.0"`
+    :param parquet_metadata_statistics: If True, include summary
+        statistics for each data page in the Parquet metadata, which lets some
+        applications search for data more quickly (by skipping pages). If a dict
+        mapping column names to bool, include summary statistics on only the
+        specified columns. Passed to
+        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        as `write_statistics`.
+    :type parquet_metadata_statistics: bool or dict
+    :param parquet_dictionary_encoding: If True, allow Parquet to pre-compress
+        with dictionary encoding. If a dict mapping column names to bool, only
+        use dictionary encoding on the specified columns. Passed to
+        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        as `use_dictionary`.
+    :type parquet_dictionary_encoding: bool or dict
+    :param parquet_byte_stream_split: If True, pre-compress floating
+        point fields (`float32` or `float64`) with byte stream splitting, which
+        collects all mantissas in one part of the stream and exponents in another.
+        Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        as `use_byte_stream_split`.
+    :type parquet_byte_stream_split: bool or dict
+    :param parquet_coerce_timestamps: If None, any timestamps
+        (`datetime64` data) are coerced to a given resolution depending on
+        `parquet_version`: version `"1.0"` and `"2.4"` are coerced to microseconds,
+        but later versions use the `datetime64`'s own units. If `"ms"` is explicitly
+        specified, timestamps are coerced to milliseconds; if `"us"`, microseconds.
+        Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        as `coerce_timestamps`.
+    :type parquet_coerce_timestamps: None, `"ms"`, or `"us"`
+    :param parquet_old_int96_timestamps: If True, use Parquet's INT96 format
+        for any timestamps (`datetime64` data), taking priority over `parquet_coerce_timestamps`.
+        If None, let the `parquet_flavor` decide. Passed to
+        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        as `use_deprecated_int96_timestamps`.
+    :type parquet_old_int96_timestamps: None or bool
+    :param parquet_compliant_nested: If True, use the Spark/BigQuery/Parquet
+        [convention for nested lists](https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#nested-types),
+        in which each list is a one-field record with field name "`element`";
+        otherwise, use the Arrow convention, in which the field name is "`item`".
+        Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        as `use_compliant_nested_type`.
+    :type parquet_compliated_nested: bool
+    :param parquet_extra_options: Any additional options to pass to
+        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+    :type parquet_extra_options: None or dict
+    :param storage_options: Any additional options to pass to
+        [fsspec.core.url_to_fs](https://filesystem-spec.readthedocs.io/en/latest/api.html#fsspec.core.url_to_fs)
+        to open a remote file for writing.
+    :type storage_options: None or dict
 
     Examples:
     ---------
-    Copies contents of one ROOT to an empty file. If the file is in nanoAOD-format, ``copy_root`` can drop branches from a tree while copying. TProfile and RNTuple can not yet be copied.
+    Converts a TTree from a ROOT file to a Parquet File.
 
-        >>> odapt.copy_root("copied_file.root", "original_file.root")
-
-    To copy a file and drop branches with names "branch1" and "branch2":
-
-        >>> odapt.copy_root("copied_file.root", "original_file.root", drop_branches=["branch1", "branch2"])
-
+        >>> odapt.root_to_parquet(in_file="file.root", out_file="file.parquet")
 
     """
-    path = Path(output_file)
+    path = Path(out_file)
     if Path.is_file(path) and not force:
         raise FileExistsError
 
     try:
-        f = uproot.open(input_file)
+        f = uproot.open(in_file)
     except FileNotFoundError:
-        msg = "File: ", input_file, " does not exist or is corrupt."
+        msg = "File: ", in_file, " does not exist or is corrupt."
         raise FileNotFoundError(msg) from None
 
     if not tree:
@@ -101,15 +179,13 @@ def root_to_parquet(
             msg = "Must specify 1 tree to write, not ", len(tree)
             raise AttributeError(msg) from None
 
-        # if drop_branches:
-        # drop branches better
     ak.to_parquet(
         list(
             f[tree[0]].iterate(
                 step_size=step_size,
             )
         ),
-        output_file,
+        out_file,
         list_to32=list_to32,
         string_to32=string_to32,
         bytestring_to32=bytestring_to32,

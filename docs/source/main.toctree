@@ -3,6 +3,7 @@
     :hidden:
 
     odapt.parquet_to_root.parquet_to_root
+    odapt.root_to_parquet.root_to_parquet
     odapt.copy_root.copy_root
     odapt.merge.hadd_and_merge
     odapt.histogram_adding.hadd
