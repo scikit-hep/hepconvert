@@ -104,12 +104,13 @@ def root_to_parquet(
         # if drop_branches:
         # drop branches better
     ak.to_parquet(
-        [chunk
-        for chunk in f[tree[0]].iterate(
-            step_size=step_size,
-        )],
+        list(
+            f[tree[0]].iterate(
+                step_size=step_size,
+            )
+        ),
         output_file,
-        list_to32=False,
+        list_to32=list_to32,
         string_to32=string_to32,
         bytestring_to32=bytestring_to32,
         emptyarray_to=emptyarray_to,
@@ -134,12 +135,3 @@ def root_to_parquet(
     )
 
     f.close()
-
-
-from skhep_testdata import data_path
-
-f = uproot.open(data_path("uproot-HZZ.root"))
-print(f.keys())
-# root_to_parquet(input_file=data_path("uproot-HZZ.root"), output_file="test.parquet")
-test = ak.from_parquet("/Users/zobil/Documents/odapt/test.parquet")
-print(test.to_list)
