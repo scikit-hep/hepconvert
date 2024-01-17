@@ -39,10 +39,10 @@ def root_to_parquet(
     """Converts ROOT to Parquet file using Uproot and awkward.to_parquet. Data read from 1 tree, converted to single Parquet file.
 
     :param in_file: Local ROOT file to convert to Parquet. May contain glob patterns.
-    :type in_file: str   
+    :type in_file: str
     :param out_file: Name of the output file or file path.
     :type out_file: path-like
-    :param list_to32: If True, convert Awkward lists into 32-bit Arrow lists if they’re small enough, even if it means an extra conversion. Otherwise, signed 32-bit ak.types.ListType maps to Arrow ListType, signed 64-bit ak.types.ListType maps to Arrow LargeListType, and unsigned 32-bit ak.types.ListType picks whichever Arrow type its values fit into.
+    :param list_to32: If True, convert Awkward lists into 32-bit Arrow lists if they're small enough, even if it means an extra conversion. Otherwise, signed 32-bit ak.types.ListType maps to Arrow ListType, signed 64-bit ak.types.ListType maps to Arrow LargeListType, and unsigned 32-bit ak.types.ListType picks whichever Arrow type its values fit into.
     :type list_to32: bool
     :param string_to32: Same as the above for Arrow string and ``large_string``.
     :type string_to32: bool

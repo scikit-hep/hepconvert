@@ -3,24 +3,26 @@ from odapt.parquet import to_root
 import awkward as ak
 from skhep_testdata import data_path
 
+
 def test_hepdata():
-    arrays = uproot.open(data_path("uproot-hepdata-example.root"))['ntuple;1'].arrays()
+    arrays = uproot.open(data_path("uproot-hepdata-example.root"))["ntuple;1"].arrays()
     ak.to_parquet(arrays, "uproot-hepdata-example.parquet")
-    to_root("uproot-hepdata-example.root", "uproot-hepdata-example.parquet", name="ntuple")
+    to_root(
+        "uproot-hepdata-example.root", "uproot-hepdata-example.parquet", name="ntuple"
+    )
     test = uproot.open("uproot-hepdata-example.root")
     original = uproot.open(data_path("uproot-hepdata-example.root"))
-    for key in original['ntuple'].keys():
-        assert key in test['ntuple'].keys()
-    for key in test['ntuple'].keys():
-        assert key in original['ntuple'].keys()
+    for key in original["ntuple"].keys():
+        assert key in test["ntuple"].keys()
     for key in test["ntuple"].keys():
-        assert ak.all(
-            test["ntuple"].arrays()[key] == original["ntuple"].arrays()[key]
-        )
+        assert key in original["ntuple"].keys()
+    for key in test["ntuple"].keys():
+        assert ak.all(test["ntuple"].arrays()[key] == original["ntuple"].arrays()[key])
+
 
 def test_hzz():
     file = uproot.open(data_path("uproot-HZZ.root"))
-    tree = file['events']
+    tree = file["events"]
     groups = []
     count_branches = []
     temp_branches = [branch.name for branch in tree.branches]
@@ -54,14 +56,11 @@ def test_hzz():
     for group in groups:
         if (len(group)) > 1:
             chunks.update(
-                    {group[0][0 : (group[0].index("_"))]: ak.zip(
+                {
+                    group[0][0 : (group[0].index("_"))]: ak.zip(
                         {
-                            name[
-                                group[0].index("_") + 1 :
-                            ]: array
-                            for name, array in zip(
-                                ak.fields(edit), ak.unzip(edit)
-                            )
+                            name[group[0].index("_") + 1 :]: array
+                            for name, array in zip(ak.fields(edit), ak.unzip(edit))
                             if name in group
                         }
                     )
@@ -71,18 +70,22 @@ def test_hzz():
             del chunks[key]
     record = ak.Record(chunks)
     ak.to_parquet(record, "uproot-HZZ.parquet")
-    to_root("tests/samples/parquet_HZZ.root", "uproot-HZZ.parquet", name="events", counter_name=lambda counted: "N" + counted)
+    to_root(
+        "tests/samples/parquet_HZZ.root",
+        "uproot-HZZ.parquet",
+        name="events",
+        counter_name=lambda counted: "N" + counted,
+    )
     test = uproot.open("tests/samples/parquet_HZZ.root")
 
     original = uproot.open(data_path("uproot-HZZ.root"))
 
-    for key in original['events'].keys():
-        assert key in test['events'].keys()
-    for key in test['events'].keys():
-        assert key in original['events'].keys()
+    for key in original["events"].keys():
+        assert key in test["events"].keys()
     for key in test["events"].keys():
-        assert ak.all(
-            test["events"].arrays()[key] == original["events"].arrays()[key]
-        )
+        assert key in original["events"].keys()
+    for key in test["events"].keys():
+        assert ak.all(test["events"].arrays()[key] == original["events"].arrays()[key])
+
 
 test_hzz()

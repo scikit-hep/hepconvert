@@ -4,6 +4,7 @@ import odapt as od
 import awkward as ak
 import pytest
 
+
 def test_copy():
     od.copy_root(
         "/Users/zobil/Documents/odapt/tests/samples/copy.root",
@@ -65,19 +66,24 @@ def test_add_branch():
 
     file = uproot.open("/Users/zobil/Documents/odapt/tests/samples/add_branches.root")
 
+
 def test_hepdata_example():
     od.copy_root(
         "/Users/zobil/Documents/odapt/tests/samples/copy_hepdata.root",
         data_path("uproot-hepdata-example.root"),
         counter_name=lambda counted: "N" + counted,
     )
-    od_file = uproot.open("/Users/zobil/Documents/odapt/tests/samples/copy_hepdata.root")
+    od_file = uproot.open(
+        "/Users/zobil/Documents/odapt/tests/samples/copy_hepdata.root"
+    )
     file = uproot.open(data_path("uproot-hepdata-example.root"))
-    print(file['hprof'].classname)
+    print(file["hprof"].classname)
     print(od_file.classnames())
     for key in od_file.keys(cycle=False):
         assert key in file.keys(cycle=False)
         print(key)
         if key == "hpxpy":
             for array in od_file[key].values():
-                assert array in file[key].values() # did check if this works and it does 
+                assert (
+                    array in file[key].values()
+                )  # did check if this works and it does

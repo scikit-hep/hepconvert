@@ -15,7 +15,7 @@ order = [
     "odapt.merge",
     "odapt.parquet_to_root",
     "odapt.root_to_parquet",
-    "odapt.copy_root"
+    "odapt.copy_root",
 ]
 
 common = [
