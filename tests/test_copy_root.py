@@ -1,5 +1,4 @@
 import uproot
-from skhep_testdata import data_path
 import odapt as od
 import awkward as ak
 import pytest
