@@ -3,10 +3,4 @@
     :hidden:
 
     odapt.histogram_adding (module) <odapt.histogram_adding>
-    odapt.histogram_adding.hadd_1d
-    odapt.histogram_adding.hadd_2d
-    odapt.histogram_adding.hadd_3d
     odapt.histogram_adding.hadd <odapt.histogram_adding.hadd>
-    odapt.histogram_adding.tprofile_1d
-    odapt.histogram_adding.tprofile_2d
-    odapt.histogram_adding.tprofile_3d

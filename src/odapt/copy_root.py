@@ -66,7 +66,7 @@ def copy_root(
 
     Examples:
     ---------
-    Copies contents of one ROOT to an empty file. If the file is in nanoAOD-format, ``copy_root`` can drop branches from a tree while copying. TProfile and RNTuple can not yet be copied.
+    Copies contents of one ROOT file to a new file. If the file is in nanoAOD-format, ``copy_root`` can drop branches from a tree while copying. RNTuple can not yet be copied.
 
         >>> odapt.copy_root("copied_file.root", "original_file.root")
 
