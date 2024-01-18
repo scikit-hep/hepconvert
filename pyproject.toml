@@ -170,6 +170,4 @@ messages_control.disable = [
 ]
 
 [project.scripts]
-"add" = "odapt.cli:add"
-"convert" = "odapt.cli:cli"
-"add_and_merge" = "odapt.cli:add_and_merge"
+"odapt" = "odapt.__main__:main"
