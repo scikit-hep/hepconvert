@@ -18,6 +18,7 @@ def HZZ_test():
     for key in f["events"].keys():
         assert ak.all(from_parquet[0][key] == original[key])
 
+
 def specify_tree():
     f = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
     original = f["events"].arrays()

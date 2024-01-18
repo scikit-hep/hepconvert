@@ -7,7 +7,9 @@ skhep_testdata = pytest.importorskip("skhep_testdata")
 
 
 def test_hepdata():
-    arrays = uproot.open(skhep_testdata.data_path("uproot-hepdata-example.root"))["ntuple;1"].arrays()
+    arrays = uproot.open(skhep_testdata.data_path("uproot-hepdata-example.root"))[
+        "ntuple;1"
+    ].arrays()
 
     ak.to_parquet(arrays, "uproot-hepdata-example.parquet")
     parquet_to_root(
@@ -83,7 +85,6 @@ def test_hzz():
     )
     test = uproot.open("tests/samples/parquet_HZZ.root")
     original = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
-
 
     for key in original["events"].keys():
         assert key in test["events"].keys()
