@@ -8,12 +8,14 @@ skhep_testdata = pytest.importorskip("skhep_testdata")
 
 def test_hepdata():
     arrays = uproot.open(skhep_testdata.data_path("uproot-hepdata-example.root"))["ntuple;1"].arrays()
+
     ak.to_parquet(arrays, "uproot-hepdata-example.parquet")
     parquet_to_root(
         "uproot-hepdata-example.root", "uproot-hepdata-example.parquet", name="ntuple"
     )
     test = uproot.open("uproot-hepdata-example.root")
     original = uproot.open(skhep_testdata.data_path("uproot-hepdata-example.root"))
+
     for key in original["ntuple"].keys():
         assert key in test["ntuple"].keys()
     for key in test["ntuple"].keys():
@@ -24,6 +26,7 @@ def test_hepdata():
 
 def test_hzz():
     file = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
+
     tree = file["events"]
     groups = []
     count_branches = []
@@ -79,8 +82,8 @@ def test_hzz():
         counter_name=lambda counted: "N" + counted,
     )
     test = uproot.open("tests/samples/parquet_HZZ.root")
-
     original = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
+
 
     for key in original["events"].keys():
         assert key in test["events"].keys()

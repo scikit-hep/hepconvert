@@ -14,6 +14,7 @@ def test_copy():
     )
     od_file = uproot.open("/Users/zobil/Documents/odapt/tests/samples/copy.root")
     file = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
+
     print(file["events"].keys())
     for key in od_file["events"].keys():
         assert key in file["events"].keys()
@@ -28,6 +29,7 @@ def test_drop_branch():
         counter_name=lambda counted: "N" + counted,
     )
     original = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
+
     file = uproot.open("/Users/zobil/Documents/odapt/tests/samples/drop_branches.root")
     assert "MClepton_py" not in file["events"]
     assert "Jet_Px" not in file["events"]
@@ -44,6 +46,7 @@ def test_add_branch():
     od.copy_root(
         "/Users/zobil/Documents/odapt/tests/samples/drop_branches.root",
         skhep_testdata.data_path("uproot-HZZ.root"),
+
         drop_branches=["MClepton_py", "Jet_Px"],
         counter_name=lambda counted: "N" + counted,
     )
@@ -72,12 +75,14 @@ def test_hepdata_example():
     od.copy_root(
         "/Users/zobil/Documents/odapt/tests/samples/copy_hepdata.root",
         skhep_testdata.data_path("uproot-hepdata-example.root"),
+
         counter_name=lambda counted: "N" + counted,
     )
     od_file = uproot.open(
         "/Users/zobil/Documents/odapt/tests/samples/copy_hepdata.root"
     )
     file = uproot.open(skhep_testdata.data_path("uproot-hepdata-example.root"))
+
     print(file["hprof"].classname)
     print(od_file.classnames())
     for key in od_file.keys(cycle=False):
@@ -88,3 +93,4 @@ def test_hepdata_example():
                 assert (
                     array in file[key].values()
                 ) 
+                
