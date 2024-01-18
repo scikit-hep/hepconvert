@@ -10,6 +10,9 @@ def root_to_parquet(
     in_file=None,
     out_file=None,
     *,
+    tree=None,
+    force=False,
+    step_size="100 MB",
     list_to32=False,
     string_to32=True,
     bytestring_to32=True,
@@ -32,9 +35,6 @@ def root_to_parquet(
     parquet_compliant_nested=False,
     parquet_extra_options=None,
     storage_options=None,
-    tree=None,
-    force=True,
-    step_size=100,
 ):
     """Converts ROOT to Parquet file using Uproot and awkward.to_parquet. Data read from 1 tree, converted to single Parquet file.
 
@@ -42,6 +42,13 @@ def root_to_parquet(
     :type in_file: str
     :param out_file: Name of the output file or file path.
     :type out_file: path-like
+    :param tree: If there are multiple trees in the ROOT file, specify the name of one to write to Parquet.
+    :type tree: None or str
+    :param force: If true, replaces file if it already exists. Default is False.
+    :type force: Bool, optional
+    :param step_size: If an integer, the maximum number of entries to include in each iteration step; if
+        a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”. Defaults to '100 MB'.
+    :type step_size: int or str, optional
     :param list_to32: If True, convert Awkward lists into 32-bit Arrow lists if they're small enough, even if it means an extra conversion. Otherwise, signed 32-bit ak.types.ListType maps to Arrow ListType, signed 64-bit ak.types.ListType maps to Arrow LargeListType, and unsigned 32-bit ak.types.ListType picks whichever Arrow type its values fit into.
     :type list_to32: bool
     :param string_to32: Same as the above for Arrow string and ``large_string``.
