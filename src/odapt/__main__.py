@@ -237,7 +237,7 @@ def add(
 @click.option(
     "--force", default=True, help="Overwrite destination file if it already exists"
 )
-@click.option("--append", default=True, help="Append histograms to an existing file")
+@click.option("--append", default=False, help="Append histograms to an existing file")
 @click.option(
     "--compression",
     default="lz4",
@@ -252,11 +252,6 @@ def add(
     "--skip_bad_files",
     default=False,
     help="Skip corrupt or non-existent files without exiting",
-)
-@click.option(
-    "--same_names",
-    default=False,
-    help="Only adds histograms together if they have the same name",
 )
 def add_and_merge(
     destination,
