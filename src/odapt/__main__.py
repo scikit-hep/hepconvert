@@ -19,11 +19,6 @@ def main() -> None:
 @click.option("--branch_types", default=None, type=dict, required=False)
 @click.option("--title", required=False, default="")
 @click.option(
-    "--field_name",
-    default=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
-    help="Function to generate TBranch names for columns of an Awkward record array or a Pandas DataFrame.",
-)
-@click.option(
     "--initial_basket_capacity",
     default=10,
     help="Number of TBaskets that can be written to the TTree without rewriting the TTree metadata to make room.",
@@ -37,11 +32,6 @@ def main() -> None:
     "--force",
     default=True,
     help="If True, overwrites destination file if it already exists.",
-)
-@click.option(
-    "--counter_name",
-    default=lambda counted: "n" + counted,
-    help='Function to generate counter-TBranch names for Awkward Arrays of variable-length lists. Defaults to "lambda counted: "n" + counted."',
 )
 @click.option(
     "--compression",
@@ -65,9 +55,9 @@ def parquet_to_root(
     name="tree",
     branch_types=None,
     title="",
-    field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
+    field_name=(lambda outer, inner: inner if outer == "" else outer + "_" + inner),
     initial_basket_capacity=10,
-    counter_name=lambda counted: "n" + counted,
+    counter_name=(lambda counted: "n" + counted),
     resize_factor=10.0,
     compression="lz4",
     compression_level=1,
@@ -101,11 +91,6 @@ def parquet_to_root(
 @click.option("--branch_types", default=None, type=dict, required=False)
 @click.option("--title", required=False, default="")
 @click.option(
-    "--field_name",
-    default=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
-    help="Function to generate TBranch names for columns of an Awkward record array or a Pandas DataFrame.",
-)
-@click.option(
     "--initial_basket_capacity",
     default=10,
     help="Number of TBaskets that can be written to the TTree without rewriting the TTree metadata to make room.",
@@ -120,7 +105,7 @@ def parquet_to_root(
     default=True,
     help="If True, overwrites destination file if it already exists.",
 )
-def root_to_root(
+def copy_root(
     destination,
     file,
     *,
@@ -223,9 +208,8 @@ def add(
 @main.command()
 @click.argument("destination")
 @click.argument("files")
-@click.argument("fieldname_separator", required=False, default="_")
-@click.argument("branch_types", required=False)
-@click.option("--title", required=False, default="")
+@click.option("--branch_types", default=None, type=dict, required=False, help="Manually enter branch names and types to improve performance slightly.")
+@click.option("--title", required=False, default="", help="Set title of new TTree.")
 @click.option(
     "--field_name",
     default=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
