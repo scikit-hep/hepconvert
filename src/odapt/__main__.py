@@ -8,7 +8,8 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 @click.group(context_settings=CONTEXT_SETTINGS, cls=click.Group)
 def main() -> None:
     """
-    Must provide a subcommand.
+    Must provide a subcommand:
+    parquet-to-root, root-to-parquet, copy-root, add-and-merge, or add
     """
 
 
