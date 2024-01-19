@@ -179,14 +179,13 @@ def root_to_parquet(
     except FileNotFoundError:
         msg = "File: ", in_file, " does not exist or is corrupt."
         raise FileNotFoundError(msg) from None
-    
+
     if not tree:
         trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
         if len(trees) != 1:
             msg = "Must specify 1 tree to write, not ", len(trees)
             raise AttributeError(msg) from None
-        else:
-            tree = trees[0]
+        tree = trees[0]
 
     ak.to_parquet(
         list(

@@ -28,7 +28,7 @@ def specify_tree():
         out_file="test.parquet",
         tree="events",
         step_size="100 MB",
-        force=True
+        force=True,
     )
     from_parquet = ak.from_parquet("/Users/zobil/Documents/odapt/test.parquet")
     for key in f["events"].keys():
@@ -55,5 +55,6 @@ def break_trees():
             out_file="test2.parquet",
             step_size="100 MB",
         )
+
 
 HZZ_test()
