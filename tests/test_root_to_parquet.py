@@ -13,6 +13,7 @@ def HZZ_test():
         in_file=skhep_testdata.data_path("uproot-HZZ.root"),
         out_file="test.parquet",
         step_size="100 MB",
+        force=True,
     )
     from_parquet = ak.from_parquet("/Users/zobil/Documents/odapt/test.parquet")
     for key in f["events"].keys():
@@ -27,6 +28,7 @@ def specify_tree():
         out_file="test.parquet",
         tree="events",
         step_size="100 MB",
+        force=True,
     )
     from_parquet = ak.from_parquet("/Users/zobil/Documents/odapt/test.parquet")
     for key in f["events"].keys():
@@ -55,4 +57,4 @@ def break_trees():
         )
 
 
-break_trees()
+HZZ_test()
