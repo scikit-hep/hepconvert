@@ -48,11 +48,11 @@ def root_to_parquet(
     :param force: If true, replaces file if it already exists. Default is False. Command line options ``-f`` or ``--force``.
     :type force: Bool, optional
     :param step_size: If an integer, the maximum number of entries to include in each iteration step; if
-        a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”. 
+        a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”.
         Defaults to '100 MB'. Command line options: ``-s`` or ``--step-size``.
     :type step_size: int or str, optional
-    :param list_to32: If True, convert Awkward lists into 32-bit Arrow lists if they're small enough, even if it means an extra conversion. 
-        Otherwise, signed 32-bit ak.types.ListType maps to Arrow ListType, signed 64-bit ak.types.ListType maps to Arrow LargeListType, and 
+    :param list_to32: If True, convert Awkward lists into 32-bit Arrow lists if they're small enough, even if it means an extra conversion.
+        Otherwise, signed 32-bit ak.types.ListType maps to Arrow ListType, signed 64-bit ak.types.ListType maps to Arrow LargeListType, and
         unsigned 32-bit ak.types.ListType picks whichever Arrow type its values fit into. Command line option ``--list-to32``.
     :type list_to32: bool
     :param string_to32: Same as the above for Arrow string and ``large_string``. Command line option: ``--string-to32``.
@@ -95,7 +95,7 @@ def root_to_parquet(
         Compression levels have different meanings for different compression
         algorithms: GZIP ranges from 1 to 9, but ZSTD ranges from -7 to 22, for
         example. Generally, higher numbers provide slower but smaller compression. Command line option
-        ``--compression-level``. 
+        ``--compression-level``.
     :type compression_level: None, int, or dict None
     :param row_group_size: Maximum number of entries in each row group,
         passed to [pyarrow.parquet.ParquetWriter.write_table](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html#pyarrow.parquet.ParquetWriter.write_table).
@@ -174,6 +174,12 @@ def root_to_parquet(
     Converts a TTree from a ROOT file to a Parquet File.
 
         >>> odapt.root_to_parquet(in_file="file.root", out_file="file.parquet")
+
+    Command Line Instructions:
+    --------------------------
+    This function can be run from the command line. Use command
+
+        >>> odapt root-to-parquet [options] [OUT_FILE] [IN_FILE]
 
     """
     path = Path(out_file)

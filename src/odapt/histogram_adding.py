@@ -403,7 +403,7 @@ def hadd(
     :param compression_level: Use a compression level particular to the chosen compressor.
         By default the compression level is 1. Command line option: ``--compression-level``.
     :type compression: int
-    :param skip_bad_files: If True, skips corrupt or non-existent files without exiting. 
+    :param skip_bad_files: If True, skips corrupt or non-existent files without exiting.
         Command line option: ``--skip-bad-files``.
     :type skip_bad_files: bool, optional
     :param union: If True, adds the histograms that have the same name and appends all others

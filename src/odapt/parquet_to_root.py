@@ -30,7 +30,7 @@ def parquet_to_root(
     :param name: Name of tree to write to ROOT file (this will be the key to access
         the tree in the ROOT file). Defaults to "tree". Command line option: ``--name``.
     :type name: str, optional
-    :param branch_types: Name and type specification for the TBranches. Defaults to None. 
+    :param branch_types: Name and type specification for the TBranches. Defaults to None.
         Command line option: ``--branch-types``.
     :type branch_types: dict or pairs of str → NumPy dtype/Awkward type, optional
     :param title: Title for new TTree. Defaults to "". Command line option: ``--title``.

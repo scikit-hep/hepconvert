@@ -44,7 +44,7 @@ def copy_root(
     :type title: str, optional
     :param field_name: Function to generate TBranch names for columns of an Awkward record array or a
         Pandas DataFrame. Defaults to ``lambda outer, inner: inner if outer == "" else outer + "_" +
-        inner``. 
+        inner``.
     :type field_name: callable of str → str, optional
     :param initial_basket_capacity: Number of TBaskets that can be written to the TTree without
         rewriting the TTree metadata to make room. Defaults to 10. Command line option: ``--initial-basket-capacity``.
@@ -56,10 +56,10 @@ def copy_root(
         lists. Defaults to ``lambda counted: "n" + counted``.
     :type counter_name: callable of str \u2192 str, optional
     :param step_size: If an integer, the maximum number of entries to include in each iteration step; if
-        a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”. 
+        a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”.
         Defaults to \100. Command line option: ``--step-size``.
     :type step_size: int or str, optional
-    :param compression: Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". 
+    :param compression: Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD".
         Defaults to "LZ4". Command line option: ``--compression``.
     :type compression: str
     :param compression_level: Use a compression level particular to the chosen compressor. Defaults to 1. Command line option: ``--compression-level``.
