@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from os import fsdecode
 from pathlib import Path
 
-from os import fsdecode
 import awkward as ak
 
 
@@ -10,9 +10,8 @@ def root_to_parquet(
     in_file=None,
     out_file=None,
     *,
-    tree=None,
     force=False,
-    step_size=1,
+    # step_size=1, Maybe add this for number of row-groups to deal with at once?
     list_to32=False,
     string_to32=True,
     bytestring_to32=True,
@@ -171,13 +170,13 @@ def root_to_parquet(
     ---------
     Converts a TTree from a ROOT file to a Parquet File.
 
-        >>> odapt.root_to_parquet(in_file="file.root", out_file="file.parquet")
+        >>> odapt.parquet_to_parquet(in_file="file.parquet", out_file="new_file.parquet")
 
     Command Line Instructions:
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> odapt root-to-parquet [options] [OUT_FILE] [IN_FILE]
+        >>> odapt parquet-to-parquet [options] [OUT_FILE] [IN_FILE]
 
     """
     path = Path(out_file)
@@ -186,13 +185,16 @@ def root_to_parquet(
     try:
         out_file = fsdecode(out_file)
     except TypeError:
-        raise TypeError(
-            f"'destination' argument of 'ak.to_parquet' and 'ak.to_parquet_row_groups' must be a path-like, not {type(destination).__name__} ('array' argument is first; 'destination' second)"
-        ) from None
+        msg = f"'out_file' argument of 'ak.to_parquet' and 'ak.to_parquet_row_groups' must be a path-like, not {type(out_file).__name__} ('array' argument is first; 'out_file' second)"
+        raise TypeError(msg) from None
     try:
         metadata = ak.metadata_from_parquet(in_file)
     except FileNotFoundError:
-        msg = "File: ", in_file, " does not exist or is corrupt. Could not retrieve metadata."
+        msg = (
+            "File: ",
+            in_file,
+            " does not exist or is corrupt. Could not retrieve metadata.",
+        )
         raise FileNotFoundError(msg) from None
 
     ak.to_parquet_row_groups(
