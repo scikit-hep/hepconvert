@@ -1,4 +1,0 @@
-odapt
-=====
-
-.. automodule:: odapt

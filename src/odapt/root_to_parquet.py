@@ -43,26 +43,30 @@ def root_to_parquet(
     :param out_file: Name of the output file or file path.
     :type out_file: path-like
     :param tree: If there are multiple trees in the ROOT file, specify the name of one to write to Parquet.
+        Command line options: ``-t`` or ``--tree``.
     :type tree: None or str
-    :param force: If true, replaces file if it already exists. Default is False.
+    :param force: If true, replaces file if it already exists. Default is False. Command line options ``-f`` or ``--force``.
     :type force: Bool, optional
     :param step_size: If an integer, the maximum number of entries to include in each iteration step; if
-        a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”. Defaults to '100 MB'.
+        a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”.
+        Defaults to '100 MB'. Command line options: ``-s`` or ``--step-size``.
     :type step_size: int or str, optional
-    :param list_to32: If True, convert Awkward lists into 32-bit Arrow lists if they're small enough, even if it means an extra conversion. Otherwise, signed 32-bit ak.types.ListType maps to Arrow ListType, signed 64-bit ak.types.ListType maps to Arrow LargeListType, and unsigned 32-bit ak.types.ListType picks whichever Arrow type its values fit into.
+    :param list_to32: If True, convert Awkward lists into 32-bit Arrow lists if they're small enough, even if it means an extra conversion.
+        Otherwise, signed 32-bit ak.types.ListType maps to Arrow ListType, signed 64-bit ak.types.ListType maps to Arrow LargeListType, and
+        unsigned 32-bit ak.types.ListType picks whichever Arrow type its values fit into. Command line option ``--list-to32``.
     :type list_to32: bool
-    :param string_to32: Same as the above for Arrow string and ``large_string``.
+    :param string_to32: Same as the above for Arrow string and ``large_string``. Command line option: ``--string-to32``.
     :type string_to32: bool
-    :param bytestring_to32: Same as the above for Arrow binary and ``large_binary``.
+    :param bytestring_to32: Same as the above for Arrow binary and ``large_binary``. Command line option: ``--bytestring-to32``.
     :type bytestring_to32: bool
     :param emptyarray_to: If None, #ak.types.UnknownType maps to Arrow's
-        null type; otherwise, it is converted a given numeric dtype.
+        null type; otherwise, it is converted a given numeric dtype. Command line option: ``--emptyarray-to``.
     :type emptyarray_to: None or dtype
     :param categorical_as_dictionary: If True, #ak.contents.IndexedArray and
-        #ak.contents.IndexedOptionArray labeled with `__array__ = "categorical"`
+        #ak.contents.IndexedOptionArray labeled with ``__array__ = "categorical"``
         are mapped to Arrow `DictionaryArray`; otherwise, the projection is
         evaluated before conversion (always the case without
-        `__array__ = "categorical"`).
+        `__array__ = "categorical"`). Command line option: ``--categorical-as-dictionary``.
     :type categorical_as_dictionary: bool
     :param extensionarray: If True, this function returns extended Arrow arrays
         (at all levels of nesting), which preserve metadata so that Awkward \u2192
@@ -71,11 +75,12 @@ def root_to_parquet(
         that might be needed for third-party tools that don't recognize Arrow's
         extensions. Even with `extensionarray=False`, the values produced by
         Arrow's `to_pylist` method are the same as the values produced by Awkward's
-        #ak.to_list.
+        #ak.to_list. Command line option: ``--extensionarray``.
     :type extensionarray: bool
     :param count_nulls: If True, count the number of missing values at each level
         and include these in the resulting Arrow array, which makes some downstream
         applications faster. If False, skip the up-front cost of counting them.
+        Command line option: ``--count-nulls``.
     :type count_nulls: bool
     :param compression: Compression algorithm name, passed to
         [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
@@ -83,36 +88,37 @@ def root_to_parquet(
         (where `"GZIP"` is also known as "zlib" or "deflate"). If a dict, the keys
         are column names (the same column names that #ak.forms.Form.columns returns
         and #ak.forms.Form.select_columns accepts) and the values are compression
-        algorithm names, to compress each column differently.
+        algorithm names, to compress each column differently. Command line option: ``--compression``.
     :type compression: None, str, or dict
     :param compression_level: Compression level, passed to
         [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
         Compression levels have different meanings for different compression
         algorithms: GZIP ranges from 1 to 9, but ZSTD ranges from -7 to 22, for
-        example. Generally, higher numbers provide slower but smaller compression.
+        example. Generally, higher numbers provide slower but smaller compression. Command line option
+        ``--compression-level``.
     :type compression_level: None, int, or dict None
-    :param row_group_size: Number of entries in each row group (except the last),
+    :param row_group_size: Maximum number of entries in each row group,
         passed to [pyarrow.parquet.ParquetWriter.write_table](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html#pyarrow.parquet.ParquetWriter.write_table).
-        If None, the Parquet default of 64 MiB is used.
+        If None, the Parquet default of 64 MiB is used. Command line options: ``-rg`` or ``--row-group-size``.
     :type row_group_size: int or None
     :param data_page_size: Number of bytes in each data page, passed to
         [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
-        If None, the Parquet default of 1 MiB is used.
+        If None, the Parquet default of 1 MiB is used. Command line option: ``--data-page-size``.
     :type data_page_size: None or int
     :param parquet_flavor: If None, the output Parquet file will follow
         Arrow conventions; if `"spark"`, it will follow Spark conventions. Some
         systems, such as Spark and Google BigQuery, might need Spark conventions,
         while others might need Arrow conventions. Passed to
         [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
-        as `flavor`.
+        as `flavor`. Command line option: ``--parquet-flavor``.
     :type parquet_flavor: None or `"spark"`
     :param parquet_version: Parquet file format version.
         Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
-        as `version`.
+        as `version`. Command line option: ``--parquet-version``.
     :type parquet_version: `"1.0"`, `"2.4"`, or `"2.6"`
     :param parquet_page_version: Parquet page format version.
         Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
-        as `data_page_version`.
+        as `data_page_version`. Command line option: ``--parquet-page-version``.
     :type parquet_page_version: `"1.0"` or `"2.0"`
     :param parquet_metadata_statistics: If True, include summary
         statistics for each data page in the Parquet metadata, which lets some
@@ -120,19 +126,19 @@ def root_to_parquet(
         mapping column names to bool, include summary statistics on only the
         specified columns. Passed to
         [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
-        as `write_statistics`.
+        as `write_statistics`. Command line option: ``--parquet-metadata-statistics``.
     :type parquet_metadata_statistics: bool or dict
     :param parquet_dictionary_encoding: If True, allow Parquet to pre-compress
         with dictionary encoding. If a dict mapping column names to bool, only
         use dictionary encoding on the specified columns. Passed to
         [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
-        as `use_dictionary`.
+        as `use_dictionary`. Command line option: ``--parquet-dictionary-encoding``.
     :type parquet_dictionary_encoding: bool or dict
     :param parquet_byte_stream_split: If True, pre-compress floating
         point fields (`float32` or `float64`) with byte stream splitting, which
         collects all mantissas in one part of the stream and exponents in another.
         Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
-        as `use_byte_stream_split`.
+        as `use_byte_stream_split`. Command line option: ``--parquet-byte-stream-split``.
     :type parquet_byte_stream_split: bool or dict
     :param parquet_coerce_timestamps: If None, any timestamps
         (`datetime64` data) are coerced to a given resolution depending on
@@ -140,20 +146,20 @@ def root_to_parquet(
         but later versions use the `datetime64`'s own units. If `"ms"` is explicitly
         specified, timestamps are coerced to milliseconds; if `"us"`, microseconds.
         Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
-        as `coerce_timestamps`.
+        as `coerce_timestamps`. Command line option: ``--parquet-coerce-timestamps``.
     :type parquet_coerce_timestamps: None, `"ms"`, or `"us"`
     :param parquet_old_int96_timestamps: If True, use Parquet's INT96 format
         for any timestamps (`datetime64` data), taking priority over `parquet_coerce_timestamps`.
         If None, let the `parquet_flavor` decide. Passed to
         [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
-        as `use_deprecated_int96_timestamps`.
+        as `use_deprecated_int96_timestamps`. Command line option: ``--parquet-old-int96-timestamps``.
     :type parquet_old_int96_timestamps: None or bool
     :param parquet_compliant_nested: If True, use the Spark/BigQuery/Parquet
         [convention for nested lists](https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#nested-types),
         in which each list is a one-field record with field name "`element`";
         otherwise, use the Arrow convention, in which the field name is "`item`".
         Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
-        as `use_compliant_nested_type`.
+        as `use_compliant_nested_type`. Command line option: ``--parquet-compliant-nested``.
     :type parquet_compliated_nested: bool
     :param parquet_extra_options: Any additional options to pass to
         [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
@@ -168,6 +174,12 @@ def root_to_parquet(
     Converts a TTree from a ROOT file to a Parquet File.
 
         >>> odapt.root_to_parquet(in_file="file.root", out_file="file.parquet")
+
+    Command Line Instructions:
+    --------------------------
+    This function can be run from the command line. Use command
+
+        >>> odapt root-to-parquet [options] [OUT_FILE] [IN_FILE]
 
     """
     path = Path(out_file)

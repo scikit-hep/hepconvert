@@ -33,7 +33,7 @@ def hadd_and_merge(
     :param files: List of local ROOT files to merge.
         May contain glob patterns.
     :type files: str or list of str
-    :param branch_types: Name and type specification for the TBranches.
+    :param branch_types: Name and type specification for the TBranches. Command line option: ``--branch-types``.
     :type branch_types: dict or pairs of str → NumPy dtype/Awkward type
     :param fieldname_separator: Character that separates TBranch names for columns, used
         for grouping columns (to avoid duplicate counters in ROOT file).
@@ -42,33 +42,43 @@ def hadd_and_merge(
         of an Awkward record array or a Pandas DataFrame.
     :type field_name: callable of str → str
     :param initial_basket_capacity: Number of TBaskets that can be written to the TTree
-        without rewriting the TTree metadata to make room.
+        without rewriting the TTree metadata to make room. Command line option: ``--initial-basket-capacity``.
     :type initial_basket_capacity: int
     :param resize_factor: When the TTree metadata needs to be rewritten, this specifies how
-        many more TBasket slots to allocate as a multiplicative factor.
+        many more TBasket slots to allocate as a multiplicative factor. Command line option: ``--resize-factor``.
     :type resize_factor: float
     :param step_size: If an integer, the maximum number of entries to include in each
         iteration step; if a string, the maximum memory size to include. The string must be
         a number followed by a memory unit, such as “100 MB”. Recommended to be >100 kB.
+        Command line option: ``--step-size``.
     :type step_size: int or str
     :param force: If True, overwrites destination file if it exists. Force and append
-        cannot both be True.
+        cannot both be True. Command line option: ``--force``.
     :type force: bool
     :param append: If True, appends data to an existing file. Force and append
-        cannot both be True.
+        cannot both be True. Command line option: ``--append``.
     :type append: bool
     :param compression: Sets compression level for root file to write to. Can be one of
         "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".
+        Command line option: ``--compression``.
     :type compression: str
     :param compression_level: Use a compression level particular to the chosen compressor.
-        By default the compression level is 1.
+        By default the compression level is 1. Command line option: ``--compression-level``.
     :type compression_level: int
     :param skip_bad_files: If True, skips corrupt or non-existent files without exiting.
+        Command line option: ``--skip-bad-files``.
     :type skip_bad_files: bool
 
     Example:
     --------
         >>> odapt.hadd_and_merge("destination.root", ["file1.root", "file2.root"])
+
+    Command Line Instructions:
+    --------------------------
+    This function can be run from the command line. Use command
+
+        >>> odapt add-and-merge [options] [OUT_FILE] [IN_FILES]
+
 
     """
     if compression in ("LZMA", "lzma"):
