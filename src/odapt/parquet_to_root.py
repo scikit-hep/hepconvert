@@ -28,25 +28,29 @@ def parquet_to_root(
     :param file: Local parquet file to convert.
     :type file: path-like
     :param name: Name of tree to write to ROOT file (this will be the key to access
-        the tree in the ROOT file). Defaults to "tree".
+        the tree in the ROOT file). Defaults to "tree". Command line option: ``--name``.
     :type name: str, optional
-    :param title: Title for new TTree. Defaults to "".
+    :param branch_types: Name and type specification for the TBranches. Defaults to None. 
+        Command line option: ``--branch-types``.
+    :type branch_types: dict or pairs of str → NumPy dtype/Awkward type, optional
+    :param title: Title for new TTree. Defaults to "". Command line option: ``--title``.
     :type title: str, optional
     :param field_name: Function to generate TBranch names for columns of an Awkward
         record array or a Pandas DataFrame.
     :type field_name: callable of str → str, optional
     :param initial_basket_capacity: Number of TBaskets that can be written to the TTree
-        without rewriting the TTree metadata to make room.
+        without rewriting the TTree metadata to make room. Command line option: ``--initial-basket-capacity``.
     :type initial_basket_capacity: int, optional
     :param resize_factor: When the TTree metadata needs to be rewritten, this specifies how
-      many more TBasket slots to allocate as a multiplicative factor.
+      many more TBasket slots to allocate as a multiplicative factor. Command line option: ``--resize-factor``.
     :type resize_factor: float, optional
     :param compression: Sets compression level for root file to write to. Can be one of
-        "ZLIB", "LZMA", "LZ4", or "ZSTD". Defaults to "lz4".
+        "ZLIB", "LZMA", "LZ4", or "ZSTD". Defaults to "lz4". Command line option: ``--compression``.
     :type compression: str, optional
     :param compression_level: Use a compression level particular to the chosen compressor. Defaults to 1.
+        Command line option: ``--compression-level``.
     :type compression_level: int, optional
-    :param force: If True, overwrites destination file if it exists.
+    :param force: If True, overwrites destination file if it exists. Command line option: ``--force``.
     :type force: boolean, optional
 
     Example:
@@ -54,6 +58,12 @@ def parquet_to_root(
         >>> od.parquet_to_root("file.root", "file.parquet", name="tree")
         >>> f = uproot.open("file.root")
         >>> data = f["tree"]
+
+    Command Line Instructions:
+    --------------------------
+    This function can be run from the command line. Use command
+
+        >>> odapt parquet-to-root [options] [OUT_FILE] [IN_FILE]
 
     """
     if compression in ("LZMA", "lzma"):

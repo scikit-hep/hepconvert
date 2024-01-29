@@ -33,34 +33,36 @@ def copy_root(
     :param files: Local ROOT file to copy. May contain glob patterns.
     :type files: str
     :param drop_branches: To remove branches from a tree, pass a list of names of branches to remove.
-        Defaults to None.
+        Defaults to None. Command line option: ``--drop-branches``.
     :type drop_branches: list of str, optional
     :param fieldname_separator: If data includes jagged arrays, pass the character that separates
         TBranch names for columns, used for grouping columns (to avoid duplicate counters in ROOT file). Defaults to "_".
     :type fieldname_separator: str, optional
     :param branch_types: Name and type specification for the TBranches. Defaults to None.
     :type branch_types: dict or pairs of str → NumPy dtype/Awkward type, optional
-    :param title: to change the title of the ttree, pass a new name. Defaults to None.
+    :param title: to change the title of the ttree, pass a new name. Defaults to None. Command line option: ``--title``.
     :type title: str, optional
     :param field_name: Function to generate TBranch names for columns of an Awkward record array or a
         Pandas DataFrame. Defaults to ``lambda outer, inner: inner if outer == "" else outer + "_" +
-        inner``.
+        inner``. 
     :type field_name: callable of str → str, optional
     :param initial_basket_capacity: Number of TBaskets that can be written to the TTree without
-        rewriting the TTree metadata to make room. Defaults to 10.
+        rewriting the TTree metadata to make room. Defaults to 10. Command line option: ``--initial-basket-capacity``.
     :type initial_basket_capacity: int, optional
     :param resize_factor: When the TTree metadata needs to be rewritten, this specifies how many more
-        TBasket slots to allocate as a multiplicative factor. Defaults to 10.0.
+        TBasket slots to allocate as a multiplicative factor. Defaults to 10.0. Command line option: ``--resize-factor``.
     :type resize_factor: float, optional.
     :param counter_name: Function to generate counter-TBranch names for Awkward Arrays of variable-length
         lists. Defaults to ``lambda counted: "n" + counted``.
     :type counter_name: callable of str \u2192 str, optional
     :param step_size: If an integer, the maximum number of entries to include in each iteration step; if
-        a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”. Defaults to \100.
+        a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”. 
+        Defaults to \100. Command line option: ``--step-size``.
     :type step_size: int or str, optional
-    :param compression: Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". Defaults to "LZ4".
+    :param compression: Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". 
+        Defaults to "LZ4". Command line option: ``--compression``.
     :type compression: str
-    :param compression_level: Use a compression level particular to the chosen compressor. Defaults to 1.
+    :param compression_level: Use a compression level particular to the chosen compressor. Defaults to 1. Command line option: ``--compression-level``.
     :type compression_level: int
 
 
@@ -74,6 +76,11 @@ def copy_root(
 
         >>> odapt.copy_root("copied_file.root", "original_file.root", drop_branches=["branch1", "branch2"])
 
+    Command Line Instructions:
+    --------------------------
+    This function can be run from the command line. Use command
+
+        >>> odapt copy-root [options] [OUT_FILE] [IN_FILE]
 
     """
     if compression in ("LZMA", "lzma"):

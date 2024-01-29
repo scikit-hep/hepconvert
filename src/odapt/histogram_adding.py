@@ -391,29 +391,38 @@ def hadd(
         May contain glob patterns.
     :type files: str or list of str
     :param force: If True, overwrites destination file if it exists. Force and append
-        cannot both be True. Defaults to True.
+        cannot both be True. Defaults to True. Command line options: ``-f`` or ``--force``.
     :type force: bool, optional
     :param append: If True, appends histograms to an existing file. Force and append
-        cannot both be True. Defaults to False.
+        cannot both be True. Defaults to False. Command line option: ``--append``.
     :type append: bool, optional
     :param compression: Sets compression level for root file to write to. Can be one of
         "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".
+        Command line option: ``--compression``.
     :type compression: path-like, optional
     :param compression_level: Use a compression level particular to the chosen compressor.
-        By default the compression level is 1.
+        By default the compression level is 1. Command line option: ``--compression-level``.
     :type compression: int
-    :param skip_bad_files: If True, skips corrupt or non-existent files without exiting.
+    :param skip_bad_files: If True, skips corrupt or non-existent files without exiting. 
+        Command line option: ``--skip-bad-files``.
     :type skip_bad_files: bool, optional
     :param union: If True, adds the histograms that have the same name and appends all others
-        to the new file. Defaults to True.
+        to the new file. Defaults to True. Command line option: ``--union``.
     :type union: bool, optional
     :param same_names: If True, only adds together histograms which have the same name (key). If False,
         histograms are added together based on TTree structure (bins must be equal). Defaults to True.
+        Command line option: ``--same-names``.
     :type same_names: bool, optional
 
     Example:
     --------
         >>> odapt.hadd("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
+
+    Command Line Instructions:
+    --------------------------
+    This function can be run from the command line. Use command
+
+        >>> odapt add [options] [OUT_FILE] [IN_FILES]
 
     """
     if compression in ("ZLIB", "zlib"):

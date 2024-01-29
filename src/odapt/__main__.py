@@ -16,23 +16,18 @@ def main() -> None:
 @main.command()
 @click.argument("destination", type=click.Path())
 @click.argument("file")
-@click.option("--drop_branches", default=None, type=list, required=False)
-@click.option("--branch_types", default=None, type=dict, required=False)
+@click.option("--name", required=False, default="")
+@click.option("--branch-types", default=None, type=dict, required=False)
 @click.option("--title", required=False, default="")
 @click.option(
-    "--initial_basket_capacity",
+    "--initial-basket-capacity",
     default=10,
     help="Number of TBaskets that can be written to the TTree without rewriting the TTree metadata to make room.",
 )
 @click.option(
-    "--resize_factor",
+    "--resize-factor",
     default=10.0,
     help="When the TTree metadata needs to be rewritten, this specifies how many more TBasket slots to allocate as a multiplicative factor.",
-)
-@click.option(
-    "--force",
-    default=True,
-    help="If True, overwrites destination file if it already exists.",
 )
 @click.option(
     "--compression",
@@ -40,7 +35,7 @@ def main() -> None:
     help='Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".',
 )
 @click.option(
-    "--compression_level",
+    "--compression-level",
     default=1,
     help="Use a compression level particular to the chosen compressor. By default the compression level is 1.",
 )
@@ -88,16 +83,16 @@ def parquet_to_root(
 @main.command()
 @click.argument("destination", type=click.Path())
 @click.argument("file")
-@click.option("--drop_branches", default=None, type=list, required=False)
-@click.option("--branch_types", default=None, type=dict, required=False)
+@click.option("--drop-branches", default=None, type=list, required=False)
+@click.option("--branch-types", default=None, type=dict, required=False)
 @click.option("--title", required=False, default="")
 @click.option(
-    "--initial_basket_capacity",
+    "--initial-basket-capacity",
     default=10,
     help="Number of TBaskets that can be written to the TTree without rewriting the TTree metadata to make room.",
 )
 @click.option(
-    "--resize_factor",
+    "--resize-factor",
     default=10.0,
     help="When the TTree metadata needs to be rewritten, this specifies how many more TBasket slots to allocate as a multiplicative factor.",
 )
@@ -160,12 +155,12 @@ def copy_root(
     help='Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".',
 )
 @click.option(
-    "--compression_level",
+    "--compression-level",
     default=1,
     help="Use a compression level particular to the chosen compressor. By default the compression level is 1.",
 )
 @click.option(
-    "--skip_bad_files",
+    "--skip-bad-files",
     default=False,
     help="Skip corrupt or non-existent files without exiting",
 )
@@ -175,7 +170,7 @@ def copy_root(
     help="Adds the histograms that have the same name and appends all others to the new file",
 )
 @click.option(
-    "--same_names",
+    "--same-names",
     default=False,
     help="Only adds histograms together if they have the same name",
 )
@@ -213,7 +208,7 @@ def add(
 @click.argument("destination")
 @click.argument("files")
 @click.option(
-    "--branch_types",
+    "--branch-types",
     default=None,
     type=dict,
     required=False,
@@ -221,17 +216,17 @@ def add(
 )
 @click.option("--title", required=False, default="", help="Set title of new TTree.")
 @click.option(
-    "--initial_basket_capacity",
+    "--initial-basket-capacity",
     default=10,
     help="Number of TBaskets that can be written to the TTree without rewriting the TTree metadata to make room.",
 )
 @click.option(
-    "--resize_factor",
+    "--resize-factor",
     default=10.0,
     help="When the TTree metadata needs to be rewritten, this specifies how many more TBasket slots to allocate as a multiplicative factor.",
 )
 @click.option(
-    "--step_size",
+    "--step-size",
     default=100,
     help="If an integer, the maximum number of entries to include in each iteration step; if a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”.",
 )
@@ -245,12 +240,12 @@ def add(
     help='Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".',
 )
 @click.option(
-    "--compression_level",
+    "--compression-level",
     default=1,
     help="Use a compression level particular to the chosen compressor. By default the compression level is 1.",
 )
 @click.option(
-    "--skip_bad_files",
+    "--skip-bad-files",
     default=False,
     help="Skip corrupt or non-existent files without exiting",
 )
@@ -297,8 +292,8 @@ def add_and_merge(
 
 
 @main.command()
-@click.argument("in_file", required=True)
-@click.argument("out_file", required=True)
+@click.argument("in-file", required=True)
+@click.argument("out-file", required=True)
 @click.option(
     "-t",
     "--tree",
@@ -315,35 +310,35 @@ def add_and_merge(
 )
 @click.option(
     "-s",
-    "--step_size",
+    "--step-size",
     default="100 MB",
     help="Specify batch size for reading ROOT file. If an integer, the maximum number of entries to include in each iteration step; if a string, the maximum memory size to include.",
 )
 @click.option(
-    "--list_to32",
+    "--list-to32",
     default=False,
     type=bool,
     help="If True, convert Awkward lists into 32-bit Arrow lists if they're small enough.",
 )
 @click.option(
-    "--string_to32",
+    "--string-to32",
     default=True,
     type=bool,
     help="If True, convert Awkward lists into 32-bit Arrow string if they're small enough.",
 )
 @click.option(
-    "--bytestring_to32",
+    "--bytestring-to32",
     default=True,
     type=bool,
     help="If True, convert Awkward lists into 32-bit Arrow binary if they're small enough.",
 )
 @click.option(
-    "--emptyarray_to",
+    "--emptyarray-to",
     default=None,
     help="If None, #ak.types.UnknownType maps to Arrow's null type; otherwise, it is converted a given numeric dtype.",
 )
 @click.option(
-    "--categorical_as_dictionary",
+    "--categorical-as-dictionary",
     default=False,
     help='If True, ak.contents.IndexedArray and ak.contents.IndexedOptionArray labeled with __array__ = "categorical" are mapped to Arrow `DictionaryArray`; otherwise, the projection is evaluated before conversion.',
 )
@@ -354,7 +349,7 @@ def add_and_merge(
     help="If True, this function returns extended Arrow arrays (at all levels of nesting), which preserve metadata so that Awkward \u2192 Arrow \u2192 Awkward preserves the array's ak.types.Type (though not the ak.forms.Form). If False, this function returns generic Arrow arrays that might be needed for third-party tools that don't recognize Arrow's extensions.",
 )
 @click.option(
-    "--count_nulls",
+    "--count-nulls",
     default=True,
     type=bool,
     help="Count the number of missing values at each level and include these in the resulting Arrow array, which makes some downstream applications faster. If False, skip the up-front cost of counting them.",
@@ -366,79 +361,79 @@ def add_and_merge(
     help='Compression algorithm name Parquet supports {"NONE", "SNAPPY", "GZIP", "BROTLI", "LZ4", "ZSTD"}',
 )
 @click.option(
-    "--compression_level",
+    "--compression-level",
     default=None,
     type=int,
     help="Set compression level for chosen compression algorithm.",
 )
 @click.option(
     "-rg",
-    "--row_group_size",
+    "--row-group-size",
     default=64 * 1024 * 1024,
     type=int,
     help="Choose number of entries in each row-group (except the last).",
 )
 @click.option(
-    "--data_page_size", default=None, help="Choose number of bytes in each data page."
+    "--data-page-size", default=None, help="Choose number of bytes in each data page."
 )
 @click.option(
-    "--parquet_flavor",
+    "--parquet-flavor",
     default=None,
     help='Choose flavor. If None, the output Parquet file will follow Arrow conventions; if "spark", it will follow Spark conventions.',
 )
 @click.option(
-    "--parquet_version", default="2.4", type=str, help="Parquet file format version."
+    "--parquet-version", default="2.4", type=str, help="Parquet file format version."
 )
 @click.option(
-    "--parquet_page_version",
+    "--parquet-page-version",
     default="1.0",
     type=str,
     help="Parquet page format version.",
 )
 @click.option(
-    "--parquet_metadata_statistics",
+    "--parquet-metadata-statistics",
     default=True,
     type=bool,
     help="Include summary statistics for each data page in the Parquet metadata.",
 )
 @click.option(
-    "--parquet_dictionary_encoding",
+    "--parquet-dictionary-encoding",
     default=False,
     type=bool,
     help="Allow Parquet to pre-compress with dictionary encoding.",
 )
 @click.option(
-    "--parquet_byte_stream_split",
+    "--parquet-byte-stream-split",
     default=False,
     type=bool,
     help="Pre-compress floating point fields ('float32' or 'float64') with byte stream splitting.",
 )
 @click.option(
-    "--parquet_coerce_timestamps",
+    "--parquet-coerce-timestamps",
     default=None,
     type=str,
     help="Choose resolution of timestamps.",
 )
 @click.option(
-    "--parquet_old_int96_timestamps",
+    "--parquet-old-int96-timestamps",
     default=None,
     type=bool,
     help="Choose to use INT96 format for any timestamps.",
 )
 @click.option(
-    "--parquet_compliant_nested",
+    "--parquet-compliant-nested",
     default=False,
     type=bool,
     help="Choose to use the Spark/BigQuery/Parquet convention for nested list.",
 )
 @click.option(
-    "--parquet_extra_options",
+    "--parquet-extra-options",
     default=None,
     type=dict,
     help="Options to pass to pyarrow.parquet.ParquetWriter",
 )
 @click.option(
-    "--storage_options",
+    "--storage-options",
     default=None,
     type=dict,
     help="Any additional options to pass to fsspec.core.url_to_fs to open a remote file for writing.",
