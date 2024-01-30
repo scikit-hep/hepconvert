@@ -1,7 +1,10 @@
-import uproot
-import odapt as od
+from __future__ import annotations
+
 import awkward as ak
 import pytest
+import uproot
+
+import odapt as od
 
 skhep_testdata = pytest.importorskip("skhep_testdata")
 
@@ -35,7 +38,7 @@ def test_drop_branch():
     assert "Jet_Px" not in file["events"]
 
     for key in original["events"].keys():
-        if key != "MClepton_py" and key != "Jet_Px":
+        if key not in {"MClepton_py", "Jet_Px"}:
             assert key in file["events"].keys()
             assert ak.all(
                 file["events"][key].array() == original["events"][key].array()
