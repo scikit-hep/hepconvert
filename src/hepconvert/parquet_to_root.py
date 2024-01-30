@@ -55,7 +55,7 @@ def parquet_to_root(
 
     Example:
     --------
-        >>> od.parquet_to_root("file.root", "file.parquet", name="tree")
+        >>> hepconvert.parquet_to_root("file.root", "file.parquet", name="tree")
         >>> f = uproot.open("file.root")
         >>> data = f["tree"]
 
@@ -63,7 +63,7 @@ def parquet_to_root(
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> odapt parquet-to-root [options] [OUT_FILE] [IN_FILE]
+        >>> hepconvert parquet-to-root [options] [OUT_FILE] [IN_FILE]
 
     """
     if compression in ("LZMA", "lzma"):

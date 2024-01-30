@@ -5,7 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-from odapt.histogram_adding import hadd_1d, hadd_2d, hadd_3d
+from hepconvert.histogram_adding import hadd_1d, hadd_2d, hadd_3d
 
 
 def hadd_and_merge(
@@ -71,13 +71,13 @@ def hadd_and_merge(
 
     Example:
     --------
-        >>> odapt.hadd_and_merge("destination.root", ["file1.root", "file2.root"])
+        >>> hepconvert.hadd_and_merge("destination.root", ["file1.root", "file2.root"])
 
     Command Line Instructions:
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> odapt add-and-merge [options] [OUT_FILE] [IN_FILES]
+        >>> hepconvert add-and-merge [options] [OUT_FILE] [IN_FILES]
 
 
     """

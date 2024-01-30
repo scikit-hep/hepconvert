@@ -4,7 +4,7 @@ import awkward as ak
 import pytest
 import uproot
 
-from odapt.parquet_to_root import parquet_to_root
+from hepconvert.parquet_to_root import parquet_to_root
 
 skhep_testdata = pytest.importorskip("skhep_testdata")
 

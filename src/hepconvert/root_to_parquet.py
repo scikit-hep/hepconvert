@@ -173,13 +173,13 @@ def root_to_parquet(
     ---------
     Converts a TTree from a ROOT file to a Parquet File.
 
-        >>> odapt.root_to_parquet(in_file="file.root", out_file="file.parquet")
+        >>> hepconvert.root_to_parquet(in_file="file.root", out_file="file.parquet")
 
     Command Line Instructions:
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> odapt root-to-parquet [options] [OUT_FILE] [IN_FILE]
+        >>> hepconvert root-to-parquet [options] [OUT_FILE] [IN_FILE]
 
     """
     path = Path(out_file)

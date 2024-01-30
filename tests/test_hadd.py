@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 import uproot
 
-import odapt as od
+import hepconvert
 
 ROOT = pytest.importorskip("ROOT")
 
@@ -111,12 +111,12 @@ def test_simple(tmp_path, file_paths):
 
     path = Path(tmp_path)
     destination = path / "destination.root"
-    od.root.hadd(destination, file_paths, force=True)
+    hepconvert.root.hadd(destination, file_paths, force=True)
 
     with uproot.open(destination) as file:
         added = uproot.from_pyroot(
             gauss_1 + gauss_2 + gauss_3
-        )  # test od vs Pyroot histogram adding
+        )  # test hepconvert vs Pyroot histogram adding
         assert file["name"].member("fN") == added.member("fN")
         assert file["name"].member("fTsumw") == added.member("fTsumw")
         assert np.equal(file["name"].values(flow=True), added.values(flow=True)).all
@@ -192,12 +192,12 @@ def mult_1D(tmp_path, file_paths):
 
     path = Path(tmp_path)
     destination = path / "destination.root"
-    od.root.hadd(destination, file_paths, force=True, same_names=False)
+    hepconvert.root.hadd(destination, file_paths, force=True, same_names=False)
 
     with uproot.open(destination) as file:
         added = uproot.from_pyroot(
             gauss_1 + gauss_3 + gauss_5
-        )  # test od vs Pyroot histogram adding
+        )  # test hepconvert vs Pyroot histogram adding
         assert file["name1"].member("fN") == added.member("fN")
         assert file["name1"].member("fTsumw") == added.member("fTsumw")
         assert np.equal(file["name1"].values(flow=True), added.values(flow=True)).all
@@ -206,7 +206,7 @@ def mult_1D(tmp_path, file_paths):
         ) + h5.member("fTsumw")
         added = uproot.from_pyroot(
             gauss_2 + gauss_4 + gauss_6
-        )  # test od vs Pyroot histogram adding
+        )  # test hepconvert vs Pyroot histogram adding
         assert file["name2"].member("fN") == added.member("fN")
         assert file["name2"].member("fTsumw") == added.member("fTsumw")
         assert np.equal(file["name1"].values(flow=True), added.values(flow=True)).all
@@ -218,7 +218,7 @@ def mult_1D(tmp_path, file_paths):
 def test_3_glob(file_paths):
     h1, h2, h3 = generate_1D_gaussian(file_paths)
 
-    od.root.hadd("tests/place.root", "tests/samples", force=True)
+    hepconvert.root.hadd("tests/place.root", "tests/samples", force=True)
 
     with uproot.open("tests/place.root") as file:
         assert file["name"].member("fN") == h1.member("fN")
@@ -235,7 +235,7 @@ def test_3_glob(file_paths):
 
 def simple_1dim_F():
     h1, h2 = generate_1D_simple()
-    od.root.hadd(
+    hepconvert.root.hadd(
         "tests/place2.root",
         ["tests/file1dim1.root", "tests/file2dim1.root"],
         force=True,
@@ -355,7 +355,7 @@ def mult_2D_hists():
     outHistFile.Close()
     h4 = uproot.from_pyroot(h4)
 
-    od.root.hadd(
+    hepconvert.root.hadd(
         "tests/place2.root",
         ["tests/file3dim2.root", "tests/file4dim2.root"],
         force=True,
@@ -445,7 +445,7 @@ def simple_2dim_F():
 
     h2 = uproot.from_pyroot(h2)
 
-    od.root.hadd(
+    hepconvert.root.hadd(
         "tests/place2.root",
         ["tests/file1dim2.root", "tests/file2dim2.root"],
         force=True,
@@ -521,7 +521,7 @@ def simple_2D():
     outHistFile.Close()
     h1 = uproot.from_pyroot(h1)
 
-    od.root.hadd(
+    hepconvert.root.hadd(
         "tests/place2.root",
         ["tests/file1dim2.root", "tests/file2dim2.root"],
         force=True,
@@ -578,7 +578,7 @@ def break_bins():
     outHistFile.Close()
     h2 = uproot.from_pyroot(h2)
 
-    od.root.hadd(
+    hepconvert.root.hadd(
         "tests/place2break.root",
         ["tests/file1dim1break.root", "tests/file2dim1break.root"],
         force=True,

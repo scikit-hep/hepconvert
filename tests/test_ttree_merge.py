@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 import uproot
 
-from odapt import merge
+from hepconvert import merge
 
 skhep_testdata = pytest.importorskip("skhep_testdata")
 
@@ -19,14 +19,14 @@ def test_simple():
         ],
         counter_name=lambda counted: "N" + counted,
     )
-    odapt_file = uproot.open("od_test_hist.root")
+    hepconvert_file = uproot.open("od_test_hist.root")
     hadd_file = uproot.open(
-        "/Users/zobil/Documents/odapt/src/odapt/operations/HZZ-hadd.root"
+        "/Users/zobil/Documents/hepconvert/src/hepconvert/operations/HZZ-hadd.root"
     )
-    assert ak.all(odapt_file.keys() == hadd_file.keys())
-    for key in odapt_file["events"]:
+    assert ak.all(hepconvert_file.keys() == hadd_file.keys())
+    for key in hepconvert_file["events"]:
         assert ak.all(
-            odapt_file["events"].arrays()[key] == hadd_file["events"].arrays()[key]
+            hepconvert_file["events"].arrays()[key] == hadd_file["events"].arrays()[key]
         )
 
 
@@ -40,12 +40,12 @@ def test_hists():
         step_size=100,
         counter_name=lambda counted: "N" + counted,
     )
-    odapt_file = uproot.open("od_test_hists.root")
+    hepconvert_file = uproot.open("od_test_hists.root")
     hadd_file = uproot.open(
-        "/Users/zobil/Documents/odapt/src/odapt/operations/hadd-hepdata.root"
+        "/Users/zobil/Documents/hepconvert/src/hepconvert/operations/hadd-hepdata.root"
     )
 
-    assert ak.all(odapt_file["hpx"].values() == hadd_file["hpx"].values())
+    assert ak.all(hepconvert_file["hpx"].values() == hadd_file["hpx"].values())
 
 
 def test_force():
@@ -119,12 +119,12 @@ def realistic_data():
         step_size="100 MB",
     )
 
-    odapt_file = uproot.open("test_existing_file.root")
+    hepconvert_file = uproot.open("test_existing_file.root")
     hadd_file = uproot.open(
-        "/Users/zobil/Documents/odapt/tests/samples/test_existing.root"
+        "/Users/zobil/Documents/hepconvert/tests/samples/test_existing.root"
     )
     for key in hadd_file["Events"]:
         assert np.equal(
-            odapt_file["Events"].arrays()[key].to_numpy,
+            hepconvert_file["Events"].arrays()[key].to_numpy,
             hadd_file["Events"].arrays()[key].to_numpy,
         ).all

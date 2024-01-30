@@ -62,9 +62,9 @@ def parquet_to_root(
     """
     Convert Parquet file to ROOT file.
     """
-    import odapt.parquet_to_root  # pylint: disable=import-outside-toplevel
+    import hepconvert.parquet_to_root  # pylint: disable=import-outside-toplevel
 
-    odapt.parquet_to_root(
+    hepconvert.parquet_to_root(
         destination,
         file,
         name=name,
@@ -120,9 +120,9 @@ def copy_root(
     """
     Copy root file.
     """
-    import odapt.copy_root  # pylint: disable=import-outside-toplevel
+    import hepconvert.copy_root  # pylint: disable=import-outside-toplevel
 
-    odapt.copy_root(
+    hepconvert.copy_root(
         destination,
         file,
         drop_branches=drop_branches,
@@ -189,9 +189,9 @@ def add(
     """
     Hadd files.
     """
-    import odapt.histogram_adding  # pylint: disable=import-outside-toplevel
+    import hepconvert.histogram_adding  # pylint: disable=import-outside-toplevel
 
-    odapt.hadd(
+    hepconvert.hadd(
         destination,
         files,
         force=force,
@@ -270,9 +270,9 @@ def add_and_merge(
     """
     Merge TTrees and add histograms.
     """
-    import odapt.merge  # pylint: disable=import-outside-toplevel
+    import hepconvert.merge  # pylint: disable=import-outside-toplevel
 
-    odapt.hadd_and_merge(
+    hepconvert.hadd_and_merge(
         destination,
         files,
         fieldname_separator=fieldname_separator,
@@ -471,9 +471,9 @@ def root_to_parquet(
     """
     Convert ROOT to Parquet.
     """
-    import odapt.root_to_parquet  # pylint: disable=import-outside-toplevel
+    import hepconvert.root_to_parquet  # pylint: disable=import-outside-toplevel
 
-    odapt.root_to_parquet(
+    hepconvert.root_to_parquet(
         in_file=in_file,
         out_file=out_file,
         list_to32=list_to32,

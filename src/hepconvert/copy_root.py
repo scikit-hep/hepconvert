@@ -5,7 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-from odapt.histogram_adding import hadd_1d, hadd_2d, hadd_3d
+from hepconvert.histogram_adding import hadd_1d, hadd_2d, hadd_3d
 
 # ruff: noqa: B023
 
@@ -70,17 +70,17 @@ def copy_root(
     ---------
     Copies contents of one ROOT file to a new file. If the file is in nanoAOD-format, ``copy_root`` can drop branches from a tree while copying. RNTuple can not yet be copied.
 
-        >>> odapt.copy_root("copied_file.root", "original_file.root")
+        >>> hepconvert.copy_root("copied_file.root", "original_file.root")
 
     To copy a file and drop branches with names "branch1" and "branch2":
 
-        >>> odapt.copy_root("copied_file.root", "original_file.root", drop_branches=["branch1", "branch2"])
+        >>> hepconvert.copy_root("copied_file.root", "original_file.root", drop_branches=["branch1", "branch2"])
 
     Command Line Instructions:
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> odapt copy-root [options] [OUT_FILE] [IN_FILE]
+        >>> hepconvert copy-root [options] [OUT_FILE] [IN_FILE]
 
     """
     if compression in ("LZMA", "lzma"):

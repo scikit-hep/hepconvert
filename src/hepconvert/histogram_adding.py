@@ -416,13 +416,13 @@ def hadd(
 
     Example:
     --------
-        >>> odapt.hadd("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
+        >>> hepconvert.hadd("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
 
     Command Line Instructions:
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> odapt add [options] [OUT_FILE] [IN_FILES]
+        >>> hepconvert add [options] [OUT_FILE] [IN_FILES]
 
     """
     if compression in ("ZLIB", "zlib"):
