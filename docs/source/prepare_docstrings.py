@@ -246,10 +246,8 @@ def handle_function(functionname, cls):
     link = "`{} <https://github.com/zbilodea/hepconvert/blob/{}/src/{}>`__".format(
         cls.__module__, latest_commit, shortfilename
     )
-    linelink = (
-        "`line {0} <https://github.com/zbilodea/hepconvert/blob/{1}/src/{2}#L{0}>`__".format(
-            inspect.getsourcelines(cls)[1], latest_commit, shortfilename
-        )
+    linelink = "`line {0} <https://github.com/zbilodea/hepconvert/blob/{1}/src/{2}#L{0}>`__".format(
+        inspect.getsourcelines(cls)[1], latest_commit, shortfilename
     )
 
     content = """{}

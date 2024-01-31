@@ -15,13 +15,17 @@ def test_copy():
         skhep_testdata.data_path("uproot-HZZ.root"),
         counter_name=lambda counted: "N" + counted,
     )
-    hepconvert_file = uproot.open("/Users/zobil/Documents/hepconvert/tests/samples/copy.root")
+    hepconvert_file = uproot.open(
+        "/Users/zobil/Documents/hepconvert/tests/samples/copy.root"
+    )
     file = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
 
     print(file["events"].keys())
     for key in hepconvert_file["events"].keys():
         assert key in file["events"].keys()
-        assert ak.all(hepconvert_file["events"][key].array() == file["events"][key].array())
+        assert ak.all(
+            hepconvert_file["events"][key].array() == file["events"][key].array()
+        )
 
 
 def test_drop_branch():
@@ -33,7 +37,9 @@ def test_drop_branch():
     )
     original = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
 
-    file = uproot.open("/Users/zobil/Documents/hepconvert/tests/samples/drop_branches.root")
+    file = uproot.open(
+        "/Users/zobil/Documents/hepconvert/tests/samples/drop_branches.root"
+    )
     assert "MClepton_py" not in file["events"]
     assert "Jet_Px" not in file["events"]
 
@@ -70,7 +76,9 @@ def test_add_branch():
         branch_types=branch_types,
     )
 
-    file = uproot.open("/Users/zobil/Documents/hepconvert/tests/samples/add_branches.root")
+    file = uproot.open(
+        "/Users/zobil/Documents/hepconvert/tests/samples/add_branches.root"
+    )
 
 
 def test_hepdata_example():
