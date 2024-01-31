@@ -53,7 +53,7 @@ od.add_histograms("destination.root",
 
 To use run from the command line:
 ``odapt hadd-and-merge destination.root /directory``
-or 
+or
 ``odapt add destination.root /directory``
 
 <!-- prettier-ignore-end -->
