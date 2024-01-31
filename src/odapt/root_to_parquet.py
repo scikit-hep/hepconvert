@@ -199,9 +199,10 @@ def root_to_parquet(
             raise AttributeError(msg) from None
         tree = trees[0]
 
-    ak.to_parquet(
-        list(
-            f[tree].iterate(
+    ak.to_parquet_row_groups(
+        (
+            i
+            for i in f[tree].iterate(
                 step_size=step_size,
             )
         ),
