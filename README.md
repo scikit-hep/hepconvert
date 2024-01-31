@@ -54,13 +54,13 @@ od.add_histograms("destination.root",
 To use run from the command line:
 
 ```bash
-odapt hadd-and-merge destination.root /files_directory
+odapt hadd-and-merge [options] [OUT_FILE] [IN_FILES]
 ```
 
 or
 
 ```bash
-odapt add out_file.root /files_directory
+odapt add [options] [OUT_FILE] [IN_FILES]
 ```
 
 <!-- prettier-ignore-end -->
