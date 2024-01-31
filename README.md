@@ -51,16 +51,18 @@ od.add_histograms("destination.root",
 
 ```
 
-To use run from the command line:
+To run ``hadd_and_merge`` from the command line:
 
 ```bash
 odapt hadd-and-merge [options] [OUT_FILE] [IN_FILES]
 ```
 
-or
+To run ``hadd``:
 
 ```bash
 odapt add [options] [OUT_FILE] [IN_FILES]
 ```
+
+Find details on each function's CLI options on the readthedocs.
 
 <!-- prettier-ignore-end -->
