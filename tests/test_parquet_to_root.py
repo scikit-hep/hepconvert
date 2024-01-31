@@ -1,7 +1,10 @@
-import uproot
-from odapt.parquet_to_root import parquet_to_root
+from __future__ import annotations
+
 import awkward as ak
 import pytest
+import uproot
+
+from odapt.parquet_to_root import parquet_to_root
 
 skhep_testdata = pytest.importorskip("skhep_testdata")
 
@@ -57,7 +60,7 @@ def test_hzz():
         cur_group += 1
 
     edit = tree.arrays()
-    chunks = {name: array for name, array in zip(ak.fields(edit), ak.unzip(edit))}
+    chunks = dict(zip(ak.fields(edit), ak.unzip(edit)))
     for key in count_branches:
         del chunks[key]
     for group in groups:
