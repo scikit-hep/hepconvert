@@ -30,12 +30,19 @@ def specify_tree():
         in_file=skhep_testdata.data_path("uproot-HZZ.root"),
         out_file="test.parquet",
         tree="events",
-        step_size="100 MB",
+        step_size=200,
         force=True,
     )
     from_parquet = ak.from_parquet("/Users/zobil/Documents/odapt/test.parquet")
     for key in f["events"].keys():
         assert ak.all(from_parquet[key] == original[key])
+    # Check row-group size?
+    assert (
+        ak.metadata_from_parquet("/Users/zobil/Documents/odapt/test.parquet")[
+            "num_row_groups"
+        ]
+        == 13
+    )
 
 
 def Zmumu_test():
@@ -67,3 +74,6 @@ def two_trees():
             out_file="test2.parquet",
             step_size="100 MB",
         )
+
+
+specify_tree()
