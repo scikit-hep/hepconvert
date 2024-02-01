@@ -1,7 +1,10 @@
-import uproot
+from __future__ import annotations
+
 import awkward as ak
-import odapt as od
 import pytest
+import uproot
+
+import odapt as od
 
 skhep_testdata = pytest.importorskip("skhep_testdata")
 

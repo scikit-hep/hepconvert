@@ -27,7 +27,7 @@ common = [
 ]
 
 latest_commit = (
-    subprocess.run(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE)
+    subprocess.run(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE, check=False)
     .stdout.decode("utf-8")
     .strip()
 )
@@ -37,9 +37,7 @@ main.write(
     :caption: Main Interface
     :hidden:
 
-{}""".format(
-        "".join(f"    {x}\n" for x in common)
-    )
+{}""".format("".join(f"    {x}\n" for x in common))
 )
 toctree = open("odapt.toctree", "w")
 toctree.write(
@@ -71,9 +69,7 @@ def handle_module(modulename, module):
 {1}
 
 .. automodule:: {0}
-""".format(
-        modulename, "=" * len(modulename)
-    )
+""".format(modulename, "=" * len(modulename))
     ensure(modulename + ".rst", content)
     if toctree2 is None:
         toctree.write("    " + modulename + " (module) <" + modulename + ">\n")
@@ -201,13 +197,9 @@ def handle_class(classname, cls):
     +-{}-+
     | **Inheritance order:** {}|
     +={}=+
-    | """.format(
-            "-" * longest_cell, " " * (longest_cell - 22), "=" * longest_cell
-        )
+    | """.format("-" * longest_cell, " " * (longest_cell - 22), "=" * longest_cell)
         inheritance_footer = """ |
-    +-{}-+""".format(
-            "-" * longest_cell
-        )
+    +-{}-+""".format("-" * longest_cell)
         inheritance = [x + " " * (longest_cell - len(x)) for x in inheritance]
         inheritance_sep = """ |
     | """
@@ -266,9 +258,7 @@ def handle_function(functionname, cls):
 Defined in {} on {}.
 
 .. autofunction:: {}
-""".format(
-        title, "=" * len(title), link, linelink, functionname
-    )
+""".format(title, "=" * len(title), link, linelink, functionname)
     ensure(functionname + ".rst", content)
     if upfront or toctree2 is None:
         if functionname not in common:
@@ -288,9 +278,7 @@ for modulename in order:
     :caption: {}
     :hidden:
 
-""".format(
-                modulename.replace("odapt.", "")
-            )
+""".format(modulename.replace("odapt.", ""))
         )
 
     handle_module(modulename, module)
