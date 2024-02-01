@@ -14,13 +14,13 @@ def HZZ_test():
     original = f["events"].arrays()
     od.root_to_parquet(
         in_file=skhep_testdata.data_path("uproot-HZZ.root"),
-        out_file="test.parquet",
+        out_file="/Users/zobil/Documents/odapt/test.parquet",
         step_size="100 MB",
         force=True,
     )
     from_parquet = ak.from_parquet("/Users/zobil/Documents/odapt/test.parquet")
     for key in f["events"].keys():
-        assert ak.all(from_parquet[0][key] == original[key])
+        assert ak.all(from_parquet[key] == original[key])
 
 
 def specify_tree():
@@ -35,7 +35,7 @@ def specify_tree():
     )
     from_parquet = ak.from_parquet("/Users/zobil/Documents/odapt/test.parquet")
     for key in f["events"].keys():
-        assert ak.all(from_parquet[0][key] == original[key])
+        assert ak.all(from_parquet[key] == original[key])
 
 
 def Zmumu_test():
@@ -48,10 +48,10 @@ def Zmumu_test():
     )
     from_parquet = ak.from_parquet("/Users/zobil/Documents/odapt/test1.parquet")
     for key in f["events"].keys():
-        assert ak.all(from_parquet[0][key] == original[key])
+        assert ak.all(from_parquet[key] == original[key])
 
 
-def break_trees():
+def no_trees():
     with pytest.raises(AttributeError):
         od.root_to_parquet(
             in_file=skhep_testdata.data_path("uproot-hepdata-example.root"),
@@ -60,4 +60,10 @@ def break_trees():
         )
 
 
-HZZ_test()
+def two_trees():
+    with pytest.raises(AttributeError):
+        od.root_to_parquet(
+            in_file=skhep_testdata.data_path("uproot-hepdata-example.root"),
+            out_file="test2.parquet",
+            step_size="100 MB",
+        )
