@@ -17,7 +17,7 @@ def parquet_to_root(
     initial_basket_capacity=10,
     counter_name=lambda counted: "n" + counted,
     resize_factor=10.0,
-    compression="lz4",
+    compression="zlib",
     compression_level=1,
     force=True,
 ):
@@ -45,7 +45,7 @@ def parquet_to_root(
       many more TBasket slots to allocate as a multiplicative factor. Command line option: ``--resize-factor``.
     :type resize_factor: float, optional
     :param compression: Sets compression level for root file to write to. Can be one of
-        "ZLIB", "LZMA", "LZ4", or "ZSTD". Defaults to "lz4". Command line option: ``--compression``.
+        "ZLIB", "LZMA", "LZ4", or "ZSTD". Defaults to "zlib". Command line option: ``--compression``.
     :type compression: str, optional
     :param compression_level: Use a compression level particular to the chosen compressor. Defaults to 1.
         Command line option: ``--compression-level``.

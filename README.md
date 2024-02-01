@@ -24,7 +24,7 @@
 [rtd-badge]:                https://readthedocs.org/projects/hepconvert/badge/?version=latest
 [rtd-link]:                 https://hepconvert.readthedocs.io/en/latest/
 
-The hepconvert library is a bridge between columnar file formats **ROOT, Parquet, Feather, and HDF5.** It aims to simplify file conversions in Python, replacing what is usually a multi-step process with one line of code, with builtin features for managing large datasets and choosing compression levels.
+The odapt library is a bridge between columnar file formats, currently **ROOT, and Parquet** and soon eventually include **Feather, and HDF5.** It aims to simplify file conversions in Python, replacing what is usually a multi-step process with one line of code, with builtin features for managing large datasets and choosing compression levels.
 
 # Installation
 
@@ -41,15 +41,28 @@ import hepconvert as od
 
 # To merge two or more root files with TTrees,
 # and add together any histograms:
-od.hadd_and_merge("destination.root",
+od.merge_root("destination.root",
 ["ttree_file1.root", "ttree_file2.root"])
 
 
 # To add merge files with only histograms:
-od.hadd("destination.root",
+od.add_histograms("destination.root",
 ["hist_file1.root", "hist_file2.root"])
 
 ```
 
+To run ``hadd_and_merge`` from the command line:
+
+```bash
+odapt hadd-and-merge [options] [OUT_FILE] [IN_FILES]
+```
+
+To run ``hadd``:
+
+```bash
+odapt add [options] [OUT_FILE] [IN_FILES]
+```
+
+Find details on each function's CLI options on the readthedocs.
 
 <!-- prettier-ignore-end -->
