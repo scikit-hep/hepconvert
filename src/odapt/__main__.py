@@ -31,7 +31,7 @@ def main() -> None:
 )
 @click.option(
     "--compression",
-    default="lz4",
+    default="zlib",
     help='Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".',
 )
 @click.option(
@@ -55,7 +55,7 @@ def parquet_to_root(
     initial_basket_capacity=10,
     counter_name=lambda counted: "n" + counted,
     resize_factor=10.0,
-    compression="lz4",
+    compression="zlib",
     compression_level=1,
     force=True,
 ):
@@ -83,8 +83,8 @@ def parquet_to_root(
 @main.command()
 @click.argument("destination", type=click.Path())
 @click.argument("file")
-@click.option("--drop-branches", default=None, type=list, required=False)
-@click.option("--branch-types", default=None, type=dict, required=False)
+@click.option("--drop-branches", default=None, type=list or dict or str, required=False)
+@click.option("--drop-trees", default=None, type=list or str, required=False)
 @click.option("--title", required=False, default="")
 @click.option(
     "--initial-basket-capacity",
@@ -151,7 +151,7 @@ def copy_root(
 @click.option("--append", default=False, help="Append histograms to an existing file")
 @click.option(
     "--compression",
-    default="lz4",
+    default="zlib",
     help='Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".',
 )
 @click.option(
@@ -180,7 +180,7 @@ def add(
     *,
     force=True,
     append=False,
-    compression="lz4",
+    compression="zlib",
     compression_level=1,
     skip_bad_files=False,
     union=True,
@@ -236,7 +236,7 @@ def add(
 @click.option("--append", default=False, help="Append histograms to an existing file")
 @click.option(
     "--compression",
-    default="lz4",
+    default="zlib",
     help='Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".',
 )
 @click.option(

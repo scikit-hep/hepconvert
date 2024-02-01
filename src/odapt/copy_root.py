@@ -35,12 +35,8 @@ def copy_root(
     :type files: str
     :param drop_branches: To remove branches from all trees, pass a list of names of branches to
         remove. If removing branches from one of multiple trees, pass a dict of structure: {tree: [branch1, branch2]}
-        to remove branch1 and branch2 from ttree "tree".
-        Defaults to None. Command line option: ``--drop-branches``.
+        to remove branch1 and branch2 from ttree "tree". Defaults to None. Command line option: ``--drop-branches``.
     :type drop_branches: list of str, str, or dict, optional
-    :param add_branches: To add branches to a tree, pass a dict of branch names and types ().
-        Defaults to None. Command line option: ``--drop-branches``.
-    :type drop_branches: list of str, optional
     :param drop_trees: To remove a ttree from a file, pass a list of names of branches to remove.
         Defaults to None. Command line option: ``--drop-trees``.
     :type drop_trees: str or list of str, optional
