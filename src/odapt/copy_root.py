@@ -15,16 +15,17 @@ def copy_root(
     file,
     *,
     drop_branches=None,
+    # add_branches=None, #TO-DO: add functionality for this, just specify about the counter issue
+    drop_trees=None,
     force=True,
     fieldname_separator="_",
-    branch_types=None,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
     resize_factor=10.0,
     counter_name=lambda counted: "n" + counted,
     step_size=100,
-    compression="LZ4",
+    compression="ZLIB",
     compression_level=1,
 ):
     """
@@ -32,9 +33,13 @@ def copy_root(
     :type destination: path-like
     :param files: Local ROOT file to copy. May contain glob patterns.
     :type files: str
-    :param drop_branches: To remove branches from a tree, pass a list of names of branches to remove.
-        Defaults to None. Command line option: ``--drop-branches``.
-    :type drop_branches: list of str, optional
+    :param drop_branches: To remove branches from all trees, pass a list of names of branches to
+        remove. If removing branches from one of multiple trees, pass a dict of structure: {tree: [branch1, branch2]}
+        to remove branch1 and branch2 from ttree "tree". Defaults to None. Command line option: ``--drop-branches``.
+    :type drop_branches: list of str, str, or dict, optional
+    :param drop_trees: To remove a ttree from a file, pass a list of names of branches to remove.
+        Defaults to None. Command line option: ``--drop-trees``.
+    :type drop_trees: str or list of str, optional
     :param fieldname_separator: If data includes jagged arrays, pass the character that separates
         TBranch names for columns, used for grouping columns (to avoid duplicate counters in ROOT file). Defaults to "_".
     :type fieldname_separator: str, optional
@@ -60,7 +65,7 @@ def copy_root(
         Defaults to \100. Command line option: ``--step-size``.
     :type step_size: int or str, optional
     :param compression: Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD".
-        Defaults to "LZ4". Command line option: ``--compression``.
+        Defaults to "ZLIB". Command line option: ``--compression``.
     :type compression: str
     :param compression_level: Use a compression level particular to the chosen compressor. Defaults to 1. Command line option: ``--compression-level``.
     :type compression_level: int
@@ -83,10 +88,10 @@ def copy_root(
         >>> odapt copy-root [options] [OUT_FILE] [IN_FILE]
 
     """
-    if compression in ("LZMA", "lzma"):
-        compression_code = uproot.const.kLZMA
-    elif compression in ("ZLIB", "zlib"):
+    if compression in ("ZLIB", "zlib"):
         compression_code = uproot.const.kZLIB
+    elif compression in ("LZMA", "lzma"):
+        compression_code = uproot.const.kLZMA
     elif compression in ("LZ4", "lz4"):
         compression_code = uproot.const.kLZ4
     elif compression in ("ZSTD", "zstd"):
@@ -137,6 +142,34 @@ def copy_root(
 
     trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
 
+    # Check that drop_trees keys are valid/refer to a tree:
+    if drop_trees:
+        if isinstance(drop_trees, list):
+            for key in drop_trees:
+                if key not in trees:
+                    msg = (
+                        "Key '"
+                        + key
+                        + "' does not match any TTree in ROOT file"
+                        + str(file)
+                    )
+                    raise ValueError(msg)
+                trees.remove(key)
+        if isinstance(drop_trees, str):
+            found = False
+            for key in trees:
+                if key == drop_trees:
+                    found = True
+                    trees.remove(key)
+            if found is False:
+                msg = (
+                    "TTree ",
+                    key,
+                    " does not match any TTree in ROOT file",
+                    destination,
+                )
+                raise ValueError(msg)
+
     for t in trees:
         tree = f[t]
         histograms = tree.keys(filter_typename=["TH*", "TProfile"], recursive=False)
@@ -167,12 +200,22 @@ def copy_root(
             cur_group += 1
 
         if drop_branches:
-            keep_branches = [
-                branch.name
-                for branch in tree.branches
-                if branch.name not in drop_branches
-                and branch.name not in count_branches
-            ]
+            if isinstance(drop_branches, dict) and t in drop_branches:
+                rm = drop_branches.get(t)
+            else:
+                rm = drop_branches
+            if isinstance(rm, list):
+                keep_branches = [
+                    branch.name
+                    for branch in tree.branches
+                    if branch.name not in rm and branch.name not in count_branches
+                ]
+            elif isinstance(rm, str):
+                keep_branches = [
+                    branch.name
+                    for branch in tree.branches
+                    if branch.name != rm and branch.name not in count_branches
+                ]
         else:
             keep_branches = [
                 branch.name
@@ -230,14 +273,15 @@ def copy_root(
                     if key in keep_branches:
                         del chunk[key]
             if first:
-                if not branch_types and not drop_branches:
-                    branch_types = {name: array.type for name, array in chunk.items()}
-                elif branch_types is None and drop_branches:
+                if drop_branches:
                     branch_types = {
                         name: array.type
                         for name, array in chunk.items()
                         if name not in drop_branches
                     }
+                else:
+                    branch_types = {name: array.type for name, array in chunk.items()}
+
                 out_file.mktree(
                     tree.name,
                     branch_types,

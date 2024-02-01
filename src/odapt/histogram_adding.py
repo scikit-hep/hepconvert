@@ -377,7 +377,7 @@ def hadd(
     *,
     force=True,
     append=False,
-    compression="lz4",
+    compression="zlib",
     compression_level=1,
     skip_bad_files=False,
     union=True,
@@ -397,7 +397,7 @@ def hadd(
         cannot both be True. Defaults to False. Command line option: ``--append``.
     :type append: bool, optional
     :param compression: Sets compression level for root file to write to. Can be one of
-        "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".
+        "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "ZLIB".
         Command line option: ``--compression``.
     :type compression: path-like, optional
     :param compression_level: Use a compression level particular to the chosen compressor.
