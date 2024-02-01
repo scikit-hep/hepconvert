@@ -5,7 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-from hepconvert.histogram_adding import hadd_1d, hadd_2d, hadd_3d
+from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
 # ruff: noqa: B023
 
@@ -131,14 +131,14 @@ def copy_root(
     for key in f.keys(cycle=False, recursive=False):
         if key in hist_keys:
             if len(f[key].axes) == 1:
-                h_sum = hadd_1d(destination, f, key, True)
+                h_sum = _hadd_1d(destination, f, key, True)
                 # if isinstance(h_sum, uproot.models.TH.Model_TH1F_v3):
                 #     print(h_sum.member('fXaxis'))
                 out_file[key] = h_sum
             elif len(f[key].axes) == 2:
-                out_file[key] = hadd_2d(destination, f, key, True)
+                out_file[key] = _hadd_2d(destination, f, key, True)
             else:
-                out_file[key] = hadd_3d(destination, f, key, True)
+                out_file[key] = _hadd_3d(destination, f, key, True)
 
     trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
 
@@ -227,23 +227,23 @@ def copy_root(
         if len(histograms) > 1:
             for key in histograms:
                 if len(f[key].axes) == 1:
-                    writable_hists[key] = hadd_1d(destination, f, key, True)
+                    writable_hists[key] = _hadd_1d(destination, f, key, True)
 
                 elif len(f[key].axes) == 2:
-                    writable_hists[key] = hadd_2d(destination, f, key, True)
+                    writable_hists[key] = _hadd_2d(destination, f, key, True)
 
                 else:
-                    writable_hists[key] = hadd_3d(destination, f, key, True)
+                    writable_hists[key] = _hadd_3d(destination, f, key, True)
 
         elif len(histograms) == 1:
             if len(f[histograms[0]].axes) == 1:
-                writable_hists = hadd_1d(destination, f, histograms[0], True)
+                writable_hists = _hadd_1d(destination, f, histograms[0], True)
 
             elif len(f[histograms[0]].axes) == 2:
-                writable_hists = hadd_2d(destination, f, histograms[0], True)
+                writable_hists = _hadd_2d(destination, f, histograms[0], True)
 
             else:
-                writable_hists = hadd_3d(destination, f, histograms[0], True)
+                writable_hists = _hadd_3d(destination, f, histograms[0], True)
 
         first = True
         for chunk in uproot.iterate(

@@ -191,7 +191,7 @@ def add(
     """
     import hepconvert.histogram_adding  # pylint: disable=import-outside-toplevel
 
-    hepconvert.hadd(
+    hepconvert.add_histograms(
         destination,
         files,
         force=force,
@@ -249,7 +249,7 @@ def add(
     default=False,
     help="Skip corrupt or non-existent files without exiting",
 )
-def add_and_merge(
+def merge_root(
     destination,
     files,
     *,
@@ -272,7 +272,7 @@ def add_and_merge(
     """
     import hepconvert.merge  # pylint: disable=import-outside-toplevel
 
-    hepconvert.hadd_and_merge(
+    hepconvert.merge_root(
         destination,
         files,
         fieldname_separator=fieldname_separator,

@@ -5,10 +5,10 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-from hepconvert.histogram_adding import hadd_1d, hadd_2d, hadd_3d
+from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
 
-def hadd_and_merge(
+def merge_root(
     destination,
     files,
     *,
@@ -26,7 +26,7 @@ def hadd_and_merge(
     compression_level=1,
     skip_bad_files=False,
 ):
-    """Merges TTrees together, and adds values in histograms from local ROOT files, and writes them to a new ROOT file.
+    """Merges TTrees together, and adds values in histograms from local ROOT files, and writes them to a new ROOT file. Similar to ROOT's hadd function.
 
     :param destination: Name of the output file or file path.
     :type destination: path-like
@@ -71,13 +71,13 @@ def hadd_and_merge(
 
     Example:
     --------
-        >>> hepconvert.hadd_and_merge("destination.root", ["file1.root", "file2.root"])
+        >>> hepconvert.merge_root("destination.root", ["file1.root", "file2.root"])
 
     Command Line Instructions:
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> hepconvert add-and-merge [options] [OUT_FILE] [IN_FILES]
+        >>> hepconvert merge [options] [OUT_FILE] [IN_FILES]
 
 
     """
@@ -155,12 +155,12 @@ def hadd_and_merge(
     for key in f.keys(cycle=False, recursive=False):
         if key in hist_keys:
             if len(f[key].axes) == 1:
-                h_sum = hadd_1d(destination, f, key, True)
+                h_sum = _hadd_1d(destination, f, key, True)
                 out_file[key] = h_sum
             elif len(f[key].axes) == 2:
-                out_file[key] = hadd_2d(destination, f, key, True)
+                out_file[key] = _hadd_2d(destination, f, key, True)
             else:
-                out_file[key] = hadd_3d(destination, f, key, True)
+                out_file[key] = _hadd_3d(destination, f, key, True)
 
     trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
 
@@ -197,23 +197,23 @@ def hadd_and_merge(
         if len(histograms) > 1:
             for key in histograms:
                 if len(f[key].axes) == 1:
-                    writable_hists[key] = hadd_1d(destination, f, key, True)
+                    writable_hists[key] = _hadd_1d(destination, f, key, True)
 
                 elif len(f[key].axes) == 2:
-                    writable_hists[key] = hadd_2d(destination, f, key, True)
+                    writable_hists[key] = _hadd_2d(destination, f, key, True)
 
                 else:
-                    writable_hists[key] = hadd_3d(destination, f, key, True)
+                    writable_hists[key] = _hadd_3d(destination, f, key, True)
 
         elif len(histograms) == 1:
             if len(f[histograms[0]].axes) == 1:
-                writable_hists = hadd_1d(destination, f, histograms[0], True)
+                writable_hists = _hadd_1d(destination, f, histograms[0], True)
 
             elif len(f[histograms[0]].axes) == 2:
-                writable_hists = hadd_2d(destination, f, histograms[0], True)
+                writable_hists = _hadd_2d(destination, f, histograms[0], True)
 
             else:
-                writable_hists = hadd_3d(destination, f, histograms[0], True)
+                writable_hists = _hadd_3d(destination, f, histograms[0], True)
 
         first = True
         for chunk in uproot.iterate(tree, step_size=step_size, how=dict):
@@ -281,11 +281,11 @@ def hadd_and_merge(
         for key in f.keys(cycle=False, recursive=False):
             if key in hist_keys:
                 if len(f[key].axes) == 1:
-                    h_sum = hadd_1d(destination, f, key, False)
+                    h_sum = _hadd_1d(destination, f, key, False)
                 elif len(f[key].axes) == 2:
-                    h_sum = hadd_2d(destination, f, key, False)
+                    h_sum = _hadd_2d(destination, f, key, False)
                 else:
-                    h_sum = hadd_3d(destination, f, key, False)
+                    h_sum = _hadd_3d(destination, f, key, False)
 
                 out_file[key] = h_sum
 
@@ -295,13 +295,13 @@ def hadd_and_merge(
             writable_hists = []
             for key in histograms:
                 if len(f[key].axes) == 1:
-                    writable_hists[key] = hadd_1d(destination, out_file, key, False)
+                    writable_hists[key] = _hadd_1d(destination, out_file, key, False)
 
                 elif len(f[key].axes) == 2:
-                    writable_hists[key] = hadd_2d(destination, out_file, key, False)
+                    writable_hists[key] = _hadd_2d(destination, out_file, key, False)
 
                 else:
-                    writable_hists[key] = hadd_3d(destination, out_file, key, False)
+                    writable_hists[key] = _hadd_3d(destination, out_file, key, False)
 
             for chunk in uproot.iterate(tree, step_size=step_size, how=dict):
                 for group in groups:

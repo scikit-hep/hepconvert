@@ -45,19 +45,19 @@ od.merge_root("destination.root",
 ["ttree_file1.root", "ttree_file2.root"])
 
 
-# To add merge files with only histograms:
+# To add root files with only histograms:
 od.add_histograms("destination.root",
 ["hist_file1.root", "hist_file2.root"])
 
 ```
 
-To run ``hadd_and_merge`` from the command line:
+To run ``merge_root`` from the command line:
 
 ```bash
-odapt hadd-and-merge [options] [OUT_FILE] [IN_FILES]
+odapt merge-root [options] [OUT_FILE] [IN_FILES]
 ```
 
-To run ``hadd``:
+To run ``add_histograms``:
 
 ```bash
 odapt add [options] [OUT_FILE] [IN_FILES]
