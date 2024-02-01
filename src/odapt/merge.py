@@ -22,7 +22,7 @@ def hadd_and_merge(
     step_size="100 MB",
     force=True,
     append=False,
-    compression="LZ4",
+    compression="zlib",
     compression_level=1,
     skip_bad_files=False,
 ):
@@ -59,7 +59,7 @@ def hadd_and_merge(
         cannot both be True. Command line option: ``--append``.
     :type append: bool
     :param compression: Sets compression level for root file to write to. Can be one of
-        "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".
+        "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "ZLIB".
         Command line option: ``--compression``.
     :type compression: str
     :param compression_level: Use a compression level particular to the chosen compressor.

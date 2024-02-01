@@ -15,17 +15,17 @@ def copy_root(
     file,
     *,
     drop_branches=None,
+    # add_branches=None, #TO-DO: add functionality for this, just specify about the counter issue
     drop_trees=None,
     force=True,
     fieldname_separator="_",
-    branch_types=None,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
     resize_factor=10.0,
     counter_name=lambda counted: "n" + counted,
     step_size=100,
-    compression="LZ4",
+    compression="ZLIB",
     compression_level=1,
 ):
     """
@@ -36,6 +36,12 @@ def copy_root(
     :param drop_branches: To remove branches from a tree, pass a list of names of branches to remove.
         Defaults to None. Command line option: ``--drop-branches``.
     :type drop_branches: list of str, optional
+    :param add_branches: To add branches to a tree, pass a dict of branch names and types ().
+        Defaults to None. Command line option: ``--drop-branches``.
+    :type drop_branches: list of str, optional
+    :param drop_trees: To remove a ttree from a file, pass a list of names of branches to remove.
+        Defaults to None. Command line option: ``--drop-trees``.
+    :type drop_trees: str or list of str, optional
     :param fieldname_separator: If data includes jagged arrays, pass the character that separates
         TBranch names for columns, used for grouping columns (to avoid duplicate counters in ROOT file). Defaults to "_".
     :type fieldname_separator: str, optional
@@ -61,7 +67,7 @@ def copy_root(
         Defaults to \100. Command line option: ``--step-size``.
     :type step_size: int or str, optional
     :param compression: Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD".
-        Defaults to "LZ4". Command line option: ``--compression``.
+        Defaults to "ZLIB". Command line option: ``--compression``.
     :type compression: str
     :param compression_level: Use a compression level particular to the chosen compressor. Defaults to 1. Command line option: ``--compression-level``.
     :type compression_level: int
@@ -84,10 +90,10 @@ def copy_root(
         >>> odapt copy-root [options] [OUT_FILE] [IN_FILE]
 
     """
-    if compression in ("LZMA", "lzma"):
-        compression_code = uproot.const.kLZMA
-    elif compression in ("ZLIB", "zlib"):
+    if compression in ("ZLIB", "zlib"):
         compression_code = uproot.const.kZLIB
+    elif compression in ("LZMA", "lzma"):
+        compression_code = uproot.const.kLZMA
     elif compression in ("LZ4", "lz4"):
         compression_code = uproot.const.kLZ4
     elif compression in ("ZSTD", "zstd"):
@@ -144,10 +150,7 @@ def copy_root(
             for key in drop_trees:
                 if key not in trees:
                     msg = (
-                        "TTree ",
-                        key,
-                        " does not match any TTree in ROOT file",
-                        destination,
+                        "Key '" + key + "' does not match any TTree in ROOT file" + file
                     )
                     raise ValueError(msg)
                 trees.remove(key)
@@ -259,14 +262,15 @@ def copy_root(
                     if key in keep_branches:
                         del chunk[key]
             if first:
-                if not branch_types and not drop_branches:
-                    branch_types = {name: array.type for name, array in chunk.items()}
-                elif branch_types is None and drop_branches:
+                if drop_branches:
                     branch_types = {
                         name: array.type
                         for name, array in chunk.items()
                         if name not in drop_branches
                     }
+                else:
+                    branch_types = {name: array.type for name, array in chunk.items()}
+
                 out_file.mktree(
                     tree.name,
                     branch_types,
