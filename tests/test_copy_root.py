@@ -81,11 +81,11 @@ def test_hepdata_example():
     )
     file = uproot.open(skhep_testdata.data_path("uproot-hepdata-example.root"))
 
-    print(file["hprof"].classname)
-    print(od_file.classnames())
     for key in od_file.keys(cycle=False):
         assert key in file.keys(cycle=False)
-        print(key)
         if key == "hpxpy":
             for array in od_file[key].values():
                 assert array in file[key].values()
+
+
+test_drop_branch()

@@ -15,6 +15,7 @@ def copy_root(
     file,
     *,
     drop_branches=None,
+    drop_trees=None,
     force=True,
     fieldname_separator="_",
     branch_types=None,
@@ -136,6 +137,34 @@ def copy_root(
                 out_file[key] = hadd_3d(destination, f, key, True)
 
     trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
+
+    # Check that drop_trees keys are valid/refer to a tree:
+    if drop_trees:
+        if isinstance(drop_trees, list):
+            for key in drop_trees:
+                if key not in trees:
+                    msg = (
+                        "TTree ",
+                        key,
+                        " does not match any TTree in ROOT file",
+                        destination,
+                    )
+                    raise ValueError(msg)
+                trees.remove(key)
+        if isinstance(drop_trees, str):
+            found = False
+            for key in trees:
+                if key == drop_trees:
+                    found = True
+                    trees.remove(key)
+            if found is False:
+                msg = (
+                    "TTree ",
+                    key,
+                    " does not match any TTree in ROOT file",
+                    destination,
+                )
+                raise ValueError(msg)
 
     for t in trees:
         tree = f[t]
