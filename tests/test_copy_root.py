@@ -134,3 +134,29 @@ def test_drop_tree(tmp_path):
             Path(tmp_path) / "two_trees.root",
             drop_trees=["tree5"],
         )
+
+
+def test_drop_tree_and_branch(tmp_path):
+    import numpy as np
+
+    with uproot.recreate(Path(tmp_path) / "two_trees.root") as file:
+        file["tree"] = {"x": np.array([1, 2, 3, 4, 5]), "y": np.array([4, 5, 6, 7, 8])}
+        file["tree1"] = {
+            "x": np.array([1, 2, 3, 4, 5]),
+            "y": np.array([4, 5, 6, 7, 8]),
+        }
+
+    with uproot.open(Path(tmp_path) / "two_trees.root") as file:
+        od.copy_root(
+            Path(tmp_path) / "copied.root",
+            Path(tmp_path) / "two_trees.root",
+            drop_branches={"tree": "x", "tree1": "y"},
+        )
+
+        with uproot.open(Path(tmp_path) / "copied.root") as copy:
+            assert copy.keys(cycle=False) == ["tree", "tree1"]
+            print(copy["tree"].keys(), copy["tree1"].keys())
+            assert copy["tree1"].keys() != file["tree1"].keys()
+            for tree in copy.keys(cycle=False):
+                for key in copy[tree].keys():
+                    assert ak.all(copy[tree][key].array() == file[tree][key].array())

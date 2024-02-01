@@ -33,9 +33,11 @@ def copy_root(
     :type destination: path-like
     :param files: Local ROOT file to copy. May contain glob patterns.
     :type files: str
-    :param drop_branches: To remove branches from a tree, pass a list of names of branches to remove.
+    :param drop_branches: To remove branches from all trees, pass a list of names of branches to
+        remove. If removing branches from one of multiple trees, pass a dict of structure: {tree: [branch1, branch2]}
+        to remove branch1 and branch2 from ttree "tree".
         Defaults to None. Command line option: ``--drop-branches``.
-    :type drop_branches: list of str, optional
+    :type drop_branches: list of str, str, or dict, optional
     :param add_branches: To add branches to a tree, pass a dict of branch names and types ().
         Defaults to None. Command line option: ``--drop-branches``.
     :type drop_branches: list of str, optional
@@ -150,7 +152,10 @@ def copy_root(
             for key in drop_trees:
                 if key not in trees:
                     msg = (
-                        "Key '" + key + "' does not match any TTree in ROOT file" + file
+                        "Key '"
+                        + key
+                        + "' does not match any TTree in ROOT file"
+                        + str(file)
                     )
                     raise ValueError(msg)
                 trees.remove(key)
@@ -199,12 +204,22 @@ def copy_root(
             cur_group += 1
 
         if drop_branches:
-            keep_branches = [
-                branch.name
-                for branch in tree.branches
-                if branch.name not in drop_branches
-                and branch.name not in count_branches
-            ]
+            if isinstance(drop_branches, dict) and t in drop_branches:
+                rm = drop_branches.get(t)
+            else:
+                rm = drop_branches
+            if isinstance(rm, list):
+                keep_branches = [
+                    branch.name
+                    for branch in tree.branches
+                    if branch.name not in rm and branch.name not in count_branches
+                ]
+            elif isinstance(rm, str):
+                keep_branches = [
+                    branch.name
+                    for branch in tree.branches
+                    if branch.name != rm and branch.name not in count_branches
+                ]
         else:
             keep_branches = [
                 branch.name
