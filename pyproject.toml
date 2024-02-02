@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 
 [project]
-name = "odapt"
+name = "hepconvert"
 authors = [
   { name = "Zoë Bilodeau", email = "zobilodeau@gmail.com" },
 ]
@@ -53,17 +53,17 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/zbilodea/odapt"
-"Bug Tracker" = "https://github.com/zbilodea/odapt/issues"
-Discussions = "https://github.com/zbilodea/odapt/discussions"
-Changelog = "https://github.com/zbilodea/odapt/releases"
+Homepage = "https://github.com/zbilodea/hepconvert"
+"Bug Tracker" = "https://github.com/zbilodea/hepconvert/issues"
+Discussions = "https://github.com/zbilodea/hepconvert/discussions"
+Changelog = "https://github.com/zbilodea/hepconvert/releases"
 
 
 [tool.hatch.version]
 source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "src/odapt/_version.py"
+version-file = "src/hepconvert/_version.py"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -79,7 +79,7 @@ testpaths = [
 
 
 [tool.coverage]
-run.source = ["odapt"]
+run.source = ["hepconvert"]
 port.exclude_lines = [
   'pragma: no cover',
   '\.\.\.',
@@ -97,7 +97,7 @@ disallow_untyped_defs = false
 disallow_incomplete_defs = false
 
 [[tool.mypy.overrides]]
-module = "odapt.*"
+module = "hepconvert.*"
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
 
@@ -160,4 +160,4 @@ messages_control.disable = [
 ]
 
 [project.scripts]
-"odapt" = "odapt.__main__:main"
+"hepconvert" = "hepconvert.__main__:main"

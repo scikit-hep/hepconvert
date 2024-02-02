@@ -1,6 +1,0 @@
-.. toctree::
-    :caption: copy_root
-    :hidden:
-
-    odapt.copy_root (module) <odapt.copy_root>
-    odapt.copy_root.copy_root <odapt.copy_root.copy_root>

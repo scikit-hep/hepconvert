@@ -2,8 +2,8 @@
     :caption: Main Interface
     :hidden:
 
-    odapt.parquet_to_root.parquet_to_root
-    odapt.root_to_parquet.root_to_parquet
-    odapt.copy_root.copy_root
-    odapt.merge.hadd_and_merge
-    odapt.histogram_adding.hadd
+    hepconvert.parquet_to_root.parquet_to_root
+    hepconvert.root_to_parquet.root_to_parquet
+    hepconvert.copy_root.copy_root
+    hepconvert.merge.merge_root
+    hepconvert.histogram_adding.add_histograms

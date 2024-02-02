@@ -1,6 +1,0 @@
-.. toctree::
-    :caption: merge
-    :hidden:
-
-    odapt.merge (module) <odapt.merge>
-    odapt.merge.hadd_and_merge <odapt.merge.hadd_and_merge>

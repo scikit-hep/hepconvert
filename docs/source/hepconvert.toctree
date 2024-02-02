@@ -1,0 +1,6 @@
+.. toctree::
+    :caption: Detailed Reference
+    :hidden:
+
+    hepconvert (module) <hepconvert>
+    hepconvert.merge.merge_root

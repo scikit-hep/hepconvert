@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import importlib.metadata
 
-import odapt as m
+import hepconvert as m
 
 
 def test_version():
-    assert importlib.metadata.version("odapt") == m.__version__
+    assert importlib.metadata.version("hepconvert") == m.__version__

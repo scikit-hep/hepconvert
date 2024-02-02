@@ -10,10 +10,10 @@ from __future__ import annotations
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../../odapt/"))
+sys.path.insert(0, os.path.abspath("../../hepconvert/"))
 
 
-project = "odapt"
+project = "hepconvert"
 copyright = "2023, Zoë Bilodeau"
 author = "Zoë Bilodeau"
 release = "1.1.1"
@@ -35,3 +35,5 @@ html_static_path = []
 
 # Additional stuff
 master_doc = "index"
+
+# exec(open("prepare_docstrings.py").read(), dict(globals()))

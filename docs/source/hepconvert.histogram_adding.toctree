@@ -1,0 +1,6 @@
+.. toctree::
+    :caption: histogram_adding
+    :hidden:
+
+    hepconvert.histogram_adding (module) <hepconvert.histogram_adding>
+    hepconvert.histogram_adding.add_histograms <hepconvert.histogram_adding.add_histograms>

@@ -6,8 +6,8 @@ import numpy as np
 import uproot
 
 
-def hadd_1d(destination, file, key, first, *, n_key=None):
-    """Supporting function for hadd.
+def _hadd_1d(destination, file, key, first, *, n_key=None):
+    """Supporting function for add_histograms.
 
     :param destination: Name of the output file or file path.
     :type destination: path-like
@@ -100,8 +100,8 @@ def hadd_1d(destination, file, key, first, *, n_key=None):
     ) from None
 
 
-def hadd_2d(destination, file, key, first, *, n_key=None):
-    """Supporting function for hadd.
+def _hadd_2d(destination, file, key, first, *, n_key=None):
+    """Supporting function for add_histograms.
 
     :param destination: Name of the output file or file path.
     :type destination: path-like
@@ -220,8 +220,8 @@ def hadd_2d(destination, file, key, first, *, n_key=None):
     ) from None
 
 
-def hadd_3d(destination, file, key, first, *, n_key=None):
-    """Supporting function for hadd.
+def _hadd_3d(destination, file, key, first, *, n_key=None):
+    """Supporting function for add_histograms.
 
     :param destination: Name of the output file or file path.
     :type destination: path-like
@@ -371,7 +371,7 @@ def hadd_3d(destination, file, key, first, *, n_key=None):
     ) from None
 
 
-def hadd(
+def add_histograms(
     destination,
     files,
     *,
@@ -383,7 +383,7 @@ def hadd(
     union=True,
     same_names=False,
 ):
-    """Adds together histograms from local ROOT files of a collection of ROOT files, and writes them to a new or existing ROOT file.
+    """Adds together histograms from local ROOT files of a collection of ROOT files, and writes them to a new or existing ROOT file. Similar to ROOT's hadd function.
 
     :param destination: Name of the output file or file path.
     :type destination: path-like
@@ -416,13 +416,13 @@ def hadd(
 
     Example:
     --------
-        >>> odapt.hadd("destination.root", ["file1_to_hadd.root", "file2_to_hadd.root"])
+        >>> hepconvert.add_histograms("destination.root", ["file1_to_add.root", "file2_to_add.root"])
 
     Command Line Instructions:
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> odapt add [options] [OUT_FILE] [IN_FILES]
+        >>> hepconvert add [options] [OUT_FILE] [IN_FILES]
 
     """
     if compression in ("ZLIB", "zlib"):
@@ -466,7 +466,7 @@ def hadd(
         files = sorted(path.glob("**/*.root"))
 
     if len(files) <= 1:
-        msg = "Cannot hadd one file. Use root_to_root to copy a ROOT file."
+        msg = "Cannot add one file. Use copy_root to copy a ROOT file."
         raise ValueError(msg) from None
 
     with uproot.open(files[0]) as file:
@@ -519,25 +519,25 @@ def hadd(
                     msg = "Union key filter error."
                     raise ValueError(msg) from None
                 if len(file[key].axes) == 1:
-                    h_sum = hadd_1d(destination, file, key, first)
+                    h_sum = _hadd_1d(destination, file, key, first)
 
                 elif len(file[key].axes) == 2:
-                    h_sum = hadd_2d(destination, file, key, first)
+                    h_sum = _hadd_2d(destination, file, key, first)
 
                 else:
-                    h_sum = hadd_3d(destination, file, key, first)
+                    h_sum = _hadd_3d(destination, file, key, first)
 
         else:
             n_keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
             for i, _value in enumerate(keys):
                 if len(file[n_keys[i]].axes) == 1:
-                    h_sum = hadd_1d(destination, file, keys[i], first, n_key=n_keys[i])
+                    h_sum = _hadd_1d(destination, file, keys[i], first, n_key=n_keys[i])
 
                 elif len(file[n_keys[i]].axes) == 2:
-                    h_sum = hadd_2d(destination, file, keys[i], first, n_key=n_keys[i])
+                    h_sum = _hadd_2d(destination, file, keys[i], first, n_key=n_keys[i])
 
                 else:
-                    h_sum = hadd_3d(destination, file, keys[i], first, n_key=n_keys[i])
+                    h_sum = _hadd_3d(destination, file, keys[i], first, n_key=n_keys[i])
 
                 if h_sum is not None:
                     file_out[keys[i]] = h_sum
@@ -546,7 +546,7 @@ def hadd(
         file.close()
 
 
-def tprofile_1d(destination, file, key, first, *, n_key=None):
+def _tprofile_1d(destination, file, key, first, *, n_key=None):
     """
     Args:
     :param destination: Name of the output file or file path.
@@ -649,7 +649,7 @@ def tprofile_1d(destination, file, key, first, *, n_key=None):
     ) from None
 
 
-def tprofile_2d(destination, file, key, first, *, n_key=None):
+def _tprofile_2d(destination, file, key, first, *, n_key=None):
     """
     Args:
     :param destination: Name of the output file or file path.
@@ -779,7 +779,7 @@ def tprofile_2d(destination, file, key, first, *, n_key=None):
     ) from None
 
 
-def tprofile_3d(destination, file, key, first, *, n_key=None):
+def _tprofile_3d(destination, file, key, first, *, n_key=None):
     """
     Args:
     :param destination: Name of the output file or file path.

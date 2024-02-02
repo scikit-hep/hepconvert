@@ -7,23 +7,23 @@ import pkgutil
 import subprocess
 import sys
 
-import odapt
+import hepconvert
 
 order = [
-    "odapt",
-    "odapt.histogram_adding",
-    "odapt.merge",
-    "odapt.parquet_to_root",
-    "odapt.root_to_parquet",
-    "odapt.copy_root",
+    "hepconvert",
+    "hepconvert.histogram_adding",
+    "hepconvert.merge",
+    "hepconvert.parquet_to_root",
+    "hepconvert.root_to_parquet",
+    "hepconvert.copy_root",
 ]
 
 common = [
-    "odapt.parquet_to_root.parquet_to_root",
-    "odapt.root_to_parquet.root_to_parquet",
-    "odapt.copy_root.copy_root",
-    "odapt.merge.hadd_and_merge",
-    "odapt.histogram_adding.hadd",
+    "hepconvert.parquet_to_root.parquet_to_root",
+    "hepconvert.root_to_parquet.root_to_parquet",
+    "hepconvert.copy_root.copy_root",
+    "hepconvert.merge.merge_root",
+    "hepconvert.histogram_adding.add_histograms",
 ]
 
 latest_commit = (
@@ -39,7 +39,7 @@ main.write(
 
 {}""".format("".join(f"    {x}\n" for x in common))
 )
-toctree = open("odapt.toctree", "w")
+toctree = open("hepconvert.toctree", "w")
 toctree.write(
     """.. toctree::
     :caption: Detailed Reference
@@ -76,7 +76,7 @@ def handle_module(modulename, module):
     else:
         toctree2.write("    " + modulename + " (module) <" + modulename + ">\n")
 
-    if modulename != "odapt" and all(
+    if modulename != "hepconvert" and all(
         not x.startswith("test") and not x.startswith("_")
         for x in modulename.split(".")
     ):
@@ -112,15 +112,15 @@ def handle_class(classname, cls):
     methods = {}
     mro = list(cls.__mro__)
 
-    if hasattr(odapt, cls.__name__):
-        title = "odapt." + cls.__name__
+    if hasattr(hepconvert, cls.__name__):
+        title = "hepconvert." + cls.__name__
         upfront = True
     else:
         title = classname
         upfront = False
 
     for index, basecls in enumerate(mro):
-        if basecls.__module__.startswith("odapt."):
+        if basecls.__module__.startswith("hepconvert."):
 
             def good(obj):
                 if inspect.ismethod(obj) or inspect.isfunction(obj):
@@ -132,7 +132,7 @@ def handle_class(classname, cls):
                         return False
                 else:
                     module, name = "", ""
-                if module.startswith("odapt."):
+                if module.startswith("hepconvert."):
                     if index + 1 >= len(mro) or obj is not getattr(
                         mro[index + 1], name, None
                     ):
@@ -168,18 +168,18 @@ def handle_class(classname, cls):
 
     def prettymro(c):
         fullname = c.__module__ + "." + c.__name__
-        if c.__module__.startswith("odapt."):
+        if c.__module__.startswith("hepconvert."):
             return "#. :doc:`" + fullname + "`"
         else:
             return "#. ``" + fullname + "``"
 
     fullfilename = importlib.import_module(cls.__module__).__file__
-    shortfilename = fullfilename[fullfilename.rindex("odapt/") :]
-    link = "`{} <https://github.com/zbilodea/odapt/blob/{}/src/{}>`__".format(
+    shortfilename = fullfilename[fullfilename.rindex("hepconvert/") :]
+    link = "`{} <https://github.com/zbilodea/hepconvert/blob/{}/src/{}>`__".format(
         cls.__module__, latest_commit, shortfilename
     )
     try:
-        linelink = "`line {0} <https://github.com/zbilodea/odapt/blob/{1}/src/{2}#L{0}>`__".format(
+        linelink = "`line {0} <https://github.com/zbilodea/hepconvert/blob/{1}/src/{2}#L{0}>`__".format(
             inspect.getsourcelines(cls)[1], latest_commit, shortfilename
         )
     except OSError:
@@ -234,22 +234,20 @@ Defined in {} on {}.
 
 
 def handle_function(functionname, cls):
-    if hasattr(odapt, cls.__name__):
-        title = "odapt." + cls.__name__
+    if hasattr(hepconvert, cls.__name__):
+        title = "hepconvert." + cls.__name__
         upfront = True
     else:
         title = functionname
         upfront = False
 
     fullfilename = importlib.import_module(cls.__module__).__file__
-    shortfilename = fullfilename[fullfilename.rindex("odapt/") :]
-    link = "`{} <https://github.com/zbilodea/odapt/blob/{}/src/{}>`__".format(
+    shortfilename = fullfilename[fullfilename.rindex("hepconvert/") :]
+    link = "`{} <https://github.com/zbilodea/hepconvert/blob/{}/src/{}>`__".format(
         cls.__module__, latest_commit, shortfilename
     )
-    linelink = (
-        "`line {0} <https://github.com/zbilodea/odapt/blob/{1}/src/{2}#L{0}>`__".format(
-            inspect.getsourcelines(cls)[1], latest_commit, shortfilename
-        )
+    linelink = "`line {0} <https://github.com/zbilodea/hepconvert/blob/{1}/src/{2}#L{0}>`__".format(
+        inspect.getsourcelines(cls)[1], latest_commit, shortfilename
     )
 
     content = """{}
@@ -271,18 +269,18 @@ Defined in {} on {}.
 for modulename in order:
     module = importlib.import_module(modulename)
 
-    if modulename != "odapt":
+    if modulename != "hepconvert":
         toctree2 = open(modulename + ".toctree", "w")
         toctree2.write(
             """.. toctree::
     :caption: {}
     :hidden:
 
-""".format(modulename.replace("odapt.", ""))
+""".format(modulename.replace("hepconvert.", ""))
         )
 
     handle_module(modulename, module)
-    if module.__file__.endswith("__init__.py") and modulename != "odapt":
+    if module.__file__.endswith("__init__.py") and modulename != "hepconvert":
         for submodulename in sorted(
             modulename + "." + name
             for loader, name, is_pkg in pkgutil.walk_packages(module.__path__)

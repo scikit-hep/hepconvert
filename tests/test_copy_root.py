@@ -6,26 +6,28 @@ import awkward as ak
 import pytest
 import uproot
 
-import odapt as od
+import hepconvert
 
 skhep_testdata = pytest.importorskip("skhep_testdata")
 
 
 def test_copy(tmp_path):
-    od.copy_root(
+    hepconvert.copy_root(
         Path(tmp_path) / "copy.root",
         skhep_testdata.data_path("uproot-HZZ.root"),
         counter_name=lambda counted: "N" + counted,
     )
-    od_file = uproot.open(Path(tmp_path) / "copy.root")
+    hepconvert_file = uproot.open(Path(tmp_path) / "copy.root")
     file = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
-    for key in od_file["events"].keys():
+    for key in hepconvert_file["events"].keys():
         assert key in file["events"].keys()
-        assert ak.all(od_file["events"][key].array() == file["events"][key].array())
+        assert ak.all(
+            hepconvert_file["events"][key].array() == file["events"][key].array()
+        )
 
 
 def test_drop_branch(tmp_path):
-    od.copy_root(
+    hepconvert.copy_root(
         Path(tmp_path) / "drop_branches.root",
         skhep_testdata.data_path("uproot-HZZ.root"),
         drop_branches=["MClepton_py", "Jet_Px"],
@@ -46,7 +48,7 @@ def test_drop_branch(tmp_path):
 
 
 def test_add_branch(tmp_path):
-    od.copy_root(
+    hepconvert.copy_root(
         Path(tmp_path) / "drop_branches.root",
         skhep_testdata.data_path("uproot-HZZ.root"),
         drop_branches=["MClepton_py", "Jet_Px"],
@@ -64,7 +66,7 @@ def test_add_branch(tmp_path):
         file["events"]["Jet_Px"].name: file["events"]["Jet_Px"].arrays(),
     }
     jet_px = {file["events"]["Jet_Px"].name: file["events"]["Jet_Px"].arrays()}
-    od.copy_root(
+    hepconvert.copy_root(
         Path(tmp_path) / "add_branches.root",
         Path(tmp_path) / "drop_branches.root",
     )
@@ -73,15 +75,15 @@ def test_add_branch(tmp_path):
 
 
 def test_hepdata_example(tmp_path):
-    od.copy_root(
+    hepconvert.copy_root(
         Path(tmp_path) / "copy_hepdata.root",
         skhep_testdata.data_path("uproot-hepdata-example.root"),
         counter_name=lambda counted: "N" + counted,
     )
-    od_file = uproot.open(Path(tmp_path) / "copy_hepdata.root")
+    hepconvert_file = uproot.open(Path(tmp_path) / "copy_hepdata.root")
     file = uproot.open(skhep_testdata.data_path("uproot-hepdata-example.root"))
 
-    for key in od_file.keys(cycle=False):
+    for key in hepconvert_file.keys(cycle=False):
         assert key in file.keys(cycle=False)
 
 
@@ -103,7 +105,7 @@ def test_drop_tree(tmp_path):
             "p1": np.array([44, 55, 66, 7, 8]),
         }
     with uproot.open(Path(tmp_path) / "two_trees.root") as file:
-        od.copy_root(
+        hepconvert.copy_root(
             Path(tmp_path) / "copied.root",
             Path(tmp_path) / "two_trees.root",
             drop_trees=["tree", "tree1"],
@@ -114,7 +116,7 @@ def test_drop_tree(tmp_path):
                 for key in copy[tree].keys():
                     assert ak.all(copy[tree][key].array() == file[tree][key].array())
 
-        od.copy_root(
+        hepconvert.copy_root(
             Path(tmp_path) / "copied.root",
             Path(tmp_path) / "two_trees.root",
             drop_trees="tree3",
@@ -129,7 +131,7 @@ def test_drop_tree(tmp_path):
         ValueError,
         match="Key 'tree5' does not match any TTree in ROOT file/Users/zobil/Desktop/directory/two_trees.root",
     ):
-        od.copy_root(
+        hepconvert.copy_root(
             Path(tmp_path) / "copied.root",
             Path(tmp_path) / "two_trees.root",
             drop_trees=["tree5"],
@@ -147,7 +149,7 @@ def test_drop_tree_and_branch(tmp_path):
         }
 
     with uproot.open(Path(tmp_path) / "two_trees.root") as file:
-        od.copy_root(
+        hepconvert.copy_root(
             Path(tmp_path) / "copied.root",
             Path(tmp_path) / "two_trees.root",
             drop_branches={"tree": "x", "tree1": "y"},
