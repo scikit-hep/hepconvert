@@ -22,8 +22,8 @@ common = [
     "hepconvert.parquet_to_root.parquet_to_root",
     "hepconvert.root_to_parquet.root_to_parquet",
     "hepconvert.copy_root.copy_root",
-    "hepconvert.merge.hadd_and_merge",
-    "hepconvert.histogram_adding.hadd",
+    "hepconvert.merge.merge_root",
+    "hepconvert.histogram_adding.add_histograms",
 ]
 
 latest_commit = (

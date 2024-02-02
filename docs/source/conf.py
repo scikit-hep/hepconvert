@@ -35,3 +35,5 @@ html_static_path = []
 
 # Additional stuff
 master_doc = "index"
+
+# exec(open("prepare_docstrings.py").read(), dict(globals()))
