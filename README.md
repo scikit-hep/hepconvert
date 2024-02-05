@@ -22,7 +22,7 @@
 [pypi-platforms]:           https://img.shields.io/pypi/pyversions/hepconvert
 [pypi-version]:             https://img.shields.io/pypi/v/hepconvert
 [rtd-badge]:                https://readthedocs.org/projects/odapt/badge/?version=latest
-[rtd-link]:                 https://hepconvert.readthedocs.io/en/latest/
+[rtd-link]:                 https://odapt.readthedocs.io/en/latest/
 
 The hepconvert library is a bridge between columnar file formats, currently **ROOT, and Parquet** and soon eventually include **Feather, and HDF5.** It aims to simplify file conversions in Python, replacing what is usually a multi-step process with one line of code, with builtin features for managing large datasets and choosing compression levels.
 
