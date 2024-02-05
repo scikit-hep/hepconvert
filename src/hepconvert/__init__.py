@@ -1,7 +1,7 @@
 """
 Copyright (c) 2023 Zoë Bilodeau. All rights reserved.
 
-odapt: File conversion package.
+hepconvert: File conversion package.
 """
 from __future__ import annotations
 
