@@ -71,7 +71,7 @@ pytest
 Use pytest-cov to generate coverage reports:
 
 ```bash
-pytest --cov=Odapt
+pytest --cov=hepconvert
 ```
 
 # Building docs
