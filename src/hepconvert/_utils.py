@@ -7,7 +7,7 @@ import numpy as np
 
 def group_branches(tree, keep_branches):
     """
-    Creates groups for ak.zip to avoid duplicate counters being created. 
+    Creates groups for ak.zip to avoid duplicate counters being created.
     Groups created if branches have the same .member("fLeafCount")
     """
     groups = []
