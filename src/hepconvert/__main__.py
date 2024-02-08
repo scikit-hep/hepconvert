@@ -40,8 +40,9 @@ def main() -> None:
     help="Use a compression level particular to the chosen compressor. By default the compression level is 1.",
 )
 @click.option(
+    "-f",
     "--force",
-    default=True,
+    default=False,
     help="If True, overwrites destination file if it already exists.",
 )
 def parquet_to_root(
@@ -57,7 +58,7 @@ def parquet_to_root(
     resize_factor=10.0,
     compression="zlib",
     compression_level=1,
-    force=True,
+    force=False,
 ):
     """
     Convert Parquet file to ROOT file.
@@ -97,8 +98,9 @@ def parquet_to_root(
     help="When the TTree metadata needs to be rewritten, this specifies how many more TBasket slots to allocate as a multiplicative factor.",
 )
 @click.option(
+    "-f",
     "--force",
-    default=True,
+    default=False,
     help="If True, overwrites destination file if it already exists.",
 )
 def copy_root(
@@ -107,7 +109,7 @@ def copy_root(
     *,
     drop_branches=None,
     drop_trees=None,
-    force=True,
+    force=False,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
@@ -145,7 +147,7 @@ def copy_root(
 @click.option(
     "-f",
     "--force",
-    default=True,
+    default=False,
     help="Overwrite destination file if it already exists",
 )
 @click.option("--append", default=False, help="Append histograms to an existing file")
@@ -178,7 +180,7 @@ def add(
     destination,
     files,
     *,
-    force=True,
+    force=False,
     append=False,
     compression="zlib",
     compression_level=1,
@@ -304,7 +306,7 @@ def merge_root(
 @click.option(
     "-f",
     "--force",
-    default=True,
+    default=False,
     type=bool,
     help="If a file already exists at specified path, it gets replaced",
 )

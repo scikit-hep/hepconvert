@@ -11,8 +11,8 @@ def root_to_parquet(
     out_file=None,
     *,
     tree=None,
-    # drop_branches=None,
-    # keep_branches=None,
+    drop_branches=None,
+    keep_branches=None,
     force=False,
     step_size="100 MB",
     list_to32=False,
@@ -201,13 +201,14 @@ def root_to_parquet(
             raise AttributeError(msg) from None
         tree = trees[0]
 
-    # if drop_branches or keep_branches:
-
+    filter = filter_branches(f[tree], keep_branches, drop_branches)
+    # if there's a counter, rid of that too...
     ak.to_parquet_row_groups(
         (
             i
             for i in f[tree].iterate(
                 step_size=step_size,
+                filter_name=filter,
             )
         ),
         out_file,
@@ -236,3 +237,21 @@ def root_to_parquet(
     )
 
     f.close()
+
+
+def filter_branches(tree, keep_branches, drop_branches):
+    if drop_branches:
+        if isinstance(drop_branches, str):
+            drop_branches = tree.keys(filter_name=drop_branches)
+        if isinstance(drop_branches, dict) and tree.name in drop_branches:
+            drop_branches = drop_branches.get(tree.name)
+        return lambda b: b in [
+            b.name for b in tree.branches if b.name not in drop_branches
+        ]
+    if keep_branches:
+        if isinstance(keep_branches, str):
+            keep_branches = tree.keys(filter_name=keep_branches)
+        if isinstance(keep_branches, dict) and tree.name in keep_branches:
+            keep_branches = keep_branches.get(tree.name)
+        return lambda b: b in [b.name for b in tree.branches if b.name in keep_branches]
+    return None

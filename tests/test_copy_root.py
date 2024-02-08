@@ -52,7 +52,7 @@ def test_keep_branch(tmp_path):
 
     file = uproot.open(Path(tmp_path) / "drop_branches.root")
     for key in original["events"].keys():
-        if key.startswith("MClepton_", "NMClepton"):
+        if key.startswith(("MClepton_", "NMClepton")):
             assert key in file["events"].keys()
             assert ak.all(
                 file["events"][key].array() == original["events"][key].array()
