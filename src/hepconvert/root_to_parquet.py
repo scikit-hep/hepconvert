@@ -201,14 +201,14 @@ def root_to_parquet(
             raise AttributeError(msg) from None
         tree = trees[0]
 
-    filter = filter_branches(f[tree], keep_branches, drop_branches)
+    filter_b = _filter_branches(f[tree], keep_branches, drop_branches)
     # if there's a counter, rid of that too...
     ak.to_parquet_row_groups(
         (
             i
             for i in f[tree].iterate(
                 step_size=step_size,
-                filter_name=filter,
+                filter_name=filter_b,
             )
         ),
         out_file,
@@ -239,7 +239,10 @@ def root_to_parquet(
     f.close()
 
 
-def filter_branches(tree, keep_branches, drop_branches):
+def _filter_branches(tree, keep_branches, drop_branches):
+    """
+    Creates lambda function for filtering branches based on keep_branches or drop_branches.
+    """
     if drop_branches:
         if isinstance(drop_branches, str):
             drop_branches = tree.keys(filter_name=drop_branches)

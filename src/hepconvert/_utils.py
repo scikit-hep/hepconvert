@@ -6,6 +6,10 @@ import numpy as np
 
 
 def group_branches(tree, keep_branches):
+    """
+    Creates groups for ak.zip to avoid duplicate counters being created. 
+    Groups created if branches have the same .member("fLeafCount")
+    """
     groups = []
     count_branches = []
     temp_branches = tree.keys(filter_name=keep_branches)
@@ -34,6 +38,9 @@ def group_branches(tree, keep_branches):
 
 
 def get_counter_branches(tree):
+    """
+    Gets counter branches to remove them in merge etc.
+    """
     count_branches = []
     for branch in tree.keys():  # noqa: SIM118
         if tree[branch].member("fLeaves")[0].member("fLeafCount") is None:

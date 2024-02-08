@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 from pathlib import Path
 
 import awkward as ak
@@ -109,8 +108,6 @@ def copy_root(
     if Path.is_file(path):
         if not force:
             raise FileExistsError
-        msg = "Warning, file exists and 'force' = 'True'. Overwriting."
-        Warning(msg)
         out_file = uproot.recreate(
             destination,
             compression=uproot.compression.Compression.from_code_pair(
@@ -257,6 +254,9 @@ def copy_root(
 
 
 def filter_branches(tree, keep_branches, drop_branches, count_branches):
+    """
+    Creates lambda function for filtering branches based on keep_branches or drop_branches.
+    """
     if drop_branches:
         if isinstance(drop_branches, str):
             drop_branches = tree.keys(filter_name=drop_branches)
