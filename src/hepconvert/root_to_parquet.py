@@ -11,7 +11,9 @@ def root_to_parquet(
     out_file=None,
     *,
     tree=None,
-    force=True,
+    # drop_branches=None,
+    # keep_branches=None,
+    force=False,
     step_size="100 MB",
     list_to32=False,
     string_to32=True,
@@ -195,9 +197,11 @@ def root_to_parquet(
     if not tree:
         trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
         if len(trees) != 1:
-            msg = "Must specify 1 tree to write, not ", len(trees)
+            msg = "Must specify 1 tree to write, cannot write ", len(trees), "trees."
             raise AttributeError(msg) from None
         tree = trees[0]
+
+    # if drop_branches or keep_branches:
 
     ak.to_parquet_row_groups(
         (

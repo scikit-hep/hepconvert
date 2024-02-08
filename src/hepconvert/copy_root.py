@@ -5,6 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
+from hepconvert._utils import get_counter_branches, group_branches
 from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
 # ruff: noqa: B023
@@ -14,11 +15,14 @@ def copy_root(
     destination,
     file,
     *,
+    keep_branches=None,
     drop_branches=None,
     # add_branches=None, #TO-DO: add functionality for this, just specify about the counter issue
+    keep_trees=None,
     drop_trees=None,
-    force=True,
+    force=False,
     fieldname_separator="_",
+    # fix_duplicate_counters=False, #TO-DO: ask about this?
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
@@ -40,6 +44,8 @@ def copy_root(
     :param drop_trees: To remove a ttree from a file, pass a list of names of branches to remove.
         Defaults to None. Command line option: ``--drop-trees``.
     :type drop_trees: str or list of str, optional
+    :param force: If true, replaces file if it already exists. Default is False. Command line options ``-f`` or ``--force``.
+    :type force: Bool, optional
     :param fieldname_separator: If data includes jagged arrays, pass the character that separates
         TBranch names for columns, used for grouping columns (to avoid duplicate counters in ROOT file). Defaults to "_".
     :type fieldname_separator: str, optional
@@ -103,6 +109,8 @@ def copy_root(
     if Path.is_file(path):
         if not force:
             raise FileExistsError
+        msg = "Warning, file exists and 'force' = 'True'. Overwriting."
+        Warning(msg)
         out_file = uproot.recreate(
             destination,
             compression=uproot.compression.Compression.from_code_pair(
@@ -128,21 +136,34 @@ def copy_root(
         filter_classname=["TH*", "TProfile"], cycle=False, recursive=False
     )
 
-    for key in f.keys(cycle=False, recursive=False):
-        if key in hist_keys:
-            if len(f[key].axes) == 1:
-                h_sum = _hadd_1d(destination, f, key, True)
-                # if isinstance(h_sum, uproot.models.TH.Model_TH1F_v3):
-                #     print(h_sum.member('fXaxis'))
-                out_file[key] = h_sum
-            elif len(f[key].axes) == 2:
-                out_file[key] = _hadd_2d(destination, f, key, True)
-            else:
-                out_file[key] = _hadd_3d(destination, f, key, True)
+    for key in hist_keys:  # just pass to hadd??
+        if len(f[key].axes) == 1:
+            out_file[key] = _hadd_1d(destination, f, key, True)
+        elif len(f[key].axes) == 2:
+            out_file[key] = _hadd_2d(destination, f, key, True)
+        else:
+            out_file[key] = _hadd_3d(destination, f, key, True)
 
     trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
 
     # Check that drop_trees keys are valid/refer to a tree:
+    if keep_trees:
+        if isinstance(keep_trees, list):
+            for key in keep_trees:
+                if key not in trees:
+                    msg = (
+                        "Key '"
+                        + key
+                        + "' does not match any TTree in ROOT file"
+                        + str(file)
+                    )
+                    raise ValueError(msg)
+        if isinstance(keep_trees, str):
+            keep_trees = f.keys(filter_name=keep_trees, cycle=False)
+        if len(keep_trees) != 1:
+            drop_trees = [tree for tree in trees if tree not in keep_trees]
+        else:
+            drop_trees = [tree for tree in trees if tree != keep_trees[0]]
     if drop_trees:
         if isinstance(drop_trees, list):
             for key in drop_trees:
@@ -172,85 +193,14 @@ def copy_root(
 
     for t in trees:
         tree = f[t]
-        histograms = tree.keys(filter_typename=["TH*", "TProfile"], recursive=False)
-        groups = []
-        count_branches = []
-        temp_branches = [branch.name for branch in tree.branches]
-        temp_branches1 = [branch.name for branch in tree.branches]
-        cur_group = 0
-        for branch in temp_branches:
-            if len(tree[branch].member("fLeaves")) > 1:
-                msg = "Cannot handle split objects."
-                raise NotImplementedError(msg)
-            if tree[branch].member("fLeaves")[0].member("fLeafCount") is None:
-                continue
-            groups.append([])
-            groups[cur_group].append(branch)
-            for branch1 in temp_branches1:
-                if tree[branch].member("fLeaves")[0].member("fLeafCount") is tree[
-                    branch1
-                ].member("fLeaves")[0].member("fLeafCount") and (
-                    tree[branch].name != tree[branch1].name
-                ):
-                    groups[cur_group].append(branch1)
-                    temp_branches.remove(branch1)
-            count_branches.append(tree[branch].count_branch.name)
-            temp_branches.remove(tree[branch].count_branch.name)
-            temp_branches.remove(branch)
-            cur_group += 1
-
-        if drop_branches:
-            if isinstance(drop_branches, dict) and t in drop_branches:
-                rm = drop_branches.get(t)
-            else:
-                rm = drop_branches
-            if isinstance(rm, list):
-                keep_branches = [
-                    branch.name
-                    for branch in tree.branches
-                    if branch.name not in rm and branch.name not in count_branches
-                ]
-            elif isinstance(rm, str):
-                keep_branches = [
-                    branch.name
-                    for branch in tree.branches
-                    if branch.name != rm and branch.name not in count_branches
-                ]
-        else:
-            keep_branches = [
-                branch.name
-                for branch in tree.branches
-                if branch.name not in count_branches
-            ]
-
-        writable_hists = {}
-        if len(histograms) > 1:
-            for key in histograms:
-                if len(f[key].axes) == 1:
-                    writable_hists[key] = _hadd_1d(destination, f, key, True)
-
-                elif len(f[key].axes) == 2:
-                    writable_hists[key] = _hadd_2d(destination, f, key, True)
-
-                else:
-                    writable_hists[key] = _hadd_3d(destination, f, key, True)
-
-        elif len(histograms) == 1:
-            if len(f[histograms[0]].axes) == 1:
-                writable_hists = _hadd_1d(destination, f, histograms[0], True)
-
-            elif len(f[histograms[0]].axes) == 2:
-                writable_hists = _hadd_2d(destination, f, histograms[0], True)
-
-            else:
-                writable_hists = _hadd_3d(destination, f, histograms[0], True)
-
+        count_branches = get_counter_branches(tree)
+        kb = filter_branches(tree, keep_branches, drop_branches, count_branches)
+        groups, count_branches = group_branches(tree, kb)
         first = True
-        for chunk in uproot.iterate(
-            tree,
+        for chunk in tree.iterate(
             step_size=step_size,
             how=dict,
-            filter_branch=lambda b: b.name in keep_branches,
+            filter_name=lambda b: b in kb,
         ):
             for group in groups:
                 if (len(group)) > 1:
@@ -270,7 +220,7 @@ def copy_root(
                         }
                     )
                 for key in group:
-                    if key in keep_branches:
+                    if key in kb:
                         del chunk[key]
             if first:
                 if drop_branches:
@@ -303,7 +253,28 @@ def copy_root(
                 except AssertionError:
                     msg = "Are the branch-names correct?"
 
-        for i, _value in enumerate(histograms):
-            out_file[histograms[i]] = writable_hists[i]
-
         f.close()
+
+
+def filter_branches(tree, keep_branches, drop_branches, count_branches):
+    if drop_branches:
+        if isinstance(drop_branches, str):
+            drop_branches = tree.keys(filter_name=drop_branches)
+        if isinstance(drop_branches, dict) and tree.name in drop_branches:
+            drop_branches = drop_branches.get(tree.name)
+        return [
+            b.name
+            for b in tree.branches
+            if b.name not in count_branches and b.name not in drop_branches
+        ]
+    if keep_branches:
+        if isinstance(keep_branches, str):
+            keep_branches = tree.keys(filter_name=keep_branches)
+        if isinstance(keep_branches, dict) and tree.name in keep_branches:
+            keep_branches = keep_branches.get(tree.name)
+        return [
+            b.name
+            for b in tree.branches
+            if b.name not in count_branches and b.name in keep_branches
+        ]
+    return [b.name for b in tree.branches if b.name not in count_branches]
