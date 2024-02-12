@@ -1,5 +1,3 @@
-# def get_counter_branches(tree):
-#     counter_branches =
 from __future__ import annotations
 
 import numpy as np
@@ -53,6 +51,9 @@ def filter_branches(tree, keep_branches, drop_branches, count_branches):
     """
     Creates lambda function for filtering branches based on keep_branches or drop_branches.
     """
+    if drop_branches and keep_branches:
+        msg = "Can specify either drop_branches or keep_branches, not both."
+        raise ValueError(msg) from None
     if drop_branches:
         if isinstance(drop_branches, dict):  # noqa: SIM102
             if (
