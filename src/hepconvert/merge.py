@@ -5,7 +5,12 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-from hepconvert._utils import filter_branches, get_counter_branches, group_branches
+from hepconvert._utils import (
+    filter_branches,
+    get_counter_branches,
+    group_branches,
+    skim_branches,
+)
 from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
 
@@ -308,6 +313,7 @@ def merge_root(
             if len(trees) > 1:
                 count_branches = get_counter_branches(tree)
                 kb = filter_branches(tree, keep_branches, drop_branches, count_branches)
+            kb = skim_branches
             for chunk in uproot.iterate(
                 tree,
                 step_size=step_size,

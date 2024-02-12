@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import numpy as np
 
+
 def skim_branches(cut, selected_branches):
     # where cut is a boolean expression
-    cut_expression = ... # Numpy logic on selected_branches["arrayname"]
-    selected_events = {name: array[cut_expression] for name, array in selected_branches.items()}
+    selected_events = {name: array[cut] for name, array in selected_branches.items()}
+
 
 def group_branches(tree, keep_branches):
     """
