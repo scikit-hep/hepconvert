@@ -54,6 +54,7 @@ def filter_branches(tree, keep_branches, drop_branches, count_branches):
     if drop_branches and keep_branches:
         msg = "Can specify either drop_branches or keep_branches, not both."
         raise ValueError(msg) from None
+
     if drop_branches:
         if isinstance(drop_branches, dict):  # noqa: SIM102
             if (

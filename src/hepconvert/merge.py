@@ -172,6 +172,7 @@ def merge_root(
     if drop_trees and keep_trees:
         msg = "Can specify either drop_trees or keep_trees, not both."
         raise ValueError(msg) from None
+
     if keep_trees:
         if isinstance(keep_trees, list):
             for key in keep_trees:
