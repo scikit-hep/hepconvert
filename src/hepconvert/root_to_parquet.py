@@ -11,7 +11,9 @@ def root_to_parquet(
     out_file=None,
     *,
     tree=None,
-    force=True,
+    drop_branches=None,
+    keep_branches=None,
+    force=False,
     step_size="100 MB",
     list_to32=False,
     string_to32=True,
@@ -195,15 +197,18 @@ def root_to_parquet(
     if not tree:
         trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
         if len(trees) != 1:
-            msg = "Must specify 1 tree to write, not ", len(trees)
+            msg = "Must specify 1 tree to write, cannot write ", len(trees), "trees."
             raise AttributeError(msg) from None
         tree = trees[0]
 
+    filter_b = _filter_branches(f[tree], keep_branches, drop_branches)
+    # if there's a counter, rid of that too...
     ak.to_parquet_row_groups(
         (
             i
             for i in f[tree].iterate(
                 step_size=step_size,
+                filter_name=filter_b,
             )
         ),
         out_file,
@@ -232,3 +237,24 @@ def root_to_parquet(
     )
 
     f.close()
+
+
+def _filter_branches(tree, keep_branches, drop_branches):
+    """
+    Creates lambda function for filtering branches based on keep_branches or drop_branches.
+    """
+    if drop_branches:
+        if isinstance(drop_branches, str):
+            drop_branches = tree.keys(filter_name=drop_branches)
+        if isinstance(drop_branches, dict) and tree.name in drop_branches:
+            drop_branches = drop_branches.get(tree.name)
+        return lambda b: b in [
+            b.name for b in tree.branches if b.name not in drop_branches
+        ]
+    if keep_branches:
+        if isinstance(keep_branches, str):
+            keep_branches = tree.keys(filter_name=keep_branches)
+        if isinstance(keep_branches, dict) and tree.name in keep_branches:
+            keep_branches = keep_branches.get(tree.name)
+        return lambda b: b in [b.name for b in tree.branches if b.name in keep_branches]
+    return None

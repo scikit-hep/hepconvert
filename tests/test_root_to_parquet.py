@@ -47,6 +47,7 @@ def Zmumu_test(tmp_path):
         in_file=skhep_testdata.data_path("uproot-Zmumu.root"),
         out_file=Path(tmp_path) / "test1.parquet",
         step_size="100 MB",
+        force=True,
     )
     from_parquet = ak.from_parquet(Path(tmp_path) / "test1.parquet")
     for key in f["events"].keys():
@@ -74,6 +75,50 @@ def check_row_group_size(tmp_path):
     from_parquet = ak.from_parquet(Path(tmp_path) / "test.parquet")
     for key in f["events"].keys():
         assert ak.all(from_parquet[key] == original[key])
+    assert (
+        ak.metadata_from_parquet(Path(tmp_path) / "test.parquet")["num_row_groups"] == 3
+    )
+
+
+def drop_branches(tmp_path):
+    f = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
+    original = f["events"].arrays()
+    hepconvert.root_to_parquet(
+        in_file=skhep_testdata.data_path("uproot-HZZ.root"),
+        out_file=Path(tmp_path) / "test.parquet",
+        step_size=1000,
+        drop_branches="Jet*",
+        force=True,
+    )
+    from_parquet = ak.from_parquet(Path(tmp_path) / "test.parquet")
+    for key in f["events"].keys():
+        if key.startswith("Jet"):
+            with pytest.raises(ak.errors.FieldNotFoundError):
+                from_parquet[key]
+        else:
+            assert ak.all(from_parquet[key] == original[key])
+    assert (
+        ak.metadata_from_parquet(Path(tmp_path) / "test.parquet")["num_row_groups"] == 3
+    )
+
+
+def keep_branches(tmp_path):
+    f = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
+    original = f["events"].arrays()
+    hepconvert.root_to_parquet(
+        in_file=skhep_testdata.data_path("uproot-HZZ.root"),
+        out_file=Path(tmp_path) / "test.parquet",
+        step_size=1000,
+        keep_branches="Jet*",
+        force=True,
+    )
+    from_parquet = ak.from_parquet(Path(tmp_path) / "test.parquet")
+    for key in f["events"].keys():
+        if not key.startswith("Jet"):
+            with pytest.raises(ak.errors.FieldNotFoundError):
+                from_parquet[key]
+        else:
+            assert ak.all(from_parquet[key] == original[key])
     assert (
         ak.metadata_from_parquet(Path(tmp_path) / "test.parquet")["num_row_groups"] == 3
     )

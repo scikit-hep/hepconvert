@@ -5,6 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
+from hepconvert._utils import filter_branches, get_counter_branches, group_branches
 from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
 
@@ -13,14 +14,17 @@ def merge_root(
     files,
     *,
     fieldname_separator="_",
-    branch_types=None,
+    drop_branches=None,
+    drop_trees=None,
+    keep_branches=None,
+    keep_trees=None,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
     resize_factor=10.0,
     counter_name=lambda counted: "n" + counted,
     step_size="100 MB",
-    force=True,
+    force=False,
     append=False,
     compression="zlib",
     compression_level=1,
@@ -34,19 +38,19 @@ def merge_root(
         May contain glob patterns.
     :type files: str or list of str
     :param branch_types: Name and type specification for the TBranches. Command line option: ``--branch-types``.
-    :type branch_types: dict or pairs of str → NumPy dtype/Awkward type
+    :type branch_types: dict or pairs of str → NumPy dtype/Awkward type, optional
     :param fieldname_separator: Character that separates TBranch names for columns, used
         for grouping columns (to avoid duplicate counters in ROOT file).
-    :type fieldname_separator: str
+    :type fieldname_separator: str, optional
     :param field_name: Function to generate TBranch names for columns
         of an Awkward record array or a Pandas DataFrame.
-    :type field_name: callable of str → str
+    :type field_name: callable of str → str, optional
     :param initial_basket_capacity: Number of TBaskets that can be written to the TTree
         without rewriting the TTree metadata to make room. Command line option: ``--initial-basket-capacity``.
-    :type initial_basket_capacity: int
+    :type initial_basket_capacity: int, optional
     :param resize_factor: When the TTree metadata needs to be rewritten, this specifies how
         many more TBasket slots to allocate as a multiplicative factor. Command line option: ``--resize-factor``.
-    :type resize_factor: float
+    :type resize_factor: float, optional
     :param step_size: If an integer, the maximum number of entries to include in each
         iteration step; if a string, the maximum memory size to include. The string must be
         a number followed by a memory unit, such as “100 MB”. Recommended to be >100 kB.
@@ -54,20 +58,20 @@ def merge_root(
     :type step_size: int or str
     :param force: If True, overwrites destination file if it exists. Force and append
         cannot both be True. Command line option: ``--force``.
-    :type force: bool
+    :type force: bool, optional
     :param append: If True, appends data to an existing file. Force and append
         cannot both be True. Command line option: ``--append``.
-    :type append: bool
+    :type append: bool, optional
     :param compression: Sets compression level for root file to write to. Can be one of
         "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "ZLIB".
         Command line option: ``--compression``.
-    :type compression: str
+    :type compression: str, optional
     :param compression_level: Use a compression level particular to the chosen compressor.
         By default the compression level is 1. Command line option: ``--compression-level``.
-    :type compression_level: int
+    :type compression_level: int, optional
     :param skip_bad_files: If True, skips corrupt or non-existent files without exiting.
         Command line option: ``--skip-bad-files``.
-    :type skip_bad_files: bool
+    :type skip_bad_files: bool, optional
 
     Example:
     --------
@@ -164,59 +168,63 @@ def merge_root(
 
     trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
 
+    # Check that drop_trees keys are valid/refer to a tree:
+    if keep_trees:
+        if isinstance(keep_trees, list):
+            for key in keep_trees:
+                if key not in trees:
+                    msg = (
+                        "Key '"
+                        + key
+                        + "' does not match any TTree in ROOT file"
+                        + str(out_file)
+                    )
+                    raise ValueError(msg)
+        if isinstance(keep_trees, str):
+            keep_trees = f.keys(filter_name=keep_trees, cycle=False)
+        if len(keep_trees) != 1:
+            drop_trees = [tree for tree in trees if tree not in keep_trees]
+        else:
+            drop_trees = [tree for tree in trees if tree != keep_trees[0]]
+    if drop_trees:
+        if isinstance(drop_trees, list):
+            for key in drop_trees:
+                if key not in trees:
+                    msg = (
+                        "Key '"
+                        + key
+                        + "' does not match any TTree in ROOT file"
+                        + str(out_file)
+                    )
+                    raise ValueError(msg)
+                trees.remove(key)
+        if isinstance(drop_trees, str):
+            found = False
+            for key in trees:
+                if key == drop_trees:
+                    found = True
+                    trees.remove(key)
+            if found is False:
+                msg = (
+                    "TTree ",
+                    key,
+                    " does not match any TTree in ROOT file",
+                    destination,
+                )
+                raise ValueError(msg)
+
     for t in trees:
+        branch_types = None
         tree = f[t]
-        histograms = tree.keys(filter_typename=["TH*", "TProfile"], recursive=False)
-        groups = []
-        count_branches = []
-        temp_branches = [branch.name for branch in tree.branches]
-        temp_branches1 = [branch.name for branch in tree.branches]
-        cur_group = 0
-        for branch in temp_branches:
-            if len(tree[branch].member("fLeaves")) > 1:
-                msg = "Cannot handle split objects."
-                raise NotImplementedError(msg)
-            if tree[branch].member("fLeaves")[0].member("fLeafCount") is None:
-                continue
-            groups.append([])
-            groups[cur_group].append(branch)
-            for branch1 in temp_branches1:
-                if tree[branch].member("fLeaves")[0].member("fLeafCount") is tree[
-                    branch1
-                ].member("fLeaves")[0].member("fLeafCount") and (
-                    tree[branch].name != tree[branch1].name
-                ):
-                    groups[cur_group].append(branch1)
-                    temp_branches.remove(branch1)
-            count_branches.append(tree[branch].count_branch.name)
-            temp_branches.remove(tree[branch].count_branch.name)
-            temp_branches.remove(branch)
-            cur_group += 1
-
-        writable_hists = {}
-        if len(histograms) > 1:
-            for key in histograms:
-                if len(f[key].axes) == 1:
-                    writable_hists[key] = _hadd_1d(destination, f, key, True)
-
-                elif len(f[key].axes) == 2:
-                    writable_hists[key] = _hadd_2d(destination, f, key, True)
-
-                else:
-                    writable_hists[key] = _hadd_3d(destination, f, key, True)
-
-        elif len(histograms) == 1:
-            if len(f[histograms[0]].axes) == 1:
-                writable_hists = _hadd_1d(destination, f, histograms[0], True)
-
-            elif len(f[histograms[0]].axes) == 2:
-                writable_hists = _hadd_2d(destination, f, histograms[0], True)
-
-            else:
-                writable_hists = _hadd_3d(destination, f, histograms[0], True)
-
+        count_branches = get_counter_branches(tree)
+        kb = filter_branches(tree, keep_branches, drop_branches, count_branches)
+        groups, count_branches = group_branches(tree, kb)
         first = True
-        for chunk in uproot.iterate(tree, step_size=step_size, how=dict):
+        for chunk in tree.iterate(
+            step_size=step_size,
+            how=dict,
+            filter_name=lambda b: b in kb,  # noqa: B023
+        ):
             for key in count_branches:
                 del chunk[key]
             for group in groups:
@@ -238,10 +246,8 @@ def merge_root(
                     )
                 for key in group:
                     del chunk[key]
-
             if branch_types is None:
                 branch_types = {name: array.type for name, array in chunk.items()}
-
             if first:
                 out_file.mktree(
                     tree.name,
@@ -263,9 +269,6 @@ def merge_root(
                     out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "TTrees must have the same structure to be merged. Are the branch_names correct?"
-
-        for i, _value in enumerate(histograms):
-            out_file[histograms[i]] = writable_hists[i]
 
         f.close()
 
@@ -293,7 +296,7 @@ def merge_root(
         for t in trees:
             tree = f[t]
             writable_hists = []
-            for key in histograms:
+            for key in hist_keys:
                 if len(f[key].axes) == 1:
                     writable_hists[key] = _hadd_1d(destination, out_file, key, False)
 
@@ -302,8 +305,15 @@ def merge_root(
 
                 else:
                     writable_hists[key] = _hadd_3d(destination, out_file, key, False)
-
-            for chunk in uproot.iterate(tree, step_size=step_size, how=dict):
+            if len(trees) > 1:
+                count_branches = get_counter_branches(tree)
+                kb = filter_branches(tree, keep_branches, drop_branches, count_branches)
+            for chunk in uproot.iterate(
+                tree,
+                step_size=step_size,
+                how=dict,
+                filter_name=lambda b: b in kb,  # noqa: B023
+            ):
                 for group in groups:
                     if len(group) > 1:
                         chunk.update(
@@ -325,15 +335,13 @@ def merge_root(
                         )
                     for key in group:
                         del chunk[key]
-                for key in count_branches:
-                    del chunk[key]
                 try:
                     out_file[tree.name].extend(chunk)
 
                 except AssertionError:
                     msg = "TTrees must have the same structure to be merged"
 
-            for key in histograms:
+            for key in hist_keys:
                 out_file[key] = writable_hists[key]
 
         f.close()
