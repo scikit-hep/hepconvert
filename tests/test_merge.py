@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import awkward as ak
 import numpy as np
 import pytest
 import uproot
-from pathlib import Path
 
 from hepconvert import merge
 
@@ -21,14 +22,12 @@ def test_simple(tmp_path):
         counter_name=lambda counted: "N" + counted,
     )
     hepconvert_file = uproot.open(Path(tmp_path) / "test_simple.root")
-    # hadd_file = uproot.open(
-    #     "/hepconvert/src/hepconvert/tests/samples/HZZ-hadd.root"
-    # )
-    # assert ak.all(hepconvert_file.keys() == hadd_file.keys())
-    # for key in hepconvert_file["events"]:
-    #     assert ak.all(
-    #         hepconvert_file["events"].arrays()[key] == hadd_file["events"].arrays()[key]
-    #     )
+    hadd_file = uproot.open("/hepconvert/src/hepconvert/tests/samples/HZZ-hadd.root")
+    assert ak.all(hepconvert_file.keys() == hadd_file.keys())
+    for key in hepconvert_file["events"]:
+        assert ak.all(
+            hepconvert_file["events"].arrays()[key] == hadd_file["events"].arrays()[key]
+        )
 
 
 def test_hists(tmp_path):
@@ -120,58 +119,77 @@ def realistic_data(tmp_path):
     )
 
     hepconvert_file = uproot.open(Path(tmp_path) / "test_existing_file.root")
-    hadd_file = uproot.open(
-        Path(tmp_path) / "test_existing.root"
-    )
+    hadd_file = uproot.open(Path(tmp_path) / "test_existing.root")
     for key in hadd_file["Events"]:
         assert np.equal(
             hepconvert_file["Events"].arrays()[key].to_numpy,
             hadd_file["Events"].arrays()[key].to_numpy,
         ).all
 
+
 def test_branchtypes(tmp_path):
     with uproot.recreate(Path(tmp_path) / "four_trees.root") as file:
-        file["tree"] = {"x": np.array([1, 2, 3, 4, 5]), "y": np.array([4, 5, 6, 7, 8]), "x1": np.array([1, 2, 3, 4, 5]),
-            "y1": np.array([4, 5, 6, 7, 8]),}
-        file["tree1"] = {"x": np.array([8, 9, 10, 11, 12]), "y": np.array([14, 15, 16, 71, 18]),
+        file["tree"] = {
+            "x": np.array([1, 2, 3, 4, 5]),
+            "y": np.array([4, 5, 6, 7, 8]),
+            "x1": np.array([1, 2, 3, 4, 5]),
+            "y1": np.array([4, 5, 6, 7, 8]),
+        }
+        file["tree1"] = {
+            "x": np.array([8, 9, 10, 11, 12]),
+            "y": np.array([14, 15, 16, 71, 18]),
             "x1": np.array([11, 22, 33, 44, 55]),
             "y1": np.array([4, 5, 6, 7, 8]),
         }
     with uproot.recreate(Path(tmp_path) / "two_trees.root") as file:
-        file["tree"] = {"x": np.array([8, 9, 10, 11, 12]), "y": np.array([14, 15, 16, 71, 18]), "x1": np.array([1, 2, 3, 4, 9]),
-            "y1": np.array([4, 5, 6, 7, 8]),}
-        file["tree1"] = {"x": np.array([8, 9, 10, 11, 12]), "y": np.array([14, 15, 16, 71, 18]),
+        file["tree"] = {
+            "x": np.array([8, 9, 10, 11, 12]),
+            "y": np.array([14, 15, 16, 71, 18]),
+            "x1": np.array([1, 2, 3, 4, 9]),
+            "y1": np.array([4, 5, 6, 7, 8]),
+        }
+        file["tree1"] = {
+            "x": np.array([8, 9, 10, 11, 12]),
+            "y": np.array([14, 15, 16, 71, 18]),
             "x1": np.array([16, 27, 37, 47, 57]),
             "y1": np.array([4, 5, 6, 7, 8]),
         }
     merge.merge_root(
         Path(tmp_path) / "test_branch_types.root",
-        [
-            Path(tmp_path) / "four_trees.root",
-            Path(tmp_path) / "two_trees.root"
-        ],
+        [Path(tmp_path) / "four_trees.root", Path(tmp_path) / "two_trees.root"],
         drop_branches=["y*"],
-        force=True
+        force=True,
     )
     with uproot.open(Path(tmp_path) / "test_branch_types.root") as new_file:
-        assert new_file['tree'].keys() == ['x', 'x1'] and new_file['tree1'].keys() == ['x', 'x1']
-        assert ak.all(new_file['tree']['x'].array() == [1, 2, 3, 4, 5, 8, 9, 10, 11, 12])
-        assert ak.all(new_file['tree']['x1'].array() == [1, 2, 3, 4, 5, 1, 2, 3, 4, 9])
-        assert ak.all(new_file['tree1']['x'].array() == [8, 9, 10, 11, 12, 8, 9, 10, 11, 12])
-        assert ak.all(new_file['tree1']['x1'].array() == [11, 22, 33, 44, 55, 16, 27, 37, 47, 57])
+        assert new_file["tree"].keys() == ["x", "x1"]
+        assert new_file["tree1"].keys() == [
+            "x",
+            "x1",
+        ]
+        assert ak.all(
+            new_file["tree"]["x"].array() == [1, 2, 3, 4, 5, 8, 9, 10, 11, 12]
+        )
+        assert ak.all(new_file["tree"]["x1"].array() == [1, 2, 3, 4, 5, 1, 2, 3, 4, 9])
+        assert ak.all(
+            new_file["tree1"]["x"].array() == [8, 9, 10, 11, 12, 8, 9, 10, 11, 12]
+        )
+        assert ak.all(
+            new_file["tree1"]["x1"].array() == [11, 22, 33, 44, 55, 16, 27, 37, 47, 57]
+        )
 
     merge.merge_root(
-            Path(tmp_path) / "test_branch_types.root",
-            [
-                Path(tmp_path) / "four_trees.root",
-                Path(tmp_path) / "two_trees.root"
-            ],
-            keep_branches={'tree': "x*", 'tree1': "y"},
-            force=True
-        )
+        Path(tmp_path) / "test_branch_types.root",
+        [Path(tmp_path) / "four_trees.root", Path(tmp_path) / "two_trees.root"],
+        keep_branches={"tree": "x*", "tree1": "y"},
+        force=True,
+    )
     with uproot.open(Path(tmp_path) / "test_branch_types.root") as new_file:
-        assert new_file['tree'].keys() == ['x', 'x1']
-        assert ak.all(new_file['tree']['x'].array() == [1, 2, 3, 4, 5, 8, 9, 10, 11, 12])
-        assert ak.all(new_file['tree']['x1'].array() == [1, 2, 3, 4, 5, 1, 2, 3, 4, 9])
-        assert new_file['tree1'].keys() == ['y']
-        assert ak.all(new_file['tree1']['y'].array() == [14, 15, 16, 71, 18, 14, 15, 16, 71, 18]) 
+        assert new_file["tree"].keys() == ["x", "x1"]
+        assert ak.all(
+            new_file["tree"]["x"].array() == [1, 2, 3, 4, 5, 8, 9, 10, 11, 12]
+        )
+        assert ak.all(new_file["tree"]["x1"].array() == [1, 2, 3, 4, 5, 1, 2, 3, 4, 9])
+        assert new_file["tree1"].keys() == ["y"]
+        assert ak.all(
+            new_file["tree1"]["y"].array() == [14, 15, 16, 71, 18, 14, 15, 16, 71, 18]
+        )

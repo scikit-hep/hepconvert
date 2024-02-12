@@ -218,7 +218,9 @@ def mult_1D(tmp_path, file_paths):
 def test_3_glob(file_paths, tmp_path):
     h1, h2, h3 = generate_1D_gaussian(file_paths)
 
-    hepconvert.add_histograms(Path(tmp_path) / "place.root", Path(tmp_path) / "samples", force=True)
+    hepconvert.add_histograms(
+        Path(tmp_path) / "place.root", Path(tmp_path) / "samples", force=True
+    )
 
     with uproot.open("tests/place.root") as file:
         assert file["name"].member("fN") == h1.member("fN")

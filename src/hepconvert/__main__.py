@@ -209,13 +209,6 @@ def add(
 @main.command()
 @click.argument("destination")
 @click.argument("files")
-@click.option(
-    "--branch-types",
-    default=None,
-    type=dict,
-    required=False,
-    help="Manually enter branch names and types to improve performance slightly.",
-)
 @click.option("--title", required=False, default="", help="Set title of new TTree.")
 @click.option(
     "--initial-basket-capacity",
@@ -256,7 +249,6 @@ def merge_root(
     files,
     *,
     fieldname_separator="_",
-    branch_types=None,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
@@ -278,7 +270,6 @@ def merge_root(
         destination,
         files,
         fieldname_separator=fieldname_separator,
-        branch_types=branch_types,
         title=title,
         field_name=field_name,
         initial_basket_capacity=initial_basket_capacity,

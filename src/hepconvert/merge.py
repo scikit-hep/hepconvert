@@ -177,7 +177,7 @@ def merge_root(
                         "Key '"
                         + key
                         + "' does not match any TTree in ROOT file"
-                        + str(file)
+                        + str(out_file)
                     )
                     raise ValueError(msg)
         if isinstance(keep_trees, str):
@@ -194,7 +194,7 @@ def merge_root(
                         "Key '"
                         + key
                         + "' does not match any TTree in ROOT file"
-                        + str(file)
+                        + str(out_file)
                     )
                     raise ValueError(msg)
                 trees.remove(key)
