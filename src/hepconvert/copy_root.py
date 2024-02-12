@@ -165,7 +165,7 @@ def copy_root(
             drop_trees = [tree for tree in trees if tree not in keep_trees]
         else:
             drop_trees = [tree for tree in trees if tree != keep_trees[0]]
-            
+
     if drop_trees:
         if isinstance(drop_trees, list):
             for key in drop_trees:
