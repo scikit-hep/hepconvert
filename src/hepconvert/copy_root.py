@@ -15,6 +15,7 @@ def copy_root(
     destination,
     file,
     *,
+    skim_branches=None,
     keep_branches=None,
     drop_branches=None,
     # add_branches=None, #TO-DO: add functionality for this, just specify about the counter issue
