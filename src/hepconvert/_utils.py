@@ -47,3 +47,40 @@ def get_counter_branches(tree):
             continue
         count_branches.append(tree[branch].count_branch.name)
     return np.unique(count_branches, axis=0)
+
+
+def filter_branches(tree, keep_branches, drop_branches, count_branches):
+    """
+    Creates lambda function for filtering branches based on keep_branches or drop_branches.
+    """
+    if drop_branches:
+        if isinstance(drop_branches, dict):  # noqa: SIM102
+            if (
+                len(drop_branches) > 1
+                and tree.name in drop_branches
+                or tree.name == next(iter(drop_branches.keys()))
+            ):
+                drop_branches = drop_branches.get(tree.name)
+        if isinstance(drop_branches, str) or len(drop_branches) == 1:
+            drop_branches = tree.keys(filter_name=drop_branches)
+        return [
+            b.name
+            for b in tree.branches
+            if b.name not in count_branches and b.name not in drop_branches
+        ]
+    if keep_branches:
+        if isinstance(keep_branches, dict):  # noqa: SIM102
+            if (
+                len(keep_branches) > 1
+                and tree.name in keep_branches
+                or tree.name == next(iter(keep_branches.keys()))
+            ):
+                keep_branches = keep_branches.get(tree.name)
+        if isinstance(keep_branches, str):
+            keep_branches = tree.keys(filter_name=keep_branches)
+            return [
+                b.name
+                for b in tree.branches
+                if b.name not in count_branches and b.name in keep_branches
+            ]
+    return [b.name for b in tree.branches if b.name not in count_branches]

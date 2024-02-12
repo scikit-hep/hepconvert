@@ -129,7 +129,6 @@ def test_keep_tree(tmp_path):
             force=True,
         )
         with uproot.open(Path(tmp_path) / "copied.root") as copy:
-            print(copy.keys())
             assert copy.keys(cycle=False) == ["tree"]
             for tree in copy.keys(cycle=False):
                 for key in copy[tree].keys():

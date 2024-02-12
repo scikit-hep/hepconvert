@@ -5,7 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-from hepconvert._utils import get_counter_branches, group_branches
+from hepconvert._utils import filter_branches, get_counter_branches, group_branches
 from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
 # ruff: noqa: B023
@@ -252,30 +252,3 @@ def copy_root(
                     msg = "Are the branch-names correct?"
 
         f.close()
-
-
-def filter_branches(tree, keep_branches, drop_branches, count_branches):
-    """
-    Creates lambda function for filtering branches based on keep_branches or drop_branches.
-    """
-    if drop_branches:
-        if isinstance(drop_branches, str):
-            drop_branches = tree.keys(filter_name=drop_branches)
-        if isinstance(drop_branches, dict) and tree.name in drop_branches:
-            drop_branches = drop_branches.get(tree.name)
-        return [
-            b.name
-            for b in tree.branches
-            if b.name not in count_branches and b.name not in drop_branches
-        ]
-    if keep_branches:
-        if isinstance(keep_branches, str):
-            keep_branches = tree.keys(filter_name=keep_branches)
-        if isinstance(keep_branches, dict) and tree.name in keep_branches:
-            keep_branches = keep_branches.get(tree.name)
-        return [
-            b.name
-            for b in tree.branches
-            if b.name not in count_branches and b.name in keep_branches
-        ]
-    return [b.name for b in tree.branches if b.name not in count_branches]
