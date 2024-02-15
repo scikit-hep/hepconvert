@@ -85,7 +85,9 @@ def parquet_to_root(
 @click.argument("destination", type=click.Path())
 @click.argument("file")
 @click.option("--drop-branches", default=None, type=list or dict or str, required=False)
+@click.option("--keep-branches", default=None, type=list or dict or str, required=False)
 @click.option("--drop-trees", default=None, type=list or str, required=False)
+@click.option("--keep-trees", default=None, type=list or str, required=False)
 @click.option("--title", required=False, default="")
 @click.option(
     "--initial-basket-capacity",
@@ -108,7 +110,9 @@ def copy_root(
     file,
     *,
     drop_branches=None,
+    keep_branches=None,
     drop_trees=None,
+    keep_trees=None,
     force=False,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
@@ -128,7 +132,9 @@ def copy_root(
         destination,
         file,
         drop_branches=drop_branches,
+        keep_branches=keep_branches,
         drop_trees=drop_trees,
+        keep_trees=keep_trees,
         force=force,
         title=title,
         field_name=field_name,
@@ -225,6 +231,10 @@ def add(
     default=100,
     help="If an integer, the maximum number of entries to include in each iteration step; if a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”.",
 )
+@click.option("--drop-branches", default=None, type=list or dict or str, required=False)
+@click.option("--keep-branches", default=None, type=list or dict or str, required=False)
+@click.option("--drop-trees", default=None, type=list or str, required=False)
+@click.option("--keep-trees", default=None, type=list or str, required=False)
 @click.option(
     "--force", default=True, help="Overwrite destination file if it already exists"
 )
@@ -251,6 +261,10 @@ def merge_root(
     fieldname_separator="_",
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
+    drop_branches=None,
+    keep_branches=None,
+    drop_trees=None,
+    keep_trees=None,
     initial_basket_capacity=10,
     resize_factor=10.0,
     counter_name=lambda counted: "n" + counted,
@@ -272,6 +286,10 @@ def merge_root(
         fieldname_separator=fieldname_separator,
         title=title,
         field_name=field_name,
+        drop_branches=drop_branches,
+        keep_branches=keep_branches,
+        drop_trees=drop_trees,
+        keep_trees=keep_trees,
         initial_basket_capacity=initial_basket_capacity,
         resize_factor=resize_factor,
         counter_name=counter_name,

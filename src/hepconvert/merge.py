@@ -174,6 +174,10 @@ def merge_root(
     trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
 
     # Check that drop_trees keys are valid/refer to a tree:
+    if drop_trees and keep_trees:
+        msg = "Can specify either drop_trees or keep_trees, not both."
+        raise ValueError(msg) from None
+
     if keep_trees:
         if isinstance(keep_trees, list):
             for key in keep_trees:

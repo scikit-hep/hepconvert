@@ -146,6 +146,9 @@ def copy_root(
     trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
 
     # Check that drop_trees keys are valid/refer to a tree:
+    if drop_trees and keep_trees:
+        msg = "Can specify either drop_trees or keep_trees, not both."
+        raise ValueError(msg) from None
     if keep_trees:
         if isinstance(keep_trees, list):
             for key in keep_trees:
@@ -163,6 +166,7 @@ def copy_root(
             drop_trees = [tree for tree in trees if tree not in keep_trees]
         else:
             drop_trees = [tree for tree in trees if tree != keep_trees[0]]
+
     if drop_trees:
         if isinstance(drop_trees, list):
             for key in drop_trees:

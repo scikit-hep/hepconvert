@@ -243,6 +243,10 @@ def _filter_branches(tree, keep_branches, drop_branches):
     """
     Creates lambda function for filtering branches based on keep_branches or drop_branches.
     """
+    if drop_branches and keep_branches:
+        msg = "Can specify either drop_branches or keep_branches, not both."
+        raise ValueError(msg) from None
+
     if drop_branches:
         if isinstance(drop_branches, str):
             drop_branches = tree.keys(filter_name=drop_branches)
