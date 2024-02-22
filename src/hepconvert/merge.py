@@ -25,7 +25,7 @@ def merge_root(
     keep_trees=None,
     trigger=None,
     cut_expression=None,
-    cut_branch=None,  # noqa: ARG001
+    cut_branch=None,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
@@ -235,8 +235,11 @@ def merge_root(
             filter_name=lambda b: b in kb,  # noqa: B023
         ):
             if cut_expression:
-                trigger = eval(cut_expression.replace("x", "chunk[cut_branch]"))  # noqa: PGH001
-            if isinstance(trigger, (list, ak.Array)):
+                cut_expression = cut_expression.replace("x", "chunk[cut_branch]")
+                _locals = locals()
+                exec(f"trigger = {cut_expression}", globals(), _locals)
+                trigger = _locals["trigger"]
+            if isinstance(trigger, (list, ak.Array, str)):
                 chunk = skim_branches(trigger, chunk, tree.name)  # noqa: PLW2901
             for group in groups:
                 if (len(group)) > 1:

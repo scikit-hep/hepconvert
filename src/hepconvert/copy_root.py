@@ -27,7 +27,7 @@ def copy_root(
     drop_trees=None,
     trigger=None,
     cut_expression=None,
-    cut_branch=None,  # noqa: ARG001
+    cut_branch=None,
     force=False,
     fieldname_separator="_",
     # fix_duplicate_counters=False, #TO-DO: ask about this?
@@ -221,7 +221,10 @@ def copy_root(
             filter_name=lambda b: b in kb,
         ):
             if cut_expression:
-                trigger = eval(cut_expression.replace("x", "chunk[cut_branch]"))  # noqa: PGH001
+                cut_expression = cut_expression.replace("x", "chunk[cut_branch]")
+                _locals = locals()
+                exec(f"trigger = {cut_expression}", globals(), _locals)
+                trigger = _locals["trigger"]
             if isinstance(trigger, (list, ak.Array)):
                 chunk = skim_branches(trigger, chunk, tree.name)  # noqa: PLW2901
             for group in groups:

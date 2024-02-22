@@ -4,6 +4,9 @@ import numpy as np
 
 
 def skim_branches(cut, chunk, tree_name):
+    """
+    Applies cut to each 'chunk' when skimming a ttree before iteratively writing the chunk.
+    """
     try:
         temp = {name: array[cut] for name, array in chunk.items()}
         chunk.update(temp)
