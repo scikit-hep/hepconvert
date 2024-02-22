@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import uproot
+import hepconvert._utils
 
 
 def _hadd_1d(destination, file, key, first, *, n_key=None):
@@ -91,7 +92,7 @@ def _hadd_1d(destination, file, key, first, *, n_key=None):
         outfile.close()
         return h_sum
 
-    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member("fN")} and {hist.member("fN")}"
+    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member('fN')} and {hist.member('fN')}"
     raise ValueError(
         msg,
     ) from None
@@ -208,7 +209,7 @@ def _hadd_2d(destination, file, key, first, *, n_key=None):
         outfile.close()
         return h_sum
 
-    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member("fN")} and {hist.member("fN")}"
+    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member('fN')} and {hist.member('fN')}"
     raise ValueError(
         msg,
     ) from None
@@ -356,7 +357,7 @@ def _hadd_3d(destination, file, key, first, *, n_key=None):
         outfile.close()
         return h_sum
 
-    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member("fN")} and {hist.member("fN")}"
+    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member('fN')} and {hist.member('fN')}"
     raise ValueError(
         msg,
     ) from None
@@ -466,10 +467,12 @@ def add_histograms(
         keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
         if progress_bar:
             if progress_bar is True:
+                hepconvert._utils.tqdm()
                 number_of_items = len(keys) * len(files)
                 import tqdm
-                progress_bar = tqdm.tqdm()
-            progress_bar.reset(number_of_items)
+                prog_bar = tqdm.tqdm(desc="histograms written")
+            # Other options?
+            prog_bar.reset(number_of_items)
     if same_names:
         if union:
             for i, _value in enumerate(files[1:]):
@@ -525,6 +528,8 @@ def add_histograms(
 
                 else:
                     h_sum = _hadd_3d(destination, file, key, first)
+                if progress_bar:
+                    prog_bar.update(n=1)
 
         else:
             n_keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
@@ -540,6 +545,8 @@ def add_histograms(
 
                 if h_sum is not None:
                     file_out[keys[i]] = h_sum
+                if progress_bar:
+                    prog_bar.update(n=1)
 
         first = False
         file.close()
