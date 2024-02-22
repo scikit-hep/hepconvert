@@ -25,7 +25,7 @@ def merge_root(
     keep_trees=None,
     trigger=None,
     cut_expression=None,
-    cut_branch=None,
+    cut_branch=None, # noqa: W0613
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,

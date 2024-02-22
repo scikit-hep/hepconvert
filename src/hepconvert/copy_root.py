@@ -27,7 +27,7 @@ def copy_root(
     drop_trees=None,
     trigger=None,
     cut_expression=None,
-    cut_branch=None,
+    cut_branch=None, # noqa: W0613
     force=False,
     fieldname_separator="_",
     # fix_duplicate_counters=False, #TO-DO: ask about this?
