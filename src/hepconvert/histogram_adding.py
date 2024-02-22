@@ -22,7 +22,7 @@ def _hadd_1d(destination, file, key, first, *, n_key=None):
     try:
         hist = file[key] if n_key is None else file[n_key]
     except ValueError:
-        msg = "Key missing from {file}"
+        msg = f"Key missing from {file}"
         raise ValueError(msg) from None
     # if file[key].classname == "TProfile":
     #     return TProfile_1d(destination, file, key, first, n_key=n_key)
@@ -91,12 +91,9 @@ def _hadd_1d(destination, file, key, first, *, n_key=None):
         outfile.close()
         return h_sum
 
-    msg = "Bins must be the same for histograms to be added, not "
+    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member("fN")} and {hist.member("fN")}"
     raise ValueError(
         msg,
-        hist.member("fN"),
-        " and ",
-        outfile[key].member("fN"),
     ) from None
 
 
@@ -116,7 +113,7 @@ def _hadd_2d(destination, file, key, first, *, n_key=None):
     try:
         hist = file[key] if n_key is None else file[n_key]
     except ValueError:
-        msg = "Key missing from {file}"
+        msg = f"Key missing from {file}"
         raise ValueError(msg) from None
     # if file[key].classname == "TProfile2D":
     #     return TProfile_2d(destination, file, key, first, n_key=n_key)
@@ -211,12 +208,9 @@ def _hadd_2d(destination, file, key, first, *, n_key=None):
         outfile.close()
         return h_sum
 
-    msg = "Bins must be the same for histograms to be added, not "
+    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member("fN")} and {hist.member("fN")}"
     raise ValueError(
         msg,
-        hist.member("fN"),
-        " and ",
-        outfile[key].member("fN"),
     ) from None
 
 
@@ -236,7 +230,7 @@ def _hadd_3d(destination, file, key, first, *, n_key=None):
     try:
         hist = file[key] if n_key is None else file[n_key]
     except ValueError:
-        msg = "Key missing from {file}"
+        msg = f"Key missing from {file}"
         raise ValueError(msg) from None
     # if file[key].classname == "TProfile3D":
     #     return TProfile_3d(destination, file, key, first, n_key=n_key)
@@ -362,12 +356,9 @@ def _hadd_3d(destination, file, key, first, *, n_key=None):
         outfile.close()
         return h_sum
 
-    msg = "Bins must be the same for histograms to be added, not "
+    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member("fN")} and {hist.member("fN")}"
     raise ValueError(
         msg,
-        hist.member("fN"),
-        " and ",
-        outfile[key].member("fN"),
     ) from None
 
 
@@ -375,6 +366,7 @@ def add_histograms(
     destination,
     files,
     *,
+    progress_bar=True,
     force=True,
     append=False,
     compression="zlib",
@@ -469,8 +461,15 @@ def add_histograms(
         msg = "Cannot add one file. Use copy_root to copy a ROOT file."
         raise ValueError(msg) from None
 
+
     with uproot.open(files[0]) as file:
         keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
+        if progress_bar:
+            if progress_bar is True:
+                number_of_items = len(keys) * len(files)
+                import tqdm
+                progress_bar = tqdm.tqdm()
+            progress_bar.reset(number_of_items)
     if same_names:
         if union:
             for i, _value in enumerate(files[1:]):
@@ -507,7 +506,7 @@ def add_histograms(
         except FileNotFoundError:
             if skip_bad_files:
                 continue
-            msg = "File: {input_file} does not exist or is corrupt."
+            msg = f"File: {input_file} does not exist or is corrupt."
             raise FileNotFoundError(msg) from None
         if same_names:
             for key in keys:

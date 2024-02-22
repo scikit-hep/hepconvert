@@ -18,6 +18,7 @@ def merge_root(
     drop_trees=None,
     keep_branches=None,
     keep_trees=None,
+    progress_bar=None,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
@@ -167,7 +168,7 @@ def merge_root(
                 out_file[key] = _hadd_3d(destination, f, key, True)
 
     trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
-
+    
     # Check that drop_trees keys are valid/refer to a tree:
     if drop_trees and keep_trees:
         msg = "Can specify either drop_trees or keep_trees, not both."
@@ -224,6 +225,10 @@ def merge_root(
         kb = filter_branches(tree, keep_branches, drop_branches, count_branches)
         groups, count_branches = group_branches(tree, kb)
         first = True
+        if progress_bar:
+            if progress_bar is True:
+                import tqdm
+                progress_bar = tqdm.tqdm()
         for chunk in tree.iterate(
             step_size=step_size,
             how=dict,
