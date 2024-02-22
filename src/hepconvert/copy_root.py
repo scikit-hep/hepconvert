@@ -56,6 +56,10 @@ def copy_root(
     :param drop_trees: To remove a ttree from a file, pass a list of names of branches to remove.
         Defaults to None. Command line option: ``--drop-trees``.
     :type drop_trees: str or list of str, optional
+    :param trigger: Trigger branch to apply for skimming. Will be applied to the whole file, branch types must .
+    :type trigger: List of bools, optional.
+    :param cut_expression: Expression to use for
+    cut_branch=None,  # noqa: ARG001
     :param force: If true, replaces file if it already exists. Default is False. Command line options ``-f`` or ``--force``.
     :type force: Bool, optional
     :param fieldname_separator: If data includes jagged arrays, pass the character that separates
