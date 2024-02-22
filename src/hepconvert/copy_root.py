@@ -5,7 +5,12 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-from hepconvert._utils import filter_branches, get_counter_branches, group_branches
+from hepconvert._utils import (
+    filter_branches,
+    get_counter_branches,
+    group_branches,
+    skim_branches,
+)
 from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
 # ruff: noqa: B023
@@ -15,12 +20,14 @@ def copy_root(
     destination,
     file,
     *,
-    skim_branches=None,
     keep_branches=None,
     drop_branches=None,
     # add_branches=None, #TO-DO: add functionality for this, just specify about the counter issue
     keep_trees=None,
     drop_trees=None,
+    trigger=None,
+    cut_expression=None,
+    cut_branch=None,  # noqa: ARG001
     force=False,
     fieldname_separator="_",
     # fix_duplicate_counters=False, #TO-DO: ask about this?
@@ -39,6 +46,10 @@ def copy_root(
     :param files: Local ROOT file to copy. May contain glob patterns.
     :type files: str
     :param drop_branches: To remove branches from all trees, pass a list of names of branches to
+        remove. If removing branches from one of multiple trees, pass a dict of structure: {tree: [branch1, branch2]}
+        to remove branch1 and branch2 from ttree "tree". Defaults to None. Command line option: ``--drop-branches``.
+    :type drop_branches: list of str, str, or dict, optional
+    :param keep_branches: To keep only specified branches from all trees, pass a list of names of branches to
         remove. If removing branches from one of multiple trees, pass a dict of structure: {tree: [branch1, branch2]}
         to remove branch1 and branch2 from ttree "tree". Defaults to None. Command line option: ``--drop-branches``.
     :type drop_branches: list of str, str, or dict, optional
@@ -205,6 +216,10 @@ def copy_root(
             how=dict,
             filter_name=lambda b: b in kb,
         ):
+            if cut_expression:
+                trigger = eval(cut_expression.replace("x", "chunk[cut_branch]"))  # noqa: PGH001
+            if isinstance(trigger, (list, ak.Array)):
+                chunk = skim_branches(trigger, chunk, tree.name)  # noqa: PLW2901
             for group in groups:
                 if (len(group)) > 1:
                     chunk.update(
@@ -226,6 +241,7 @@ def copy_root(
                     if key in kb:
                         del chunk[key]
             if first:
+                first = False
                 if drop_branches:
                     branch_types = {
                         name: array.type
@@ -244,16 +260,10 @@ def copy_root(
                     initial_basket_capacity=initial_basket_capacity,
                     resize_factor=resize_factor,
                 )
-                try:
-                    out_file[tree.name].extend(chunk)
-                except AssertionError:
-                    msg = "Are the branch_names correct?"
-                first = False
 
-            else:
-                try:
-                    out_file[tree.name].extend(chunk)
-                except AssertionError:
-                    msg = "Are the branch-names correct?"
+            try:
+                out_file[tree.name].extend(chunk)
+            except AssertionError:
+                msg = "Are the branch_names correct?"
 
         f.close()

@@ -23,6 +23,9 @@ def merge_root(
     drop_trees=None,
     keep_branches=None,
     keep_trees=None,
+    trigger=None,
+    cut_expression=None,
+    cut_branch=None,  # noqa: ARG001
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
@@ -42,8 +45,6 @@ def merge_root(
     :param files: List of local ROOT files to merge.
         May contain glob patterns.
     :type files: str or list of str
-    :param branch_types: Name and type specification for the TBranches. Command line option: ``--branch-types``.
-    :type branch_types: dict or pairs of str → NumPy dtype/Awkward type, optional
     :param fieldname_separator: Character that separates TBranch names for columns, used
         for grouping columns (to avoid duplicate counters in ROOT file).
     :type fieldname_separator: str, optional
@@ -126,9 +127,8 @@ def merge_root(
             first = True
     else:
         if append:
-            raise FileNotFoundError(
-                "File %s" + destination + " not found. File must exist to append."
-            )
+            msg = f"File {destination} not found. Can only append to existing files."
+            raise FileNotFoundError(msg)
         out_file = uproot.recreate(
             destination,
             compression=uproot.compression.Compression.from_code_pair(
@@ -234,8 +234,10 @@ def merge_root(
             how=dict,
             filter_name=lambda b: b in kb,  # noqa: B023
         ):
-            for key in count_branches:
-                del chunk[key]
+            if cut_expression:
+                trigger = eval(cut_expression.replace("x", "chunk[cut_branch]"))  # noqa: PGH001
+            if isinstance(trigger, (list, ak.Array)):
+                chunk = skim_branches(trigger, chunk, tree.name)  # noqa: PLW2901
             for group in groups:
                 if (len(group)) > 1:
                     chunk.update(
@@ -258,6 +260,7 @@ def merge_root(
             if branch_types is None:
                 branch_types = {name: array.type for name, array in chunk.items()}
             if first:
+                first = False
                 out_file.mktree(
                     tree.name,
                     branch_types,
@@ -271,11 +274,13 @@ def merge_root(
                     out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "TTrees must have the same structure to be merged. Are the branch_names correct?"
-                first = False
 
             else:
                 try:
-                    out_file[tree.name].extend(chunk)
+                    if isinstance(trigger, (list, ak.Array)):
+                        out_file[tree.name].extend(chunk[trigger])
+                    else:
+                        out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "TTrees must have the same structure to be merged. Are the branch_names correct?"
 
@@ -317,7 +322,6 @@ def merge_root(
             if len(trees) > 1:
                 count_branches = get_counter_branches(tree)
                 kb = filter_branches(tree, keep_branches, drop_branches, count_branches)
-            kb = skim_branches
             for chunk in uproot.iterate(
                 tree,
                 step_size=step_size,

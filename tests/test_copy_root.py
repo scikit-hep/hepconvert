@@ -148,7 +148,7 @@ def test_keep_tree(tmp_path):
 
     with pytest.raises(
         ValueError,
-        match="Key 'tree5' does not match any TTree in ROOT file/Users/zobil/Desktop/directory/two_trees.root",
+        match=f"Key 'tree5' does not match any TTree in ROOT file{tmp_path}two_trees.root",
     ):
         hepconvert.copy_root(
             Path(tmp_path) / "copied.root",

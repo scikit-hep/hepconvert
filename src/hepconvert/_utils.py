@@ -3,15 +3,20 @@ from __future__ import annotations
 import numpy as np
 
 
-def skim_branches(cut, selected_branches):
-    # where cut is a boolean expression
-    selected_events = {name: array[cut] for name, array in selected_branches.items()}
+def skim_branches(cut, chunk, tree_name):
+    try:
+        temp = {name: array[cut] for name, array in chunk.items()}
+        chunk.update(temp)
+    except IndexError:  # This error is never reached...array[cut] is what breaks so the awkward indexing error appears
+        msg = f"Cannot cut all branches of {tree_name} with branch {cut.type}. Use keep_branches or drop_branches to select branches of the same shape."
+        raise IndexError(msg) from None
+    return chunk
 
 
 def group_branches(tree, keep_branches):
     """
     Creates groups for ak.zip to avoid duplicate counters being created.
-    Groups created if branches have the same .member("fLeafCount")
+    Groups created if branches have the same branch.member("fLeafCount")
     """
     groups = []
     count_branches = []
@@ -83,7 +88,7 @@ def filter_branches(tree, keep_branches, drop_branches, count_branches):
                 or tree.name == next(iter(keep_branches.keys()))
             ):
                 keep_branches = keep_branches.get(tree.name)
-        if isinstance(keep_branches, str):
+        if isinstance(keep_branches, str) or len(keep_branches) == 1:
             keep_branches = tree.keys(filter_name=keep_branches)
             return [
                 b.name
