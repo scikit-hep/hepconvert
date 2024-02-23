@@ -17,6 +17,7 @@ def test_copy(tmp_path):
         skhep_testdata.data_path("uproot-HZZ.root"),
         counter_name=lambda counted: "N" + counted,
         force=True,
+        progress_bar=True,
     )
     hepconvert_file = uproot.open(Path(tmp_path) / "copy.root")
     file = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))

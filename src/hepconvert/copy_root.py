@@ -5,7 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-import hepconvert._utils
+from hepconvert import _utils
 from hepconvert._utils import filter_branches, get_counter_branches, group_branches
 from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
@@ -205,9 +205,8 @@ def copy_root(
 
     if len(trees) > 1 and progress_bar:
         if progress_bar is True:
-            hepconvert._utils.tqdm()
+            tqdm = _utils.check_tqdm()
             number_of_items = len(trees)
-            import tqdm
 
             progress_bar = tqdm.tqdm(desc="Trees copied")
         progress_bar.reset(total=number_of_items)

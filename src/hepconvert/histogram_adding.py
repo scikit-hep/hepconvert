@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import uproot
 
-import hepconvert._utils
+from hepconvert import _utils
 
 
 def _hadd_1d(destination, file, key, first, *, n_key=None):
@@ -473,9 +473,8 @@ def add_histograms(
         keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
     if progress_bar:
         if progress_bar is True:
-            hepconvert._utils.tqdm()
+            tqdm = _utils.check_tqdm()
             number_of_items = len(files)
-            import tqdm
 
             prog_bar = tqdm.tqdm(desc="Files added")
         prog_bar.reset(number_of_items)

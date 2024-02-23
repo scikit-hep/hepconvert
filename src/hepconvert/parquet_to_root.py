@@ -5,7 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-import hepconvert._utils
+from hepconvert import _utils
 
 
 def parquet_to_root(
@@ -86,12 +86,11 @@ def parquet_to_root(
     metadata = ak.metadata_from_parquet(file)
     if progress_bar:
         if progress_bar is True:
-            hepconvert._utils.tqdm()
             number_of_items = metadata["num_row_groups"]
-            import tqdm
+            tqdm = _utils.check_tqdm()
 
-            prog_bar = tqdm.tqdm(desc="Row-groups written")
-        prog_bar.reset(number_of_items)
+            progress_bar = tqdm.tqdm(desc="Row-groups written")
+        progress_bar.reset(number_of_items)
     out_file = uproot.recreate(
         destination,
         compression=uproot.compression.Compression.from_code_pair(
@@ -112,7 +111,10 @@ def parquet_to_root(
         resize_factor=resize_factor,
     )
     out_file[name].extend({name: chunk[name] for name in chunk.fields})
+    if progress_bar:
+        progress_bar.update(n=1)
 
     for i in range(1, metadata["num_row_groups"]):
         out_file[name].extend(ak.from_parquet(file, row_groups=[i]))
-        prog_bar.update(n=1)
+        if progress_bar:
+            progress_bar.update(n=1)
