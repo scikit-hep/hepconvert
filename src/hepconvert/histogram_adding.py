@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import uproot
+
 import hepconvert._utils
 
 
@@ -436,12 +437,15 @@ def add_histograms(
         if force and append:
             msg = "Cannot append to a new file. Either force or append can be true."
             raise ValueError(msg)
-        file_out = uproot.recreate(
-            destination,
-            compression=uproot.compression.Compression.from_code_pair(
-                compression_code, compression_level
-            ),
-        )
+        if append:
+            file_out = uproot.update(destination)
+        elif force:
+            file_out = uproot.recreate(
+                destination,
+                compression=uproot.compression.Compression.from_code_pair(
+                    compression_code, compression_level
+                ),
+            )
     else:
         if append:
             raise FileNotFoundError(
@@ -462,17 +466,16 @@ def add_histograms(
         msg = "Cannot add one file. Use copy_root to copy a ROOT file."
         raise ValueError(msg) from None
 
-
     with uproot.open(files[0]) as file:
         keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
-        if progress_bar:
-            if progress_bar is True:
-                hepconvert._utils.tqdm()
-                number_of_items = len(keys) * len(files)
-                import tqdm
-                prog_bar = tqdm.tqdm(desc="histograms written")
-            # Other options?
-            prog_bar.reset(number_of_items)
+    if progress_bar:
+        if progress_bar is True:
+            hepconvert._utils.tqdm()
+            number_of_items = len(files)
+            import tqdm
+
+            prog_bar = tqdm.tqdm(desc="Files added")
+        prog_bar.reset(number_of_items)
     if same_names:
         if union:
             for i, _value in enumerate(files[1:]):
@@ -493,17 +496,6 @@ def add_histograms(
 
     first = True
     for input_file in files:
-        p = Path(input_file)
-        if Path.is_file(p):
-            file_out = uproot.update(destination)
-        else:
-            file_out = uproot.recreate(
-                destination,
-                compression=uproot.compression.Compression.from_code_pair(
-                    compression_code, compression_level
-                ),
-            )
-
         try:
             file = uproot.open(input_file)
         except FileNotFoundError:
@@ -528,9 +520,6 @@ def add_histograms(
 
                 else:
                     h_sum = _hadd_3d(destination, file, key, first)
-                if progress_bar:
-                    prog_bar.update(n=1)
-
         else:
             n_keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
             for i, _value in enumerate(keys):
@@ -547,9 +536,9 @@ def add_histograms(
                     file_out[keys[i]] = h_sum
                 if progress_bar:
                     prog_bar.update(n=1)
-
         first = False
         file.close()
+    file_out.close()
 
 
 def _tprofile_1d(destination, file, key, first, *, n_key=None):

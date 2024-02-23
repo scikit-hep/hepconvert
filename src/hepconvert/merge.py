@@ -5,6 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
+import hepconvert._utils
 from hepconvert._utils import filter_branches, get_counter_branches, group_branches
 from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
@@ -152,7 +153,7 @@ def merge_root(
                 except FileNotFoundError:
                     continue
 
-        msg = "File: {files[0]} does not exist or is corrupt."
+        msg = f"File: {files[0]} does not exist or is corrupt."
         raise FileNotFoundError(msg) from None
     hist_keys = f.keys(
         filter_classname=["TH*", "TProfile"], cycle=False, recursive=False
@@ -168,7 +169,7 @@ def merge_root(
                 out_file[key] = _hadd_3d(destination, f, key, True)
 
     trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
-    
+
     # Check that drop_trees keys are valid/refer to a tree:
     if drop_trees and keep_trees:
         msg = "Can specify either drop_trees or keep_trees, not both."
@@ -217,7 +218,15 @@ def merge_root(
                     destination,
                 )
                 raise ValueError(msg)
+    if progress_bar:
+        if progress_bar is True:
+            hepconvert._utils.tqdm()
+            number_of_items = len(files)
+            import tqdm
 
+            prog_bar = tqdm.tqdm(desc="Files added")
+        # Other options?
+        prog_bar.reset(number_of_items)
     for t in trees:
         branch_types = None
         tree = f[t]
@@ -227,8 +236,12 @@ def merge_root(
         first = True
         if progress_bar:
             if progress_bar is True:
+                hepconvert._utils.tqdm()
+                number_of_items = len(trees)
                 import tqdm
-                progress_bar = tqdm.tqdm()
+
+                prog_bar = tqdm.tqdm(desc="Files merged")
+            prog_bar.reset(number_of_items)
         for chunk in tree.iterate(
             step_size=step_size,
             how=dict,
@@ -278,7 +291,7 @@ def merge_root(
                     out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "TTrees must have the same structure to be merged. Are the branch_names correct?"
-
+        prog_bar.update(n=1)
         f.close()
 
     for file in files[1:]:
@@ -352,5 +365,5 @@ def merge_root(
 
             for key in hist_keys:
                 out_file[key] = writable_hists[key]
-
+        prog_bar.update(n=1)
         f.close()

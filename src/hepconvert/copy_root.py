@@ -5,6 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
+import hepconvert._utils
 from hepconvert._utils import filter_branches, get_counter_branches, group_branches
 from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
@@ -17,6 +18,7 @@ def copy_root(
     *,
     keep_branches=None,
     drop_branches=None,
+    progress_bar=True,
     # add_branches=None, #TO-DO: add functionality for this, just specify about the counter issue
     keep_trees=None,
     drop_trees=None,
@@ -192,7 +194,14 @@ def copy_root(
                     destination,
                 )
                 raise ValueError(msg)
+    if progress_bar:
+        if progress_bar is True:
+            hepconvert._utils.tqdm()
+            number_of_items = len(trees)
+            import tqdm
 
+            prog_bar = tqdm.tqdm(desc="Trees copied")
+        prog_bar.reset(number_of_items)
     for t in trees:
         tree = f[t]
         count_branches = get_counter_branches(tree)
@@ -254,5 +263,5 @@ def copy_root(
                     out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "Are the branch-names correct?"
-
+        prog_bar.update(n=1)
         f.close()

@@ -18,12 +18,12 @@ def write_root_file(hist, path):
     outHistFile.Close()
 
 
-def generate_1D_gaussian(tmp_path, file_names):
+def generate_1D_gaussian():
     gauss_1 = ROOT.TH1I("name", "title", 5, -4, 4)
     gauss_1.FillRandom("gaus")
     gauss_1.Sumw2()
     gauss_1.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open("/Users/zobil/Desktop/directory/hist1.root", "RECREATE")
+    outHistFile = ROOT.TFile.Open("/hepconvert/tests/samples/hist1.root", "RECREATE")
     outHistFile.cd()
     gauss_1.Write()
     outHistFile.Close()
@@ -33,7 +33,7 @@ def generate_1D_gaussian(tmp_path, file_names):
     gauss_2.FillRandom("gaus")
     gauss_2.Sumw2()
     gauss_2.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open("/Users/zobil/Desktop/directory/hist2.root", "RECREATE")
+    outHistFile = ROOT.TFile.Open("hepconvert/tests/samples/hist2.root", "RECREATE")
     outHistFile.cd()
     gauss_2.Write()
     outHistFile.Close()
@@ -43,7 +43,7 @@ def generate_1D_gaussian(tmp_path, file_names):
     gauss_3.FillRandom("gaus")
     gauss_3.Sumw2()
     gauss_3.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open("/Users/zobil/Desktop/directory/hist3.root", "RECREATE")
+    outHistFile = ROOT.TFile.Open("hepconvert/tests/samples/hist3.root", "RECREATE")
     outHistFile.cd()
     gauss_3.Write()
     outHistFile.Close()
@@ -52,13 +52,13 @@ def generate_1D_gaussian(tmp_path, file_names):
     return gauss_1, gauss_2, gauss_3
 
 
-def generate_1D_simple(tmp_path):
+def generate_1D_simple():
     h1 = ROOT.TH1F("name", "", 10, 0.0, 10.0)
     data1 = [11.5, 12.0, 9.0, 8.1, 6.4, 6.32, 5.3, 3.0, 2.0, 1.0]
     for i in range(len(data1)):
         h1.Fill(i, data1[i])
 
-    outHistFile = ROOT.TFile.Open("tests/file1dim1.root", "RECREATE")
+    outHistFile = ROOT.TFile.Open("hepconvert/tests/samples/file1dim1.root", "RECREATE")
     outHistFile.cd()
     h1.Write()
     outHistFile.Close()
@@ -112,7 +112,6 @@ def test_simple(tmp_path, file_paths):
     path = Path(tmp_path)
     destination = path / "destination.root"
     hepconvert.add_histograms(destination, file_paths, force=True)
-
     with uproot.open(destination) as file:
         added = uproot.from_pyroot(
             gauss_1 + gauss_2 + gauss_3
@@ -582,9 +581,9 @@ def break_bins(tmp_path):
 
     hepconvert.add_histograms(
         Path(tmp_path) / "/place2break.root",
-        [Path(tmp_path) / "/file1dim1break.root", Path(tmp_path) / "/file2dim1break.root"],
+        [
+            Path(tmp_path) / "/file1dim1break.root",
+            Path(tmp_path) / "/file2dim1break.root",
+        ],
         force=True,
     )
-
-generate_1D_gaussian("/", ["hist1.root", "hist2.root", "hist3.root"])
-test_simple("/Users/zobil/Desktop/directory", ["/Users/zobil/Desktop/directory/hist1.root", "/Users/zobil/Desktop/directory/hist2.root", "/Users/zobil/Desktop/directory/hist3.root"])
