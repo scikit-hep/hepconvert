@@ -5,6 +5,7 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
+from hepconvert import _utils
 from hepconvert._utils import filter_branches, get_counter_branches, group_branches
 from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
@@ -20,6 +21,7 @@ def copy_root(
     # add_branches=None, #TO-DO: add functionality for this, just specify about the counter issue
     keep_trees=None,
     drop_trees=None,
+    progress_bar=None,
     force=False,
     fieldname_separator="_",
     # fix_duplicate_counters=False, #TO-DO: ask about this?
@@ -35,22 +37,30 @@ def copy_root(
     """
     :param destination: Name of the output file or file path.
     :type destination: path-like
-    :param files: Local ROOT file to copy. May contain glob patterns.
-    :type files: str
+    :param file: Local ROOT file to copy.
+    :type file: str
+    :param keep_branches: To keep only certain branches and remove all others. To remove certain branches from all TTrees in the file,
+        pass a list of names of branches to keep, wildcarding accepted ("Jet_*"). If removing branches from one of multiple trees, pass a dict of structure: {tree: [branch1, branch2]}
+        to keep only branch1 and branch2 in ttree "tree". Defaults to None. Command line option: ``--keep-branches``.
+    :type keep_branches: list of str, str, or dict, optional
     :param drop_branches: To remove branches from all trees, pass a list of names of branches to
-        remove. If removing branches from one of multiple trees, pass a dict of structure: {tree: [branch1, branch2]}
-        to remove branch1 and branch2 from ttree "tree". Defaults to None. Command line option: ``--drop-branches``.
+        remove. Wildcarding supported ("Jet_*"). If removing branches from one of multiple trees,
+        pass a dict of structure: {tree: [branch1, branch2]} to remove branch1 and branch2 from ttree "tree". Defaults to None. Command line option: ``--drop-branches``.
     :type drop_branches: list of str, str, or dict, optional
-    :param drop_trees: To remove a ttree from a file, pass a list of names of branches to remove.
+    :param drop_trees: To keep only certain a ttrees in a file, pass a list of names of ttrees to keep. All others will be removed.
+        Defaults to None. Command line option: ``--keep-trees``.
+    :type keep_trees: str or list of str, optional
+    :param drop_trees: To remove a ttree from a file, pass a list of names of ttrees to remove.
         Defaults to None. Command line option: ``--drop-trees``.
     :type drop_trees: str or list of str, optional
+    :param progress_bar: Displays a progress bar. Can input a custom tqdm progress bar object, or set ``True``
+        for a default tqdm progress bar. Must have tqdm installed.
+    :type progress_bar: Bool, tqdm.std.tqdm object
     :param force: If true, replaces file if it already exists. Default is False. Command line options ``-f`` or ``--force``.
     :type force: Bool, optional
     :param fieldname_separator: If data includes jagged arrays, pass the character that separates
         TBranch names for columns, used for grouping columns (to avoid duplicate counters in ROOT file). Defaults to "_".
     :type fieldname_separator: str, optional
-    :param branch_types: Name and type specification for the TBranches. Defaults to None.
-    :type branch_types: dict or pairs of str → NumPy dtype/Awkward type, optional
     :param title: to change the title of the ttree, pass a new name. Defaults to None. Command line option: ``--title``.
     :type title: str, optional
     :param field_name: Function to generate TBranch names for columns of an Awkward record array or a
@@ -193,6 +203,13 @@ def copy_root(
                 )
                 raise ValueError(msg)
 
+    if len(trees) > 1 and progress_bar:
+        if progress_bar is True:
+            tqdm = _utils.check_tqdm()
+            number_of_items = len(trees)
+
+            progress_bar = tqdm.tqdm(desc="Trees copied")
+        progress_bar.reset(total=number_of_items)
     for t in trees:
         tree = f[t]
         count_branches = get_counter_branches(tree)
@@ -254,5 +271,6 @@ def copy_root(
                     out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "Are the branch-names correct?"
-
+        if len(trees) > 1 and progress_bar:
+            progress_bar.update(n=1)
         f.close()

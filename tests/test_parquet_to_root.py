@@ -84,6 +84,7 @@ def test_hzz():
         "tests/samples/parquet_HZZ.root",
         "uproot-HZZ.parquet",
         name="events",
+        progress_bar=True,
         counter_name=lambda counted: "N" + counted,
     )
     test = uproot.open("tests/samples/parquet_HZZ.root")
@@ -95,6 +96,3 @@ def test_hzz():
         assert key in original["events"].keys()
     for key in test["events"].keys():
         assert ak.all(test["events"].arrays()[key] == original["events"].arrays()[key])
-
-
-test_hzz()
