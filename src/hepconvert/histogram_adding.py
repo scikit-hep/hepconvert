@@ -5,6 +5,8 @@ from pathlib import Path
 import numpy as np
 import uproot
 
+from hepconvert import _utils
+
 
 def _hadd_1d(destination, file, key, first, *, n_key=None):
     """Supporting function for add_histograms.
@@ -22,7 +24,7 @@ def _hadd_1d(destination, file, key, first, *, n_key=None):
     try:
         hist = file[key] if n_key is None else file[n_key]
     except ValueError:
-        msg = "Key missing from {file}"
+        msg = f"Key missing from {file}"
         raise ValueError(msg) from None
     # if file[key].classname == "TProfile":
     #     return TProfile_1d(destination, file, key, first, n_key=n_key)
@@ -91,12 +93,9 @@ def _hadd_1d(destination, file, key, first, *, n_key=None):
         outfile.close()
         return h_sum
 
-    msg = "Bins must be the same for histograms to be added, not "
+    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member('fN')} and {hist.member('fN')}"
     raise ValueError(
         msg,
-        hist.member("fN"),
-        " and ",
-        outfile[key].member("fN"),
     ) from None
 
 
@@ -116,7 +115,7 @@ def _hadd_2d(destination, file, key, first, *, n_key=None):
     try:
         hist = file[key] if n_key is None else file[n_key]
     except ValueError:
-        msg = "Key missing from {file}"
+        msg = f"Key missing from {file}"
         raise ValueError(msg) from None
     # if file[key].classname == "TProfile2D":
     #     return TProfile_2d(destination, file, key, first, n_key=n_key)
@@ -211,12 +210,9 @@ def _hadd_2d(destination, file, key, first, *, n_key=None):
         outfile.close()
         return h_sum
 
-    msg = "Bins must be the same for histograms to be added, not "
+    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member('fN')} and {hist.member('fN')}"
     raise ValueError(
         msg,
-        hist.member("fN"),
-        " and ",
-        outfile[key].member("fN"),
     ) from None
 
 
@@ -236,7 +232,7 @@ def _hadd_3d(destination, file, key, first, *, n_key=None):
     try:
         hist = file[key] if n_key is None else file[n_key]
     except ValueError:
-        msg = "Key missing from {file}"
+        msg = f"Key missing from {file}"
         raise ValueError(msg) from None
     # if file[key].classname == "TProfile3D":
     #     return TProfile_3d(destination, file, key, first, n_key=n_key)
@@ -362,12 +358,9 @@ def _hadd_3d(destination, file, key, first, *, n_key=None):
         outfile.close()
         return h_sum
 
-    msg = "Bins must be the same for histograms to be added, not "
+    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member('fN')} and {hist.member('fN')}"
     raise ValueError(
         msg,
-        hist.member("fN"),
-        " and ",
-        outfile[key].member("fN"),
     ) from None
 
 
@@ -375,6 +368,7 @@ def add_histograms(
     destination,
     files,
     *,
+    progress_bar=False,
     force=True,
     append=False,
     compression="zlib",
@@ -390,6 +384,9 @@ def add_histograms(
     :param files: List of local ROOT files to read histograms from.
         May contain glob patterns.
     :type files: str or list of str
+    :param progress_bar: Displays a progress bar. Can input a custom tqdm progress bar object, or set ``True``
+        for a default tqdm progress bar. Must have tqdm installed.
+    :type progress_bar: Bool, tqdm.std.tqdm object
     :param force: If True, overwrites destination file if it exists. Force and append
         cannot both be True. Defaults to True. Command line options: ``-f`` or ``--force``.
     :type force: bool, optional
@@ -443,12 +440,15 @@ def add_histograms(
         if force and append:
             msg = "Cannot append to a new file. Either force or append can be true."
             raise ValueError(msg)
-        file_out = uproot.recreate(
-            destination,
-            compression=uproot.compression.Compression.from_code_pair(
-                compression_code, compression_level
-            ),
-        )
+        if append:
+            file_out = uproot.update(destination)
+        elif force:
+            file_out = uproot.recreate(
+                destination,
+                compression=uproot.compression.Compression.from_code_pair(
+                    compression_code, compression_level
+                ),
+            )
     else:
         if append:
             raise FileNotFoundError(
@@ -471,6 +471,13 @@ def add_histograms(
 
     with uproot.open(files[0]) as file:
         keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
+    if progress_bar:
+        if progress_bar is True:
+            tqdm = _utils.check_tqdm()
+            number_of_items = len(files)
+
+            prog_bar = tqdm.tqdm(desc="Files added")
+        prog_bar.reset(number_of_items)
     if same_names:
         if union:
             for i, _value in enumerate(files[1:]):
@@ -491,23 +498,12 @@ def add_histograms(
 
     first = True
     for input_file in files:
-        p = Path(input_file)
-        if Path.is_file(p):
-            file_out = uproot.update(destination)
-        else:
-            file_out = uproot.recreate(
-                destination,
-                compression=uproot.compression.Compression.from_code_pair(
-                    compression_code, compression_level
-                ),
-            )
-
         try:
             file = uproot.open(input_file)
         except FileNotFoundError:
             if skip_bad_files:
                 continue
-            msg = "File: {input_file} does not exist or is corrupt."
+            msg = f"File: {input_file} does not exist or is corrupt."
             raise FileNotFoundError(msg) from None
         if same_names:
             for key in keys:
@@ -526,7 +522,6 @@ def add_histograms(
 
                 else:
                     h_sum = _hadd_3d(destination, file, key, first)
-
         else:
             n_keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
             for i, _value in enumerate(keys):
@@ -541,9 +536,11 @@ def add_histograms(
 
                 if h_sum is not None:
                     file_out[keys[i]] = h_sum
-
+                if progress_bar:
+                    prog_bar.update(n=1)
         first = False
         file.close()
+    file_out.close()
 
 
 def _tprofile_1d(destination, file, key, first, *, n_key=None):

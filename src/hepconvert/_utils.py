@@ -99,3 +99,18 @@ def filter_branches(tree, keep_branches, drop_branches, count_branches):
                 if b.name not in count_branches and b.name in keep_branches
             ]
     return [b.name for b in tree.branches if b.name not in count_branches]
+
+
+def check_tqdm():
+    """
+    Imports and returns ``tqdm``.
+    """
+    try:
+        import tqdm  # pylint: disable=import-outside-toplevel
+    except ModuleNotFoundError as err:
+        msg = """to use a 'tqdm' progress bar, install the 'tqdm' package with:
+                    pip install tqdm
+                            or
+                    conda install conda-forge::tqdm"""
+        raise ModuleNotFoundError(msg) from err
+    return tqdm
