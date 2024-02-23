@@ -264,7 +264,6 @@ def test_keep_tree_and_branch(tmp_path):
             for tree in copy.keys(cycle=False):
                 for key in copy[tree].keys():
                     assert ak.all(copy[tree][key].array() == file[tree][key].array())
-
     hepconvert.copy_root(
         Path(tmp_path) / "copy.root",
         skhep_testdata.data_path("uproot-HZZ.root"),

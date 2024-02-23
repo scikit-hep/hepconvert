@@ -21,7 +21,7 @@ def copy_root(
     # add_branches=None, #TO-DO: add functionality for this, just specify about the counter issue
     keep_trees=None,
     drop_trees=None,
-    progress_bar=True,
+    progress_bar=None,
     force=False,
     fieldname_separator="_",
     # fix_duplicate_counters=False, #TO-DO: ask about this?
@@ -202,14 +202,15 @@ def copy_root(
                     destination,
                 )
                 raise ValueError(msg)
-    if progress_bar:
+
+    if len(trees) > 1 and progress_bar:
         if progress_bar is True:
             hepconvert._utils.tqdm()
             number_of_items = len(trees)
             import tqdm
 
-            prog_bar = tqdm.tqdm(desc="Trees copied")
-        prog_bar.reset(number_of_items)
+            progress_bar = tqdm.tqdm(desc="Trees copied")
+        progress_bar.reset(total=number_of_items)
     for t in trees:
         tree = f[t]
         count_branches = get_counter_branches(tree)
@@ -271,5 +272,6 @@ def copy_root(
                     out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "Are the branch-names correct?"
-        prog_bar.update(n=1)
+        if len(trees) > 1 and progress_bar:
+            progress_bar.update(n=1)
         f.close()

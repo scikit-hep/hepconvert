@@ -368,7 +368,7 @@ def add_histograms(
     destination,
     files,
     *,
-    progress_bar=True,
+    progress_bar=False,
     force=True,
     append=False,
     compression="zlib",

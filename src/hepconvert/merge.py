@@ -239,9 +239,8 @@ def merge_root(
             number_of_items = len(files)
             import tqdm
 
-            prog_bar = tqdm.tqdm(desc="Files added")
-        # Other options?
-        prog_bar.reset(number_of_items)
+            progress_bar = tqdm.tqdm(desc="Files added")
+        progress_bar.reset(number_of_items)
     for t in trees:
         branch_types = None
         tree = f[t]
@@ -249,14 +248,6 @@ def merge_root(
         kb = filter_branches(tree, keep_branches, drop_branches, count_branches)
         groups, count_branches = group_branches(tree, kb)
         first = True
-        if progress_bar:
-            if progress_bar is True:
-                hepconvert._utils.tqdm()
-                number_of_items = len(trees)
-                import tqdm
-
-                prog_bar = tqdm.tqdm(desc="Files merged")
-            prog_bar.reset(number_of_items)
         for chunk in tree.iterate(
             step_size=step_size,
             how=dict,
@@ -306,7 +297,8 @@ def merge_root(
                     out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "TTrees must have the same structure to be merged. Are the branch_names correct?"
-        prog_bar.update(n=1)
+        if progress_bar:
+            progress_bar.update(n=1)
         f.close()
 
     for file in files[1:]:
@@ -380,5 +372,6 @@ def merge_root(
 
             for key in hist_keys:
                 out_file[key] = writable_hists[key]
-        prog_bar.update(n=1)
+        if progress_bar:
+            progress_bar.update(n=1)
         f.close()
