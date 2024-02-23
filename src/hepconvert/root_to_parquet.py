@@ -47,6 +47,14 @@ def root_to_parquet(
     :param tree: If there are multiple trees in the ROOT file, specify the name of one to write to Parquet.
         Command line options: ``-t`` or ``--tree``.
     :type tree: None or str
+    :param keep_branches: To keep only certain branches and remove all others. To remove certain branches from all TTrees in the file,
+        pass a list of names of branches to keep, wildcarding accepted ("Jet_*"). If removing branches from one of multiple trees, pass a dict of structure: {tree: [branch1, branch2]}
+        to keep only branch1 and branch2 in ttree "tree". Defaults to None. Command line option: ``--keep-branches``.
+    :type keep_branches: list of str, str, or dict, optional
+    :param drop_branches: To remove branches from all trees, pass a list of names of branches to
+        remove. Wildcarding supported ("Jet_*"). If removing branches from one of multiple trees,
+        pass a dict of structure: {tree: [branch1, branch2]} to remove branch1 and branch2 from ttree "tree". Defaults to None. Command line option: ``--drop-branches``.
+    :type drop_branches: list of str, str, or dict, optional
     :param force: If true, replaces file if it already exists. Default is False. Command line options ``-f`` or ``--force``.
     :type force: Bool, optional
     :param step_size: If an integer, the maximum number of entries to include in each iteration step; if

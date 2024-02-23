@@ -384,6 +384,9 @@ def add_histograms(
     :param files: List of local ROOT files to read histograms from.
         May contain glob patterns.
     :type files: str or list of str
+    :param progress_bar: Displays a progress bar. Can input a custom tqdm progress bar object, or set ``True``
+        for a default tqdm progress bar. Must have tqdm installed.
+    :type progress_bar: Bool, tqdm.std.tqdm object
     :param force: If True, overwrites destination file if it exists. Force and append
         cannot both be True. Defaults to True. Command line options: ``-f`` or ``--force``.
     :type force: bool, optional

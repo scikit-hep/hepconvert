@@ -5,6 +5,8 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
+import hepconvert._utils
+
 
 def parquet_to_root(
     destination,
@@ -12,6 +14,7 @@ def parquet_to_root(
     *,
     name="tree",
     branch_types=None,
+    progress_bar=False,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
@@ -81,7 +84,14 @@ def parquet_to_root(
     if Path.is_file(path) and not force:
         raise FileExistsError
     metadata = ak.metadata_from_parquet(file)
+    if progress_bar:
+        if progress_bar is True:
+            hepconvert._utils.tqdm()
+            number_of_items = metadata["num_row_groups"]
+            import tqdm
 
+            prog_bar = tqdm.tqdm(desc="Row-groups written")
+        prog_bar.reset(number_of_items)
     out_file = uproot.recreate(
         destination,
         compression=uproot.compression.Compression.from_code_pair(
@@ -105,3 +115,4 @@ def parquet_to_root(
 
     for i in range(1, metadata["num_row_groups"]):
         out_file[name].extend(ak.from_parquet(file, row_groups=[i]))
+        prog_bar.update(n=1)

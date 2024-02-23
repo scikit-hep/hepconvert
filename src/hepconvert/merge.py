@@ -14,12 +14,12 @@ def merge_root(
     destination,
     files,
     *,
-    fieldname_separator="_",
-    drop_branches=None,
-    drop_trees=None,
     keep_branches=None,
+    drop_branches=None,
     keep_trees=None,
+    drop_trees=None,
     progress_bar=None,
+    fieldname_separator="_",
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
@@ -39,8 +39,23 @@ def merge_root(
     :param files: List of local ROOT files to merge.
         May contain glob patterns.
     :type files: str or list of str
-    :param branch_types: Name and type specification for the TBranches. Command line option: ``--branch-types``.
-    :type branch_types: dict or pairs of str → NumPy dtype/Awkward type, optional
+    :param keep_branches: To keep only certain branches and remove all others. To remove certain branches from all TTrees in the file,
+        pass a list of names of branches to keep, wildcarding accepted ("Jet_*"). If removing branches from one of multiple trees, pass a dict of structure: {tree: [branch1, branch2]}
+        to keep only branch1 and branch2 in ttree "tree". Defaults to None. Command line option: ``--keep-branches``.
+    :type keep_branches: list of str, str, or dict, optional
+    :param drop_branches: To remove branches from all trees, pass a list of names of branches to
+        remove. Wildcarding supported ("Jet_*"). If removing branches from one of multiple trees,
+        pass a dict of structure: {tree: [branch1, branch2]} to remove branch1 and branch2 from ttree "tree". Defaults to None. Command line option: ``--drop-branches``.
+    :type drop_branches: list of str, str, or dict, optional
+    :param drop_trees: To keep only certain a ttrees in a file, pass a list of names of ttrees to keep. All others will be removed.
+        Defaults to None. Command line option: ``--keep-trees``.
+    :type keep_trees: str or list of str, optional
+    :param drop_trees: To remove a ttree from a file, pass a list of names of ttrees to remove.
+        Defaults to None. Command line option: ``--drop-trees``.
+    :type drop_trees: str or list of str, optional
+    :param progress_bar: Displays a progress bar. Can input a custom tqdm progress bar object, or set ``True``
+        for a default tqdm progress bar. Must have tqdm installed.
+    :type progress_bar: Bool, tqdm.std.tqdm object
     :param fieldname_separator: Character that separates TBranch names for columns, used
         for grouping columns (to avoid duplicate counters in ROOT file).
     :type fieldname_separator: str, optional
