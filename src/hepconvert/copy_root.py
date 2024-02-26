@@ -21,6 +21,8 @@ def copy_root(
     # add_branches=None, #TO-DO: add functionality for this, just specify about the counter issue
     keep_trees=None,
     drop_trees=None,
+    cut=None,
+    expressions=None,
     progress_bar=None,
     force=False,
     fieldname_separator="_",
@@ -45,14 +47,23 @@ def copy_root(
     :type keep_branches: list of str, str, or dict, optional
     :param drop_branches: To remove branches from all trees, pass a list of names of branches to
         remove. Wildcarding supported ("Jet_*"). If removing branches from one of multiple trees,
-        pass a dict of structure: {tree: [branch1, branch2]} to remove branch1 and branch2 from ttree "tree". Defaults to None. Command line option: ``--drop-branches``.
+        pass a dict of structure: {tree: [branch1, branch2]} to remove branch1 and branch2 from TTree "tree". Defaults to None. Command line option: ``--drop-branches``.
     :type drop_branches: list of str, str, or dict, optional
-    :param drop_trees: To keep only certain a ttrees in a file, pass a list of names of ttrees to keep. All others will be removed.
-        Defaults to None. Command line option: ``--keep-trees``.
-    :type keep_trees: str or list of str, optional
-    :param drop_trees: To remove a ttree from a file, pass a list of names of ttrees to remove.
+    :param keep_branches: To keep only specified branches from all trees, pass a list of names of branches to
+        remove. If removing branches from one of multiple trees, pass a dict of structure: {tree: [branch1, branch2]}
+        to remove branch1 and branch2 from TTree "tree". Defaults to None. Command line option: ``--keep-branches``.
+    :type keep_branches: list of str, str, or dict, optional
+    :param drop_trees: To remove a TTree from a file, pass a list of names of trees to remove.
         Defaults to None. Command line option: ``--drop-trees``.
     :type drop_trees: str or list of str, optional
+    :param keep_trees: To keep only certain a TTrees in a file, pass a list of names of trees to keep. All others will be removed.
+        Defaults to None. Command line option: ``--keep-trees``.
+    :type keep_trees: str or list of str, optional
+    :param cut: If not None, this expression filters all of the ``expressions``.
+    :type cut: None or str
+    :param expressions: Names of ``TBranches`` or aliases to convert to arrays or mathematical expressions of them.
+        Uses the ``language`` to evaluate. If None, all ``TBranches`` selected by the filters are included.
+    :type expressions: None, str, or list of str
     :param progress_bar: Displays a progress bar. Can input a custom tqdm progress bar object, or set ``True``
         for a default tqdm progress bar. Must have tqdm installed.
     :type progress_bar: Bool, tqdm.std.tqdm object
@@ -220,6 +231,8 @@ def copy_root(
             step_size=step_size,
             how=dict,
             filter_name=lambda b: b in kb,
+            expressions=expressions,
+            cut=cut,
         ):
             for group in groups:
                 if (len(group)) > 1:
@@ -242,6 +255,7 @@ def copy_root(
                     if key in kb:
                         del chunk[key]
             if first:
+                first = False
                 if drop_branches:
                     branch_types = {
                         name: array.type
@@ -250,7 +264,6 @@ def copy_root(
                     }
                 else:
                     branch_types = {name: array.type for name, array in chunk.items()}
-
                 out_file.mktree(
                     tree.name,
                     branch_types,
@@ -260,11 +273,6 @@ def copy_root(
                     initial_basket_capacity=initial_basket_capacity,
                     resize_factor=resize_factor,
                 )
-                try:
-                    out_file[tree.name].extend(chunk)
-                except AssertionError:
-                    msg = "Are the branch_names correct?"
-                first = False
 
             else:
                 try:

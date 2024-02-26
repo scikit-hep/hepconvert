@@ -6,7 +6,11 @@ import awkward as ak
 import uproot
 
 from hepconvert import _utils
-from hepconvert._utils import filter_branches, get_counter_branches, group_branches
+from hepconvert._utils import (
+    filter_branches,
+    get_counter_branches,
+    group_branches,
+)
 from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
 
@@ -18,6 +22,8 @@ def merge_root(
     drop_branches=None,
     keep_trees=None,
     drop_trees=None,
+    cut=None,
+    expressions=None,
     progress_bar=None,
     fieldname_separator="_",
     title="",
@@ -45,14 +51,19 @@ def merge_root(
     :type keep_branches: list of str, str, or dict, optional
     :param drop_branches: To remove branches from all trees, pass a list of names of branches to
         remove. Wildcarding supported ("Jet_*"). If removing branches from one of multiple trees,
-        pass a dict of structure: {tree: [branch1, branch2]} to remove branch1 and branch2 from ttree "tree". Defaults to None. Command line option: ``--drop-branches``.
+        pass a dict of structure: {tree: [branch1, branch2]} to remove branch1 and branch2 from TTree "tree". Defaults to None. Command line option: ``--drop-branches``.
     :type drop_branches: list of str, str, or dict, optional
-    :param drop_trees: To keep only certain a ttrees in a file, pass a list of names of ttrees to keep. All others will be removed.
+    :param keep_trees: To keep only certain a TTrees in a file, pass a list of names of trees to keep. All others will be removed.
         Defaults to None. Command line option: ``--keep-trees``.
     :type keep_trees: str or list of str, optional
-    :param drop_trees: To remove a ttree from a file, pass a list of names of ttrees to remove.
+    :param drop_trees: To remove a TTree from a file, pass a list of names of trees to remove.
         Defaults to None. Command line option: ``--drop-trees``.
     :type drop_trees: str or list of str, optional
+    :param cut: If not None, this expression filters all of the ``expressions``.
+    :type cut: None or str
+    :param expressions: Names of ``TBranches`` or aliases to convert to arrays or mathematical expressions of them.
+        Uses the ``language`` to evaluate. If None, all ``TBranches`` selected by the filters are included.
+    :type expressions: None, str, or list of str
     :param progress_bar: Displays a progress bar. Can input a custom tqdm progress bar object, or set ``True``
         for a default tqdm progress bar. Must have tqdm installed.
     :type progress_bar: Bool, tqdm.std.tqdm object
@@ -138,9 +149,8 @@ def merge_root(
             first = True
     else:
         if append:
-            raise FileNotFoundError(
-                "File %s" + destination + " not found. File must exist to append."
-            )
+            msg = f"File {destination} not found. Can only append to existing files."
+            raise FileNotFoundError(msg)
         out_file = uproot.recreate(
             destination,
             compression=uproot.compression.Compression.from_code_pair(
@@ -251,9 +261,9 @@ def merge_root(
             step_size=step_size,
             how=dict,
             filter_name=lambda b: b in kb,  # noqa: B023
+            cut=cut,
+            expressions=expressions,
         ):
-            for key in count_branches:
-                del chunk[key]
             for group in groups:
                 if (len(group)) > 1:
                     chunk.update(
@@ -276,6 +286,7 @@ def merge_root(
             if branch_types is None:
                 branch_types = {name: array.type for name, array in chunk.items()}
             if first:
+                first = False
                 out_file.mktree(
                     tree.name,
                     branch_types,
@@ -289,7 +300,6 @@ def merge_root(
                     out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "TTrees must have the same structure to be merged. Are the branch_names correct?"
-                first = False
 
             else:
                 try:
