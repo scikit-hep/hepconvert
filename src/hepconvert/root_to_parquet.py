@@ -13,6 +13,8 @@ def root_to_parquet(
     tree=None,
     drop_branches=None,
     keep_branches=None,
+    cut=None,
+    expressions=None,
     force=False,
     step_size="100 MB",
     list_to32=False,
@@ -217,6 +219,8 @@ def root_to_parquet(
             for i in f[tree].iterate(
                 step_size=step_size,
                 filter_name=filter_b,
+                cut=cut,
+                expressions=expressions,
             )
         ),
         out_file,

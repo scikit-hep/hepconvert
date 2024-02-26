@@ -5,13 +5,12 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
+from hepconvert import _utils
 from hepconvert._utils import (
     filter_branches,
     get_counter_branches,
     group_branches,
-    skim_branches,
 )
-from hepconvert import _utils
 from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
 
@@ -23,9 +22,8 @@ def merge_root(
     drop_branches=None,
     keep_trees=None,
     drop_trees=None,
-    trigger=None,
-    cut_expression=None,
-    cut_branch=None, # noqa: W0613
+    cut=None,
+    expressions=None,
     progress_bar=None,
     fieldname_separator="_",
     title="",
@@ -61,6 +59,11 @@ def merge_root(
     :param drop_trees: To remove a TTree from a file, pass a list of names of trees to remove.
         Defaults to None. Command line option: ``--drop-trees``.
     :type drop_trees: str or list of str, optional
+    :param cut: If not None, this expression filters all of the ``expressions``.
+    :type cut: None or str
+    :param expressions: Names of ``TBranches`` or aliases to convert to arrays or mathematical expressions of them.
+        Uses the ``language`` to evaluate. If None, all ``TBranches`` selected by the filters are included.
+    :type expressions: None, str, or list of str
     :param progress_bar: Displays a progress bar. Can input a custom tqdm progress bar object, or set ``True``
         for a default tqdm progress bar. Must have tqdm installed.
     :type progress_bar: Bool, tqdm.std.tqdm object
@@ -258,14 +261,9 @@ def merge_root(
             step_size=step_size,
             how=dict,
             filter_name=lambda b: b in kb,  # noqa: B023
+            cut=cut,
+            expressions=expressions,
         ):
-            if cut_expression:
-                cut_expression = cut_expression.replace("x", "chunk[cut_branch]")
-                _locals = locals()
-                exec(f"trigger = {cut_expression}", globals(), _locals)
-                trigger = _locals["trigger"]
-            if isinstance(trigger, (list, ak.Array, str)):
-                chunk = skim_branches(trigger, chunk, tree.name)  # noqa: PLW2901
             for group in groups:
                 if (len(group)) > 1:
                     chunk.update(
@@ -305,10 +303,7 @@ def merge_root(
 
             else:
                 try:
-                    if isinstance(trigger, (list, ak.Array)):
-                        out_file[tree.name].extend(chunk[trigger])
-                    else:
-                        out_file[tree.name].extend(chunk)
+                    out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "TTrees must have the same structure to be merged. Are the branch_names correct?"
         if progress_bar:

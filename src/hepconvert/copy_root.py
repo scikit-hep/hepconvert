@@ -5,10 +5,8 @@ from pathlib import Path
 import awkward as ak
 import uproot
 
-
 from hepconvert import _utils
-from hepconvert._utils import filter_branches, get_counter_branches, group_branches, skim_branches
-
+from hepconvert._utils import filter_branches, get_counter_branches, group_branches
 from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
 # ruff: noqa: B023
@@ -23,9 +21,8 @@ def copy_root(
     # add_branches=None, #TO-DO: add functionality for this, just specify about the counter issue
     keep_trees=None,
     drop_trees=None,
-    trigger=None,
-    cut_expression=None,
-    cut_branch=None, # noqa: W0613
+    cut=None,
+    expressions=None,
     progress_bar=None,
     force=False,
     fieldname_separator="_",
@@ -62,10 +59,11 @@ def copy_root(
     :param keep_trees: To keep only certain a TTrees in a file, pass a list of names of trees to keep. All others will be removed.
         Defaults to None. Command line option: ``--keep-trees``.
     :type keep_trees: str or list of str, optional
-     :param trigger: Trigger branch to apply for skimming. Will be applied to the whole file, branch types must .
-    :type trigger: List of bools, optional.
-    :param cut_expression: Expression to use for
-    cut_branch=None,  # noqa: ARG001
+    :param cut: If not None, this expression filters all of the ``expressions``.
+    :type cut: None or str
+    :param expressions: Names of ``TBranches`` or aliases to convert to arrays or mathematical expressions of them.
+        Uses the ``language`` to evaluate. If None, all ``TBranches`` selected by the filters are included.
+    :type expressions: None, str, or list of str
     :param progress_bar: Displays a progress bar. Can input a custom tqdm progress bar object, or set ``True``
         for a default tqdm progress bar. Must have tqdm installed.
     :type progress_bar: Bool, tqdm.std.tqdm object
@@ -233,14 +231,9 @@ def copy_root(
             step_size=step_size,
             how=dict,
             filter_name=lambda b: b in kb,
+            expressions=expressions,
+            cut=cut,
         ):
-            if cut_expression:
-                cut_expression = cut_expression.replace("x", "chunk[cut_branch]")
-                _locals = locals()
-                exec(f"trigger = {cut_expression}", globals(), _locals)
-                trigger = _locals["trigger"]
-            if isinstance(trigger, (list, ak.Array)):
-                chunk = skim_branches(trigger, chunk, tree.name)  # noqa: PLW2901
             for group in groups:
                 if (len(group)) > 1:
                     chunk.update(
@@ -271,7 +264,6 @@ def copy_root(
                     }
                 else:
                     branch_types = {name: array.type for name, array in chunk.items()}
-
                 out_file.mktree(
                     tree.name,
                     branch_types,

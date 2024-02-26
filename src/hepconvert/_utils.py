@@ -3,19 +3,6 @@ from __future__ import annotations
 import numpy as np
 
 
-def skim_branches(cut, chunk, tree_name):
-    """
-    Applies cut to each 'chunk' when skimming a ttree before iteratively writing the chunk.
-    """
-    try:
-        temp = {name: array[cut] for name, array in chunk.items()}
-        chunk.update(temp)
-    except IndexError:  # This error is never reached...array[cut] is what breaks so the awkward indexing error appears
-        msg = f"Cannot cut all branches of {tree_name} with branch {cut.type}. Use keep_branches or drop_branches to select branches of the same shape."
-        raise IndexError(msg) from None
-    return chunk
-
-
 def group_branches(tree, keep_branches):
     """
     Creates groups for ak.zip to avoid duplicate counters being created.
