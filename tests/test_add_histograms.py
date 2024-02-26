@@ -111,7 +111,7 @@ def test_simple(tmp_path, file_paths):
 
     path = Path(tmp_path)
     destination = path / "destination.root"
-    hepconvert.add_histograms(destination, file_paths, force=True)
+    hepconvert.add_histograms(destination, file_paths, force=True, progress_bar=True)
     with uproot.open(destination) as file:
         added = uproot.from_pyroot(
             gauss_1 + gauss_2 + gauss_3
@@ -587,3 +587,5 @@ def break_bins(tmp_path):
         ],
         force=True,
     )
+
+test_simple("/Users/zobil/Desktop/directory", ["/Users/zobil/Desktop/directory/hist1.root", "/Users/zobil/Desktop/directory/hist2.root", "/Users/zobil/Desktop/directory/hist3.root"])
