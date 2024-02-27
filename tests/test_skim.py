@@ -38,13 +38,13 @@ def test_trigger(tmp_path):
     hepconvert.copy_root(
         Path(tmp_path) / "copy.root",
         skhep_testdata.data_path("nanoAOD_2015_CMS_Open_Data_ttbar.root"),
-        keep_branches=["Jet_*"],
+        keep_branches=["Photon_*"],
         force=True,
-        cut="HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200",
+        cut="HLT_Photon30",
     )
     hepconvert_file = uproot.open(Path(tmp_path) / "copy.root")
     correct_len = 0
-    for i in file["Events"]["HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200"].array():
+    for i in file["Events"]["HLT_Photon30"].array():
         if i is True:
             correct_len += 1
     for key in hepconvert_file["Events"].keys():
@@ -53,9 +53,7 @@ def test_trigger(tmp_path):
             assert len(hepconvert_file["Events"][key].array()) == correct_len
             assert ak.all(
                 hepconvert_file["Events"][key].array()
-                == file["Events"][key].array()[
-                    file["Events"]["HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200"].array()
-                ]
+                == file["Events"][key].array()[file["Events"]["HLT_Photon30"].array()]
             )
 
 
