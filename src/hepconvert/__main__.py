@@ -16,8 +16,8 @@ def main() -> None:
 @main.command()
 @click.argument("destination", type=click.Path())
 @click.argument("file")
+@click.option("--progress-bar", default=None, type=bool, required=False)
 @click.option("--name", required=False, default="")
-@click.option("--branch-types", default=None, type=dict, required=False)
 @click.option("--title", required=False, default="")
 @click.option(
     "--initial-basket-capacity",
@@ -51,6 +51,7 @@ def parquet_to_root(
     *,
     name="tree",
     branch_types=None,
+    progress_bar=False,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
@@ -70,6 +71,7 @@ def parquet_to_root(
         file,
         name=name,
         branch_types=branch_types,
+        progress_bar=progress_bar,
         title=title,
         field_name=field_name,
         initial_basket_capacity=initial_basket_capacity,
@@ -84,10 +86,17 @@ def parquet_to_root(
 @main.command()
 @click.argument("destination", type=click.Path())
 @click.argument("file")
-@click.option("--drop-branches", default=None, type=list or dict or str, required=False)
-@click.option("--keep-branches", default=None, type=list or dict or str, required=False)
-@click.option("--drop-trees", default=None, type=list or str, required=False)
-@click.option("--keep-trees", default=None, type=list or str, required=False)
+@click.option(
+    "--drop-branches", "-db", default=None, type=list or dict or str, required=False
+)
+@click.option(
+    "--keep-branches", "-kb", default=None, type=list or dict or str, required=False
+)
+@click.option("--drop-trees", "-dt", default=None, type=list or str, required=False)
+@click.option("--keep-trees", "kt", default=None, type=list or str, required=False)
+@click.option("--progress-bar", default=None, type=bool, required=False)
+@click.option("--cut", default=None, type=str or list, required=False)
+@click.option("--expressions", default=None, type=str or list, required=False)
 @click.option("--title", required=False, default="")
 @click.option(
     "--initial-basket-capacity",
@@ -113,6 +122,9 @@ def copy_root(
     keep_branches=None,
     drop_trees=None,
     keep_trees=None,
+    cut=None,
+    expressions=None,
+    progress_bar=None,
     force=False,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
@@ -135,6 +147,9 @@ def copy_root(
         keep_branches=keep_branches,
         drop_trees=drop_trees,
         keep_trees=keep_trees,
+        cut=cut,
+        expressions=expressions,
+        progress_bar=progress_bar,
         force=force,
         title=title,
         field_name=field_name,
@@ -156,6 +171,7 @@ def copy_root(
     default=False,
     help="Overwrite destination file if it already exists",
 )
+@click.option("--progress-bar", default=None, type=bool, required=False)
 @click.option("--append", default=False, help="Append histograms to an existing file")
 @click.option(
     "--compression",
@@ -186,6 +202,7 @@ def add(
     destination,
     files,
     *,
+    progress_bar=False,
     force=False,
     append=False,
     compression="zlib",
@@ -202,6 +219,7 @@ def add(
     hepconvert.add_histograms(
         destination,
         files,
+        progress_bar=progress_bar,
         force=force,
         append=append,
         compression=compression,
@@ -235,6 +253,9 @@ def add(
 @click.option("--keep-branches", default=None, type=list or dict or str, required=False)
 @click.option("--drop-trees", default=None, type=list or str, required=False)
 @click.option("--keep-trees", default=None, type=list or str, required=False)
+@click.option("--progress-bar", default=None, type=bool, required=False)
+@click.option("--cut", default=None, type=str or list, required=False)
+@click.option("--expressions", default=None, type=str or list, required=False)
 @click.option(
     "--force", default=True, help="Overwrite destination file if it already exists"
 )
@@ -265,6 +286,9 @@ def merge_root(
     keep_branches=None,
     drop_trees=None,
     keep_trees=None,
+    cut=None,
+    expressions=None,
+    progress_bar=False,
     initial_basket_capacity=10,
     resize_factor=10.0,
     counter_name=lambda counted: "n" + counted,
@@ -290,6 +314,9 @@ def merge_root(
         keep_branches=keep_branches,
         drop_trees=drop_trees,
         keep_trees=keep_trees,
+        cut=cut,
+        expressions=expressions,
+        progress_bar=progress_bar,
         initial_basket_capacity=initial_basket_capacity,
         resize_factor=resize_factor,
         counter_name=counter_name,
