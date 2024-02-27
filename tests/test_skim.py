@@ -53,9 +53,7 @@ def test_trigger(tmp_path):
             assert len(hepconvert_file["Events"][key].array()) == correct_len
             assert ak.all(
                 hepconvert_file["Events"][key].array()
-                == file["Events"][key].array()[
-                    file["Events"]["HLT_Photon30"].array()
-                ]
+                == file["Events"][key].array()[file["Events"]["HLT_Photon30"].array()]
             )
 
 

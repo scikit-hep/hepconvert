@@ -82,11 +82,16 @@ def parquet_to_root(
         force=force,
     )
 
+
 @main.command()
 @click.argument("destination", type=click.Path())
 @click.argument("file")
-@click.option("--drop-branches", "-db", default=None, type=list or dict or str, required=False)
-@click.option("--keep-branches", "-kb", default=None, type=list or dict or str, required=False)
+@click.option(
+    "--drop-branches", "-db", default=None, type=list or dict or str, required=False
+)
+@click.option(
+    "--keep-branches", "-kb", default=None, type=list or dict or str, required=False
+)
 @click.option("--drop-trees", "-dt", default=None, type=list or str, required=False)
 @click.option("--keep-trees", "kt", default=None, type=list or str, required=False)
 @click.option("--progress-bar", default=None, type=bool, required=False)

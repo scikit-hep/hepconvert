@@ -588,4 +588,12 @@ def break_bins(tmp_path):
         force=True,
     )
 
-test_simple("/Users/zobil/Desktop/directory", ["/Users/zobil/Desktop/directory/hist1.root", "/Users/zobil/Desktop/directory/hist2.root", "/Users/zobil/Desktop/directory/hist3.root"])
+
+test_simple(
+    "/Users/zobil/Desktop/directory",
+    [
+        "/Users/zobil/Desktop/directory/hist1.root",
+        "/Users/zobil/Desktop/directory/hist2.root",
+        "/Users/zobil/Desktop/directory/hist3.root",
+    ],
+)
