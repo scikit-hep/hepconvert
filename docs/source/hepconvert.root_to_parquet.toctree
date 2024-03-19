@@ -2,5 +2,4 @@
     :caption: root_to_parquet
     :hidden:
 
-    hepconvert.root_to_parquet (module) <hepconvert.root_to_parquet>
-    hepconvert.root_to_parquet.root_to_parquet <hepconvert.root_to_parquet.root_to_parquet>
+    hepconvert.root_to_parquet <hepconvert.root_to_parquet>

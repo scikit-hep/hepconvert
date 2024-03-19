@@ -9,7 +9,7 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 def main() -> None:
     """
     Must provide a subcommand:
-    parquet-to-root, root-to-parquet, copy-root, add-and-merge, or add
+    parquet-to-root, root-to-parquet, copy-root, add, or add
     """
 
 
@@ -30,6 +30,7 @@ def main() -> None:
     help="When the TTree metadata needs to be rewritten, this specifies how many more TBasket slots to allocate as a multiplicative factor.",
 )
 @click.option(
+    "-c",
     "--compression",
     default="zlib",
     help='Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".',
@@ -93,7 +94,7 @@ def parquet_to_root(
     "--keep-branches", "-kb", default=None, type=list or dict or str, required=False
 )
 @click.option("--drop-trees", "-dt", default=None, type=list or str, required=False)
-@click.option("--keep-trees", "kt", default=None, type=list or str, required=False)
+@click.option("--keep-trees", "-kt", default=None, type=list or str, required=False)
 @click.option("--progress-bar", default=None, type=bool, required=False)
 @click.option("--cut", default=None, type=str or list, required=False)
 @click.option("--expressions", default=None, type=str or list, required=False)
@@ -172,8 +173,11 @@ def copy_root(
     help="Overwrite destination file if it already exists",
 )
 @click.option("--progress-bar", default=None, type=bool, required=False)
-@click.option("--append", default=False, help="Append histograms to an existing file")
 @click.option(
+    "-a", "--append", default=False, help="Append histograms to an existing file"
+)
+@click.option(
+    "-c",
     "--compression",
     default="zlib",
     help='Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".',
@@ -249,18 +253,25 @@ def add(
     default=100,
     help="If an integer, the maximum number of entries to include in each iteration step; if a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”.",
 )
-@click.option("--drop-branches", default=None, type=list or dict or str, required=False)
-@click.option("--keep-branches", default=None, type=list or dict or str, required=False)
-@click.option("--drop-trees", default=None, type=list or str, required=False)
-@click.option("--keep-trees", default=None, type=list or str, required=False)
+@click.option(
+    "--drop-branches", "-db", default=None, type=list or dict or str, required=False
+)
+@click.option(
+    "--keep-branches", "-kb", default=None, type=list or dict or str, required=False
+)
+@click.option("--drop-trees", "-dt", default=None, type=list or str, required=False)
+@click.option("--keep-trees", "-kt", default=None, type=list or str, required=False)
 @click.option("--progress-bar", default=None, type=bool, required=False)
 @click.option("--cut", default=None, type=str or list, required=False)
 @click.option("--expressions", default=None, type=str or list, required=False)
 @click.option(
     "--force", default=True, help="Overwrite destination file if it already exists"
 )
-@click.option("--append", default=False, help="Append histograms to an existing file")
 @click.option(
+    "-a", "--append", default=False, help="Append histograms to an existing file"
+)
+@click.option(
+    "-c",
     "--compression",
     default="zlib",
     help='Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".',
@@ -340,6 +351,12 @@ def merge_root(
     help="Specify the name of a tree to write to Parquet, if there are multiple trees in the ROOT file.",
 )
 @click.option(
+    "--drop-branches", "-db", default=None, type=list or dict or str, required=False
+)
+@click.option(
+    "--keep-branches", "-kb", default=None, type=list or dict or str, required=False
+)
+@click.option(
     "-f",
     "--force",
     default=False,
@@ -393,6 +410,7 @@ def merge_root(
     help="Count the number of missing values at each level and include these in the resulting Arrow array, which makes some downstream applications faster. If False, skip the up-front cost of counting them.",
 )
 @click.option(
+    "-c",
     "--compression",
     default=False,
     type=bool,
@@ -480,6 +498,13 @@ def root_to_parquet(
     in_file=None,
     out_file=None,
     *,
+    tree=None,
+    drop_branches=None,
+    keep_branches=None,
+    cut=None,
+    expressions=None,
+    force=False,
+    step_size="100 MB",
     list_to32=False,
     string_to32=True,
     bytestring_to32=True,
@@ -502,9 +527,6 @@ def root_to_parquet(
     parquet_compliant_nested=False,
     parquet_extra_options=None,
     storage_options=None,
-    tree=None,
-    force=False,
-    step_size=100,
 ):
     """
     Convert ROOT to Parquet.
@@ -514,6 +536,13 @@ def root_to_parquet(
     hepconvert.root_to_parquet(
         in_file=in_file,
         out_file=out_file,
+        tree=tree,
+        drop_branches=drop_branches,
+        keep_branches=keep_branches,
+        cut=cut,
+        expressions=expressions,
+        force=force,
+        step_size=step_size,
         list_to32=list_to32,
         string_to32=string_to32,
         bytestring_to32=bytestring_to32,
@@ -536,9 +565,6 @@ def root_to_parquet(
         parquet_compliant_nested=parquet_compliant_nested,
         parquet_extra_options=parquet_extra_options,
         storage_options=storage_options,
-        tree=tree,
-        force=force,
-        step_size=step_size,
     )
 
 

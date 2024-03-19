@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 .. include:: main.toctree
-
+.. include:: cli.toctree
 .. toctree::
     :caption: Modules
     :hidden:
