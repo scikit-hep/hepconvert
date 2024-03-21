@@ -164,7 +164,7 @@ def copy_root(
 
 @main.command()
 @click.argument("destination")
-@click.argument("files")
+@click.argument("files", nargs=-1)
 @click.option(
     "-f",
     "--force",
@@ -232,7 +232,7 @@ def add(
 
 @main.command()
 @click.argument("destination")
-@click.argument("files")
+@click.argument("files", nargs=-1)
 @click.option("--title", required=False, default="", help="Set title of new TTree.")
 @click.option(
     "--initial-basket-capacity",
