@@ -25,6 +25,7 @@ def merge_root(
     cut=None,
     expressions=None,
     progress_bar=None,
+    write_to_file=True,
     fieldname_separator="_",
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
@@ -248,8 +249,17 @@ def merge_root(
             tqdm = _utils.check_tqdm()
             number_of_items = len(files)
 
-            progress_bar = tqdm.tqdm(desc="Files added")
+            progress_bar = tqdm.tqdm(desc="Files merged")
         progress_bar.reset(number_of_items)
+
+    if not write_to_file:
+        if len(trees) == 1:
+            return in_memory(
+                trees,
+            )
+        msg = f"Can only return one TTree object in memory, file {file} has {len(trees)} trees."
+        raise ValueError(msg) from None
+
     for t in trees:
         branch_types = None
         tree = f[t]
@@ -381,6 +391,57 @@ def merge_root(
 
             for key in hist_keys:
                 out_file[key] = writable_hists[key]
+        if progress_bar:
+            progress_bar.update(n=1)
+        f.close()
+
+
+def in_memory(
+    f,
+    tree,
+    # will they all have the same name?? What do users expect there?
+    files,
+    keep_branches,
+    drop_branches,
+    cut,
+    expressions,
+    progress_bar,
+    skip_bad_files,
+):
+    count_branches = get_counter_branches(tree)
+    kb = filter_branches(tree, keep_branches, drop_branches, count_branches)
+    groups, count_branches = group_branches(tree, kb)
+    first = True
+    arrays = f[tree].arrays(
+        how=dict,
+        filter_name=lambda b: b in kb,
+        cut=cut,
+        expressions=expressions,
+    )
+    f.close()
+    for file in files[1:]:
+        try:
+            f = uproot.open(file)
+        except FileNotFoundError:
+            if skip_bad_files:
+                continue
+            msg = "File: {file} does not exist or is corrupt."
+            raise FileNotFoundError(msg) from None
+        try:
+            new_data = f[tree].arrays(
+                how=dict,
+                filter_name=lambda b: b in kb,
+                cut=cut,
+                expressions=expressions,
+            )
+        except KeyError:
+            msg = f"Key missing from {file}"
+            raise KeyError(msg) from None
+        try:
+            arrays.concatenate(new_data, axis=1)  # check axis if this doesn't work
+        except AssertionError:
+            msg = "TTrees must have the same structure to be merged. Are the branch_names correct?"
+
         if progress_bar:
             progress_bar.update(n=1)
         f.close()

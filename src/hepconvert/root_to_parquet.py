@@ -15,6 +15,7 @@ def root_to_parquet(
     keep_branches=None,
     cut=None,
     expressions=None,
+    write_to_file=True,
     force=False,
     step_size="100 MB",
     list_to32=False,

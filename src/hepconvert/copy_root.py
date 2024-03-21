@@ -24,6 +24,7 @@ def copy_root(
     cut=None,
     expressions=None,
     progress_bar=None,
+    write_to_file=True,
     force=False,
     fieldname_separator="_",
     # fix_duplicate_counters=False, #TO-DO: ask about this?
@@ -221,6 +222,18 @@ def copy_root(
 
             progress_bar = tqdm.tqdm(desc="Trees copied")
         progress_bar.reset(total=number_of_items)
+
+    if write_to_file is False and len(trees) == 1:
+        count_branches = get_counter_branches(trees[0])
+        kb = filter_branches(trees[0], keep_branches, drop_branches, count_branches)
+        return trees[0].arrays(
+            filter_name=lambda b: b in kb, expressions=expressions, cut=cut
+        )  # is trees an array still?
+
+    elif write_to_file is True:
+        msg = f"Can only return one TTree object in memory, file {file} has {len(trees)} trees."
+        raise ValueError(msg) from None
+
     for t in trees:
         tree = f[t]
         count_branches = get_counter_branches(tree)

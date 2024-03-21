@@ -23,9 +23,9 @@ def _hadd_1d(destination, file, key, first, *, n_key=None):
     """
     try:
         hist = file[key] if n_key is None else file[n_key]
-    except ValueError:
+    except KeyError:
         msg = f"Key missing from {file}"
-        raise ValueError(msg) from None
+        raise KeyError(msg) from None
     # if file[key].classname == "TProfile":
     #     return TProfile_1d(destination, file, key, first, n_key=n_key)
     outfile = uproot.open(destination)
@@ -114,9 +114,9 @@ def _hadd_2d(destination, file, key, first, *, n_key=None):
     """
     try:
         hist = file[key] if n_key is None else file[n_key]
-    except ValueError:
+    except KeyError:
         msg = f"Key missing from {file}"
-        raise ValueError(msg) from None
+        raise KeyError(msg) from None
     # if file[key].classname == "TProfile2D":
     #     return TProfile_2d(destination, file, key, first, n_key=n_key)
     outfile = uproot.open(destination)
@@ -231,9 +231,9 @@ def _hadd_3d(destination, file, key, first, *, n_key=None):
     """
     try:
         hist = file[key] if n_key is None else file[n_key]
-    except ValueError:
+    except KeyError:
         msg = f"Key missing from {file}"
-        raise ValueError(msg) from None
+        raise KeyError(msg) from None
     # if file[key].classname == "TProfile3D":
     #     return TProfile_3d(destination, file, key, first, n_key=n_key)
     outfile = uproot.open(destination)
@@ -515,11 +515,11 @@ def add_histograms(
             for key in keys:
                 try:
                     file[key]
-                except ValueError:
+                except KeyError:
                     if not union:
                         continue
                     msg = "Union key filter error."
-                    raise ValueError(msg) from None
+                    raise KeyError(msg) from None
                 if len(file[key].axes) == 1:
                     h_sum = _hadd_1d(destination, file, key, first)
 
