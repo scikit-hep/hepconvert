@@ -216,8 +216,6 @@ def add(
     """
     import hepconvert.histogram_adding  # pylint: disable=import-outside-toplevel
 
-
-
     hepconvert.add_histograms(
         destination,
         files,
@@ -259,8 +257,7 @@ def add(
 @click.option("--cut", default=None, type=str or list, required=False)
 @click.option("--expressions", default=None, type=str or list, required=False)
 @click.option(
-    "--force", 
-    is_flag=True, help="Overwrite destination file if it already exists"
+    "--force", is_flag=True, help="Overwrite destination file if it already exists"
 )
 @click.option("--append", default=False, help="Append histograms to an existing file")
 @click.option(
