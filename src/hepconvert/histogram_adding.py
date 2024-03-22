@@ -42,14 +42,7 @@ def _hadd_1d(summed_hists, in_file, key, first, *, n_key=None):
             hist.values(flow=True),
             *member_data,
             hist.variances(flow=False),
-            uproot.writing.identify.to_TAxis(
-                "fXaxis",
-                "",
-                hist.member("fN"),
-                hist.axis(axis="x").low,
-                hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=False),
-            ),
+            hist.member("fXaxis"),
         )
     if hist.member("fN") == summed_hists[key].member("fN"):
         member_data = np.array(
@@ -78,14 +71,7 @@ def _hadd_1d(summed_hists, in_file, key, first, *, n_key=None):
                 member_data,
             ),
             summed_hists[key].variances(flow=False) + hist.variances(flow=False),
-            uproot.writing.identify.to_TAxis(
-                "fXaxis",
-                "",
-                hist.member("fN"),
-                hist.axis(axis="x").low,
-                hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=False),
-            ),
+            hist.member("fXaxis"),
         )
     msg = f"Bins must be the same for histograms to be added, not {summed_hists[key].member('fN')} and {hist.member('fN')}"
     raise ValueError(
@@ -130,21 +116,8 @@ def _hadd_2d(summed_hists, file, key, first, *, n_key=None):
             np.ravel(hist.values(flow=False), order="C"),
             *member_data,
             np.ravel(hist.variances(flow=False), order="C"),
-            uproot.writing.identify.to_TAxis(
-                "fXaxis",
-                "",
-                hist.member("fXaxis").member("fNbins"),
-                hist.axis(axis="x").low,
-                hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=False),
-            ),
-            uproot.writing.identify.to_TAxis(
-                "fYaxis",
-                "",
-                hist.member("fYaxis").member("fNbins"),
-                hist.axis(axis="y").low,
-                hist.axis(axis="y").high,
-            ),
+            hist.member("fXaxis"),
+            hist.member("fYaxis"),
         )
     if hist.member("fN") == summed_hists[key].member("fN"):
         member_data = np.array(
@@ -183,21 +156,8 @@ def _hadd_2d(summed_hists, file, key, first, *, n_key=None):
                 summed_hists[key].variances(flow=False) + hist.variances(flow=False),
                 order="C",
             ),
-            uproot.writing.identify.to_TAxis(
-                "fXaxis",
-                "",
-                hist.member("fXaxis").member("fNbins"),
-                hist.axis(axis="x").low,
-                hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
-            ),
-            uproot.writing.identify.to_TAxis(
-                "fYaxis",
-                "",
-                hist.member("fYaxis").member("fNbins"),
-                hist.axis(axis="y").low,
-                hist.axis(axis="y").high,
-            ),
+            hist.member("fXaxis"),
+            hist.member("fYaxis"),
         )
 
     msg = f"Bins must be the same for histograms to be added, not {summed_hists[key].member('fN')} and {hist.member('fN')}"
@@ -247,28 +207,9 @@ def _hadd_3d(summed_hists, file, key, first, *, n_key=None):
             np.ravel(hist.values(flow=True), order="C"),
             *member_data,
             np.ravel(hist.variances(flow=False), order="C"),
-            uproot.writing.identify.to_TAxis(
-                "fXaxis",
-                "",
-                hist.member("fXaxis").member("fNbins"),
-                hist.axis(axis="x").low,
-                hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
-            ),
-            uproot.writing.identify.to_TAxis(
-                "fYaxis",
-                "",
-                hist.member("fYaxis").member("fNbins"),
-                hist.axis(axis="y").low,
-                hist.axis(axis="y").high,
-            ),
-            uproot.writing.identify.to_TAxis(
-                "fZaxis",
-                "",
-                hist.member("fZaxis").member("fNbins"),
-                hist.axis(axis="z").low,
-                hist.axis(axis="z").high,
-            ),
+            hist.member("fXaxis"),
+            hist.member("fYaxis"),
+            hist.member("fZaxis"),
         )
     if hist.member("fN") == summed_hists[key].member("fN"):
         member_data = np.add(
@@ -319,28 +260,9 @@ def _hadd_3d(summed_hists, file, key, first, *, n_key=None):
                     order="C",
                 )
             ),
-            uproot.writing.identify.to_TAxis(
-                "fXaxis",
-                "",
-                hist.member("fXaxis").member("fNbins"),
-                hist.axis(axis="x").low,
-                hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=False),
-            ),
-            uproot.writing.identify.to_TAxis(
-                "fYaxis",
-                "",
-                hist.member("fYaxis").member("fNbins"),
-                hist.axis(axis="y").low,
-                hist.axis(axis="y").high,
-            ),
-            uproot.writing.identify.to_TAxis(
-                "fZaxis",
-                "",
-                hist.member("fZaxis").member("fNbins"),
-                hist.axis(axis="z").low,
-                hist.axis(axis="z").high,
-            ),
+            hist.member("fXaxis"),
+            hist.member("fYaxis"),
+            hist.member("fZaxis"),
         )
 
     msg = f"Bins must be the same for histograms to be added, not {summed_hists[key].member('fN')} and {hist.member('fN')}"
