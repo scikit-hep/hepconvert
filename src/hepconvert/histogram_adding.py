@@ -464,7 +464,7 @@ def add_histograms(
         first = False
         in_file.close()
 
-    for i in hists:
-        out_file[i] = hists[i]
+    for key, h_sum in hists.items():
+        out_file[key] = h_sum
 
     out_file.close()
