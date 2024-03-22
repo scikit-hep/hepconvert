@@ -113,7 +113,7 @@ def _hadd_2d(summed_hists, file, key, first, *, n_key=None):
         return uproot.writing.identify.to_TH2x(
             hist.member("fName"),
             hist.member("fTitle"),
-            np.ravel(hist.values(flow=False), order="C"),
+            np.ravel(hist.values(flow=True), order="C"),
             *member_data,
             np.ravel(hist.variances(flow=False), order="C"),
             hist.member("fXaxis"),
@@ -159,7 +159,6 @@ def _hadd_2d(summed_hists, file, key, first, *, n_key=None):
             hist.member("fXaxis"),
             hist.member("fYaxis"),
         )
-
     msg = f"Bins must be the same for histograms to be added, not {summed_hists[key].member('fN')} and {hist.member('fN')}"
     raise ValueError(
         msg,
@@ -384,7 +383,6 @@ def add_histograms(
         if progress_bar is True:
             tqdm = _utils.check_tqdm()
             number_of_items = len(files)
-
             file_bar = tqdm.tqdm(desc="Files added")
             hist_bar = tqdm.tqdm(desc="Histograms added")
 
