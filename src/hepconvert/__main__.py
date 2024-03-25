@@ -42,7 +42,7 @@ def main() -> None:
 @click.option(
     "-f",
     "--force",
-    default=False,
+    is_flag=True,
     help="If True, overwrites destination file if it already exists.",
 )
 def parquet_to_root(
@@ -59,7 +59,7 @@ def parquet_to_root(
     resize_factor=10.0,
     compression="zlib",
     compression_level=1,
-    force=False,
+    force,
 ):
     """
     Convert Parquet file to ROOT file.
@@ -111,7 +111,7 @@ def parquet_to_root(
 @click.option(
     "-f",
     "--force",
-    default=False,
+    is_flag=True,
     help="If True, overwrites destination file if it already exists.",
 )
 def copy_root(
@@ -125,7 +125,7 @@ def copy_root(
     cut=None,
     expressions=None,
     progress_bar=None,
-    force=False,
+    force,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
@@ -168,7 +168,7 @@ def copy_root(
 @click.option(
     "-f",
     "--force",
-    default=False,
+    is_flag=True,
     help="Overwrite destination file if it already exists",
 )
 @click.option("--progress-bar", default=None, type=bool, required=False)
@@ -203,7 +203,7 @@ def add(
     files,
     *,
     progress_bar=False,
-    force=False,
+    force,
     append=False,
     compression="zlib",
     compression_level=1,
@@ -257,7 +257,7 @@ def add(
 @click.option("--cut", default=None, type=str or list, required=False)
 @click.option("--expressions", default=None, type=str or list, required=False)
 @click.option(
-    "--force", default=True, help="Overwrite destination file if it already exists"
+    "--force", is_flag=True, help="Overwrite destination file if it already exists"
 )
 @click.option("--append", default=False, help="Append histograms to an existing file")
 @click.option(
@@ -293,7 +293,7 @@ def merge_root(
     resize_factor=10.0,
     counter_name=lambda counted: "n" + counted,
     step_size="100 MB",
-    force=True,
+    force,
     append=False,
     compression="LZ4",
     compression_level=1,
@@ -342,7 +342,7 @@ def merge_root(
 @click.option(
     "-f",
     "--force",
-    default=False,
+    is_flag=True,
     type=bool,
     help="If a file already exists at specified path, it gets replaced",
 )
@@ -503,7 +503,7 @@ def root_to_parquet(
     parquet_extra_options=None,
     storage_options=None,
     tree=None,
-    force=False,
+    force,
     step_size=100,
 ):
     """
