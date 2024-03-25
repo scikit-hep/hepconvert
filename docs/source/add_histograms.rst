@@ -18,4 +18,3 @@ progress bar (bool): ``--progress-bar``
 append (bool): ``--append``
 
 compression (str): ``--compression``
-

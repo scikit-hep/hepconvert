@@ -5,4 +5,3 @@ Command Line Interface Guide: `root_to_parquet`
 .. code-block:: bash
 
     hepconvert root-to-parquet [options] [OUT_FILE] [IN_FILE]
-

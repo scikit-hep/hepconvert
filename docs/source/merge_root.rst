@@ -21,4 +21,3 @@ Options:
 
 
 ``--progress-bar``: bool
-
