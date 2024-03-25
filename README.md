@@ -1,5 +1,6 @@
 # hepconvert
 
+<img src="https://github.com/scikit-hep/hepconvert/blob/931efe1dbb0660cf0a7a3e7e8378d358fe1b99f0/docs/docs-img/hepconvert_logo.svg" width="300px">
 [![Actions Status][actions-badge]][actions-link]
 [![Documentation Status][rtd-badge]][rtd-link]
 
