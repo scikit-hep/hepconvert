@@ -71,12 +71,12 @@ def test_simple(tmp_path):
         ).all
 
 
-def mult_1D(tmp_path, file_paths):
+def mult_1D(tmp_path):
     gauss_1 = ROOT.TH1I("name1", "title", 5, -4, 4)
     gauss_1.FillRandom("gaus")
     gauss_1.Sumw2()
     gauss_1.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open(file_paths[0], "RECREATE")
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file1.root"), "RECREATE")
     outHistFile.cd()
     gauss_1.Write()
     outHistFile.Close()
@@ -86,7 +86,7 @@ def mult_1D(tmp_path, file_paths):
     gauss_2.FillRandom("gaus")
     gauss_2.Sumw2()
     gauss_2.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open(file_paths[0], "UPDATE")
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file1.root"), "UPDATE")
     outHistFile.cd()
     gauss_2.Write()
     outHistFile.Close()
@@ -96,7 +96,7 @@ def mult_1D(tmp_path, file_paths):
     gauss_3.FillRandom("gaus")
     gauss_3.Sumw2()
     gauss_3.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open(file_paths[1], "RECREATE")
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file2.root"), "RECREATE")
     outHistFile.cd()
     gauss_3.Write()
     outHistFile.Close()
@@ -106,7 +106,7 @@ def mult_1D(tmp_path, file_paths):
     gauss_4.FillRandom("gaus")
     gauss_4.Sumw2()
     gauss_4.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open(file_paths[1], "UPDATE")
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file2.root"), "UPDATE")
     outHistFile.cd()
     gauss_4.Write()
     outHistFile.Close()
@@ -116,7 +116,7 @@ def mult_1D(tmp_path, file_paths):
     gauss_5.FillRandom("gaus")
     gauss_5.Sumw2()
     gauss_5.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open(file_paths[2], "RECREATE")
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file3.root"), "RECREATE")
     outHistFile.cd()
     gauss_5.Write()
     outHistFile.Close()
@@ -126,14 +126,14 @@ def mult_1D(tmp_path, file_paths):
     gauss_6.FillRandom("gaus")
     gauss_6.Sumw2()
     gauss_6.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open(file_paths[2], "UPDATE")
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file3.root"), "UPDATE")
     outHistFile.cd()
     gauss_6.Write()
     outHistFile.Close()
     h6 = uproot.from_pyroot(gauss_6)
 
     destination = os.path.join(tmp_path, "destination.root")
-    hepconvert.add_histograms(destination, file_paths, force=True, same_names=False)
+    hepconvert.add_histograms(destination, [os.path.join(tmp_path, "file1.root"), os.path.join(tmp_path, "file2.root"), os.path.join(tmp_path, "file3.root")], force=True, same_names=False)
 
     with uproot.open(destination) as file:
         added = uproot.from_pyroot(
