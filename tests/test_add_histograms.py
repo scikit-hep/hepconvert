@@ -133,7 +133,16 @@ def mult_1D(tmp_path):
     h6 = uproot.from_pyroot(gauss_6)
 
     destination = os.path.join(tmp_path, "destination.root")
-    hepconvert.add_histograms(destination, [os.path.join(tmp_path, "file1.root"), os.path.join(tmp_path, "file2.root"), os.path.join(tmp_path, "file3.root")], force=True, same_names=False)
+    hepconvert.add_histograms(
+        destination,
+        [
+            os.path.join(tmp_path, "file1.root"),
+            os.path.join(tmp_path, "file2.root"),
+            os.path.join(tmp_path, "file3.root"),
+        ],
+        force=True,
+        same_names=False,
+    )
 
     with uproot.open(destination) as file:
         added = uproot.from_pyroot(
