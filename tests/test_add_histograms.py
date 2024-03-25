@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pathlib import Path
+import os
 
 import numpy as np
 import pytest
@@ -10,12 +10,7 @@ import hepconvert
 
 ROOT = pytest.importorskip("ROOT")
 
-
-def write_root_file(hist, path):
-    outHistFile = ROOT.TFile.Open(path, "RECREATE")
-    outHistFile.cd()
-    hist.Write()
-    outHistFile.Close()
+# ruff: noqa: PTH118
 
 
 def generate_1D_gaussian():
@@ -70,7 +65,7 @@ def generate_1D_simple():
     for i in range(len(data2)):
         h2.Fill(i, data2[i])
 
-    outHistFile = ROOT.TFile.Open("tests/file2dim1.root", "RECREATE")
+    outHistFile = ROOT.TFile.Open("file2dim1.root", "RECREATE")
     outHistFile.cd()
     h2.Write()
     outHistFile.Close()
@@ -109,8 +104,7 @@ def test_simple(tmp_path, file_paths):
     outHistFile.Close()
     h3 = uproot.from_pyroot(gauss_3)
 
-    path = Path(tmp_path)
-    destination = path / "destination.root"
+    destination = os.path.join(tmp_path, "destination.root")
     hepconvert.add_histograms(destination, file_paths, force=True, progress_bar=True)
     with uproot.open(destination) as file:
         added = uproot.from_pyroot(
@@ -189,8 +183,7 @@ def mult_1D(tmp_path, file_paths):
     outHistFile.Close()
     h6 = uproot.from_pyroot(gauss_6)
 
-    path = Path(tmp_path)
-    destination = path / "destination.root"
+    destination = os.path.join(tmp_path, "destination.root")
     hepconvert.add_histograms(destination, file_paths, force=True, same_names=False)
 
     with uproot.open(destination) as file:
@@ -214,11 +207,41 @@ def mult_1D(tmp_path, file_paths):
         ) + h6.member("fTsumw")
 
 
-def test_3_glob(file_paths, tmp_path):
-    h1, h2, h3 = generate_1D_gaussian(file_paths)
+def test_3_glob(tmp_path):
+    gauss_1 = ROOT.TH1I("name", "title", 5, -4, 4)
+    gauss_1.FillRandom("gaus")
+    gauss_1.Sumw2()
+    gauss_1.SetDirectory(0)
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "hist1.root"), "RECREATE")
+    outHistFile.cd()
+    gauss_1.Write()
+    outHistFile.Close()
+    h1 = uproot.from_pyroot(gauss_1)
+
+    gauss_2 = ROOT.TH1I("name", "title", 5, -4, 4)
+    gauss_2.FillRandom("gaus")
+    gauss_2.Sumw2()
+    gauss_2.SetDirectory(0)
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "hist2.root"), "RECREATE")
+    outHistFile.cd()
+    gauss_2.Write()
+    outHistFile.Close()
+    h2 = uproot.from_pyroot(gauss_2)
+
+    gauss_3 = ROOT.TH1I("name", "title", 5, -4, 4)
+    gauss_3.FillRandom("gaus")
+    gauss_3.Sumw2()
+    gauss_3.SetDirectory(0)
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "hist3.root"), "RECREATE")
+    outHistFile.cd()
+    gauss_3.Write()
+    outHistFile.Close()
+    h3 = uproot.from_pyroot(gauss_3)
 
     hepconvert.add_histograms(
-        Path(tmp_path) / "place.root", Path(tmp_path) / "samples", force=True
+        os.path.join(tmp_path, "place.root"),
+        os.path.join(tmp_path, "samples"),
+        force=True,
     )
 
     with uproot.open("tests/place.root") as file:
@@ -237,12 +260,15 @@ def test_3_glob(file_paths, tmp_path):
 def simple_1dim_F(tmp_path):
     h1, h2 = generate_1D_simple()
     hepconvert.add_histograms(
-        Path(tmp_path) / "place2.root",
-        [Path(tmp_path) / "file1dim1.root", Path(tmp_path) / "file2dim1.root"],
+        os.path.join(tmp_path, "place2.root"),
+        [
+            os.path.join(tmp_path, "file1dim1.root"),
+            os.path.join(tmp_path, "file2dim1.root"),
+        ],
         force=True,
     )
 
-    with uproot.open(Path(tmp_path) / "place2.root") as file:
+    with uproot.open(os.path.join(tmp_path, "place2.root")) as file:
         assert file["name"].member("fN") == h1.member("fN")
         assert file["name"].member("fTsumw") == h1.member("fTsumw") + h2.member(
             "fTsumw"
@@ -285,7 +311,7 @@ def mult_2D_hists(tmp_path):
         for j in range(len(data1[0])):
             h1.Fill(i, j, data1[i][j])
 
-    outHistFile = ROOT.TFile.Open(Path(tmp_path) / "file3dim2.root", "RECREATE")
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file3dim2.root"), "RECREATE")
     outHistFile.cd()
     h1.Write()
     outHistFile.Close()
@@ -307,7 +333,7 @@ def mult_2D_hists(tmp_path):
         for j in range(len(data2[0])):
             h2.Fill(i, j, data2[i][j])
 
-    outHistFile = ROOT.TFile.Open(Path(tmp_path) / "file3dim2.root", "UPDATE")
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file3dim2.root"), "UPDATE")
     outHistFile.cd()
     h2.Write()
     outHistFile.Close()
@@ -328,7 +354,7 @@ def mult_2D_hists(tmp_path):
         for j in range(len(data3[0])):
             h3.Fill(i, j, data3[i][j])
 
-    outHistFile = ROOT.TFile.Open(Path(tmp_path) / "file4dim2.root", "RECREATE")
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file4dim2.root"), "RECREATE")
     outHistFile.cd()
     h3.Write()
     outHistFile.Close()
@@ -350,19 +376,22 @@ def mult_2D_hists(tmp_path):
         for j in range(len(data4[0])):
             h4.Fill(i, j, data4[i][j])
 
-    outHistFile = ROOT.TFile.Open(Path(tmp_path) / "file4dim2.root", "UPDATE")
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file4dim2.root"), "UPDATE")
     outHistFile.cd()
     h4.Write()
     outHistFile.Close()
     h4 = uproot.from_pyroot(h4)
 
     hepconvert.add_histograms(
-        Path(tmp_path) / "place2.root",
-        [Path(tmp_path) / "file3dim2.root", Path(tmp_path) / "file4dim2.root"],
+        os.path.join(tmp_path, "place2.root"),
+        [
+            os.path.join(tmp_path, "file3dim2.root"),
+            os.path.join(tmp_path, "file4dim2.root"),
+        ],
         force=True,
     )
 
-    with uproot.open(Path(tmp_path) / "place2.root") as file:
+    with uproot.open(os.path.join(tmp_path, "place2.root")) as file:
         assert file["name"].member("fN") == h1.member("fN")
         assert file["name"].member("fTsumw") == h1.member("fTsumw") + h3.member(
             "fTsumw"
@@ -447,8 +476,11 @@ def simple_2dim_F(tmp_path):
     h2 = uproot.from_pyroot(h2)
 
     hepconvert.add_histograms(
-        Path(tmp_path) / "tests/place2.root",
-        [Path(tmp_path) / "/file1dim2.root", Path(tmp_path) / "/file2dim2.root"],
+        os.path.join(tmp_path, "place2.root"),
+        [
+            os.path.join(tmp_path, "file1dim2.root"),
+            os.path.join(tmp_path, "file2dim2.root"),
+        ],
         force=True,
     )
 
@@ -570,7 +602,9 @@ def break_bins(tmp_path):
     for i in range(len(data1)):
         h1.Fill(i, data1[i])
 
-    outHistFile = ROOT.TFile.Open(Path(tmp_path) / "/file1dim1break.root", "RECREATE")
+    outHistFile = ROOT.TFile.Open(
+        os.path.join(tmp_path, "file1dim1break.root"), "RECREATE"
+    )
     outHistFile.cd()
     h1.Write()
     outHistFile.Close()
@@ -582,17 +616,22 @@ def break_bins(tmp_path):
     for i in range(len(data2)):
         h2.Fill(i, data2[i])
 
-    outHistFile = ROOT.TFile.Open(Path(tmp_path) / "/file2dim1break.root", "RECREATE")
+    outHistFile = ROOT.TFile.Open(
+        os.path.join(tmp_path, "file2dim1break.root"), "RECREATE"
+    )
     outHistFile.cd()
     h2.Write()
     outHistFile.Close()
     h2 = uproot.from_pyroot(h2)
 
     hepconvert.add_histograms(
-        Path(tmp_path) / "/place2break.root",
+        os.path.join(tmp_path, "place2break.root"),
         [
-            Path(tmp_path) / "/file1dim1break.root",
-            Path(tmp_path) / "/file2dim1break.root",
+            os.path.join(tmp_path, "file1dim1break.root"),
+            os.path.join(tmp_path, "file2dim1break.root"),
         ],
         force=True,
     )
+
+
+break_bins("/Users/zobil/Documents/hepconvert/tests/samples")
