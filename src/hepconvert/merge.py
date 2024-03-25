@@ -161,7 +161,7 @@ def merge_root(
         )
         first = True
 
-    if not isinstance(files, list):
+    if not isinstance(files, list) and not isinstance(files, tuple):
         path = Path(files)
         files = sorted(path.glob("**/*.root"))
 

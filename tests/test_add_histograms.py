@@ -479,7 +479,7 @@ def simple_2dim_F(tmp_path):
         ).all
 
 
-def simple_2D(tmp_path):
+def simple_2D():
     h2 = ROOT.TH2F("name", "", 10, 0.0, 10.0, 8, 0.0, 8.0)
     data2 = [
         [21.5, 10.0, 9.0, 8.2, 6.8, 6.32, 5.3, 3.0, 2.0, 1.0],
@@ -495,7 +495,9 @@ def simple_2D(tmp_path):
     for i in range(len(data2)):
         for j in range(len(data2[0])):
             h2.Fill(i, j, data2[i][j])
-    outHistFile = ROOT.TFile.Open(Path(tmp_path) / "file2dim2.root", "UPDATE")
+    outHistFile = ROOT.TFile.Open(
+        "/Users/zobil/Documents/hepconvert/tests/samples/file2dim2.root", "RECREATE"
+    )
     outHistFile.cd()
     h2.Write()
     outHistFile.Close()
@@ -516,19 +518,26 @@ def simple_2D(tmp_path):
         for j in range(len(data1[0])):
             h1.Fill(i, j, data1[i][j])
 
-    outHistFile = ROOT.TFile.Open(Path(tmp_path) / "/file1dim2.root", "RECREATE")
+    outHistFile = ROOT.TFile.Open(
+        "/Users/zobil/Documents/hepconvert/tests/samples/file1dim2.root", "RECREATE"
+    )
     outHistFile.cd()
     h1.Write()
     outHistFile.Close()
     h1 = uproot.from_pyroot(h1)
 
     hepconvert.add_histograms(
-        Path(tmp_path) / "place2.root",
-        [Path(tmp_path) / "/file1dim2.root", Path(tmp_path) / "/file2dim2.root"],
+        "/Users/zobil/Documents/hepconvert/tests/samples/place2.root",
+        [
+            "/Users/zobil/Documents/hepconvert/tests/samples/file1dim2.root",
+            "/Users/zobil/Documents/hepconvert/tests/samples/file2dim2.root",
+        ],
         force=True,
     )
 
-    with uproot.open(Path(tmp_path) / "place2.root") as file:
+    with uproot.open(
+        "/Users/zobil/Documents/hepconvert/tests/samples/place2.root"
+    ) as file:
         assert file["name"].member("fN") == h1.member("fN")
         assert file["name"].member("fTsumw") == h1.member("fTsumw") + h2.member(
             "fTsumw"
@@ -587,13 +596,3 @@ def break_bins(tmp_path):
         ],
         force=True,
     )
-
-
-test_simple(
-    "/Users/zobil/Desktop/directory",
-    [
-        "/Users/zobil/Desktop/directory/hist1.root",
-        "/Users/zobil/Desktop/directory/hist2.root",
-        "/Users/zobil/Desktop/directory/hist3.root",
-    ],
-)
