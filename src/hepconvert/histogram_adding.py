@@ -8,7 +8,7 @@ import uproot
 from hepconvert import _utils
 
 
-def _hadd_1d(destination, file, key, first, *, n_key=None):
+def _hadd_1d(summed_hists, in_file, key, first, *, n_key=None):
     """Supporting function for add_histograms.
 
     :param destination: Name of the output file or file path.
@@ -22,13 +22,10 @@ def _hadd_1d(destination, file, key, first, *, n_key=None):
     :type first: bool
     """
     try:
-        hist = file[key] if n_key is None else file[n_key]
+        hist = in_file[key] if n_key is None else in_file[n_key]
     except ValueError:
-        msg = f"Key missing from {file}"
+        msg = f"Key missing from {in_file.file_path}"
         raise ValueError(msg) from None
-    # if file[key].classname == "TProfile":
-    #     return TProfile_1d(destination, file, key, first, n_key=n_key)
-    outfile = uproot.open(destination)
     if first:
         member_data = np.array(
             [
@@ -44,17 +41,16 @@ def _hadd_1d(destination, file, key, first, *, n_key=None):
             hist.member("fTitle"),
             hist.values(flow=True),
             *member_data,
-            hist.variances(flow=True),
+            hist.variances(flow=False),
             uproot.writing.identify.to_TAxis(
                 "fXaxis",
                 "",
-                hist.member("fN"),
+                hist.member("fXaxis").member("fNbins"),
                 hist.axis(axis="x").low,
                 hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
             ),
         )
-    if hist.member("fN") == outfile[key].member("fN"):
+    if hist.member("fN") == summed_hists[key].member("fN"):
         member_data = np.array(
             [
                 hist.member("fEntries"),
@@ -64,42 +60,38 @@ def _hadd_1d(destination, file, key, first, *, n_key=None):
                 hist.member("fTsumwx2"),
             ]
         )
-        h_sum = uproot.writing.identify.to_TH1x(
+        return uproot.writing.identify.to_TH1x(
             hist.member("fName"),
             hist.member("fTitle"),
-            outfile[key].values(flow=True) + hist.values(flow=True),
+            summed_hists[key].values(flow=True) + hist.values(flow=True),
             *np.add(
                 np.array(
                     [
-                        outfile[key].member("fEntries"),
-                        outfile[key].member("fTsumw"),
-                        outfile[key].member("fTsumw2"),
-                        outfile[key].member("fTsumwx"),
-                        outfile[key].member("fTsumwx2"),
+                        summed_hists[key].member("fEntries"),
+                        summed_hists[key].member("fTsumw"),
+                        summed_hists[key].member("fTsumw2"),
+                        summed_hists[key].member("fTsumwx"),
+                        summed_hists[key].member("fTsumwx2"),
                     ]
                 ),
                 member_data,
             ),
-            outfile[key].variances(flow=True) + hist.variances(flow=True),
+            summed_hists[key].variances(flow=False) + hist.variances(flow=False),
             uproot.writing.identify.to_TAxis(
                 "fXaxis",
                 "",
-                hist.member("fN"),
+                hist.member("fXaxis").member("fNbins"),
                 hist.axis(axis="x").low,
                 hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
             ),
         )
-        outfile.close()
-        return h_sum
-
-    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member('fN')} and {hist.member('fN')}"
+    msg = f"Bins must be the same for histograms to be added, not {summed_hists[key].member('fN')} and {hist.member('fN')}"
     raise ValueError(
         msg,
     ) from None
 
 
-def _hadd_2d(destination, file, key, first, *, n_key=None):
+def _hadd_2d(summed_hists, file, key, first, *, n_key=None):
     """Supporting function for add_histograms.
 
     :param destination: Name of the output file or file path.
@@ -117,9 +109,6 @@ def _hadd_2d(destination, file, key, first, *, n_key=None):
     except ValueError:
         msg = f"Key missing from {file}"
         raise ValueError(msg) from None
-    # if file[key].classname == "TProfile2D":
-    #     return TProfile_2d(destination, file, key, first, n_key=n_key)
-    outfile = uproot.open(destination)
     if first:
         member_data = np.array(
             [
@@ -138,14 +127,13 @@ def _hadd_2d(destination, file, key, first, *, n_key=None):
             hist.member("fTitle"),
             np.ravel(hist.values(flow=True), order="C"),
             *member_data,
-            np.ravel(hist.variances(flow=True), order="C"),
+            np.ravel(hist.variances(flow=False), order="C"),
             uproot.writing.identify.to_TAxis(
                 "fXaxis",
                 "",
                 hist.member("fXaxis").member("fNbins"),
                 hist.axis(axis="x").low,
                 hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
             ),
             uproot.writing.identify.to_TAxis(
                 "fYaxis",
@@ -155,7 +143,7 @@ def _hadd_2d(destination, file, key, first, *, n_key=None):
                 hist.axis(axis="y").high,
             ),
         )
-    if hist.member("fN") == outfile[key].member("fN"):
+    if hist.member("fN") == summed_hists[key].member("fN"):
         member_data = np.array(
             [
                 hist.member("fEntries"),
@@ -168,28 +156,29 @@ def _hadd_2d(destination, file, key, first, *, n_key=None):
                 hist.member("fTsumwxy"),
             ]
         )
-        h_sum = uproot.writing.identify.to_TH2x(
+        return uproot.writing.identify.to_TH2x(
             hist.member("fName"),
             hist.member("fTitle"),
-            np.ravel(outfile[key].values(flow=True), order="C")
+            np.ravel(summed_hists[key].values(flow=True), order="C")
             + np.ravel(hist.values(flow=True), order="C"),
             *np.add(
                 np.array(
                     [
-                        outfile[key].member("fEntries"),
-                        outfile[key].member("fTsumw"),
-                        outfile[key].member("fTsumw2"),
-                        outfile[key].member("fTsumwx"),
-                        outfile[key].member("fTsumwx2"),
-                        outfile[key].member("fTsumwy"),
-                        outfile[key].member("fTsumwy2"),
-                        outfile[key].member("fTsumwxy"),
+                        summed_hists[key].member("fEntries"),
+                        summed_hists[key].member("fTsumw"),
+                        summed_hists[key].member("fTsumw2"),
+                        summed_hists[key].member("fTsumwx"),
+                        summed_hists[key].member("fTsumwx2"),
+                        summed_hists[key].member("fTsumwy"),
+                        summed_hists[key].member("fTsumwy2"),
+                        summed_hists[key].member("fTsumwxy"),
                     ]
                 ),
                 member_data,
             ),
             np.ravel(
-                outfile[key].variances(flow=True) + hist.variances(flow=True), order="C"
+                summed_hists[key].variances(flow=False) + hist.variances(flow=False),
+                order="C",
             ),
             uproot.writing.identify.to_TAxis(
                 "fXaxis",
@@ -197,7 +186,6 @@ def _hadd_2d(destination, file, key, first, *, n_key=None):
                 hist.member("fXaxis").member("fNbins"),
                 hist.axis(axis="x").low,
                 hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
             ),
             uproot.writing.identify.to_TAxis(
                 "fYaxis",
@@ -207,16 +195,13 @@ def _hadd_2d(destination, file, key, first, *, n_key=None):
                 hist.axis(axis="y").high,
             ),
         )
-        outfile.close()
-        return h_sum
-
-    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member('fN')} and {hist.member('fN')}"
+    msg = f"Bins must be the same for histograms to be added, not {summed_hists[key].member('fN')} and {hist.member('fN')}"
     raise ValueError(
         msg,
     ) from None
 
 
-def _hadd_3d(destination, file, key, first, *, n_key=None):
+def _hadd_3d(summed_hists, file, key, first, *, n_key=None):
     """Supporting function for add_histograms.
 
     :param destination: Name of the output file or file path.
@@ -234,9 +219,6 @@ def _hadd_3d(destination, file, key, first, *, n_key=None):
     except ValueError:
         msg = f"Key missing from {file}"
         raise ValueError(msg) from None
-    # if file[key].classname == "TProfile3D":
-    #     return TProfile_3d(destination, file, key, first, n_key=n_key)
-    outfile = uproot.open(destination)
     if first:
         member_data = np.array(
             [
@@ -259,14 +241,13 @@ def _hadd_3d(destination, file, key, first, *, n_key=None):
             hist.member("fTitle"),
             np.ravel(hist.values(flow=True), order="C"),
             *member_data,
-            np.ravel(hist.variances(flow=True), order="C"),
+            np.ravel(hist.variances(flow=False), order="C"),
             uproot.writing.identify.to_TAxis(
                 "fXaxis",
                 "",
                 hist.member("fXaxis").member("fNbins"),
                 hist.axis(axis="x").low,
                 hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
             ),
             uproot.writing.identify.to_TAxis(
                 "fYaxis",
@@ -283,7 +264,7 @@ def _hadd_3d(destination, file, key, first, *, n_key=None):
                 hist.axis(axis="z").high,
             ),
         )
-    if hist.member("fN") == outfile[key].member("fN"):
+    if hist.member("fN") == summed_hists[key].member("fN"):
         member_data = np.add(
             np.array(
                 [
@@ -304,31 +285,31 @@ def _hadd_3d(destination, file, key, first, *, n_key=None):
             np.array(
                 [
                     hist.member("fEntries"),
-                    outfile[key].member("fTsumw"),
-                    outfile[key].member("fTsumw2"),
-                    outfile[key].member("fTsumwx"),
-                    outfile[key].member("fTsumwx2"),
-                    outfile[key].member("fTsumwy"),
-                    outfile[key].member("fTsumwy2"),
-                    outfile[key].member("fTsumwxy"),
-                    outfile[key].member("fTsumwz"),
-                    outfile[key].member("fTsumwz2"),
-                    outfile[key].member("fTsumwxz"),
-                    outfile[key].member("fTsumwyz"),
+                    summed_hists[key].member("fTsumw"),
+                    summed_hists[key].member("fTsumw2"),
+                    summed_hists[key].member("fTsumwx"),
+                    summed_hists[key].member("fTsumwx2"),
+                    summed_hists[key].member("fTsumwy"),
+                    summed_hists[key].member("fTsumwy2"),
+                    summed_hists[key].member("fTsumwxy"),
+                    summed_hists[key].member("fTsumwz"),
+                    summed_hists[key].member("fTsumwz2"),
+                    summed_hists[key].member("fTsumwxz"),
+                    summed_hists[key].member("fTsumwyz"),
                 ]
             ),
         )
-        h_sum = uproot.writing.identify.to_TH3x(
+        return uproot.writing.identify.to_TH3x(
             hist.member("fName"),
             hist.member("fTitle"),
             np.ravel(
-                outfile[key].values(flow=True) + hist.values(flow=True), order="C"
+                summed_hists[key].values(flow=True) + hist.values(flow=True), order="C"
             ),
             *member_data,
             (
-                np.ravel(outfile[key].variances(flow=True), order="C")
+                np.ravel(summed_hists[key].variances(flow=False), order="C")
                 + np.ravel(
-                    hist.variances(flow=True),
+                    hist.variances(flow=False),
                     order="C",
                 )
             ),
@@ -338,7 +319,6 @@ def _hadd_3d(destination, file, key, first, *, n_key=None):
                 hist.member("fXaxis").member("fNbins"),
                 hist.axis(axis="x").low,
                 hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
             ),
             uproot.writing.identify.to_TAxis(
                 "fYaxis",
@@ -355,10 +335,8 @@ def _hadd_3d(destination, file, key, first, *, n_key=None):
                 hist.axis(axis="z").high,
             ),
         )
-        outfile.close()
-        return h_sum
 
-    msg = f"Bins must be the same for histograms to be added, not {outfile[key].member('fN')} and {hist.member('fN')}"
+    msg = f"Bins must be the same for histograms to be added, not {summed_hists[key].member('fN')} and {hist.member('fN')}"
     raise ValueError(
         msg,
     ) from None
@@ -441,9 +419,9 @@ def add_histograms(
             msg = "Cannot append to a new file. Either force or append can be true."
             raise ValueError(msg)
         if append:
-            file_out = uproot.update(destination)
+            out_file = uproot.update(destination)
         elif force:
-            file_out = uproot.recreate(
+            out_file = uproot.recreate(
                 destination,
                 compression=uproot.compression.Compression.from_code_pair(
                     compression_code, compression_level
@@ -454,7 +432,7 @@ def add_histograms(
             raise FileNotFoundError(
                 "File %s" + destination + " not found. File must exist to append."
             )
-        file_out = uproot.recreate(
+        out_file = uproot.recreate(
             destination,
             compression=uproot.compression.Compression.from_code_pair(
                 compression_code, compression_level
@@ -477,7 +455,6 @@ def add_histograms(
         if progress_bar is True:
             tqdm = _utils.check_tqdm()
             number_of_items = len(files)
-
             file_bar = tqdm.tqdm(desc="Files added")
             hist_bar = tqdm.tqdm(desc="Histograms added")
 
@@ -501,9 +478,10 @@ def add_histograms(
         keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
 
     first = True
+    hists = {}
     for input_file in files:
         try:
-            file = uproot.open(input_file)
+            in_file = uproot.open(input_file)
         except FileNotFoundError:
             if skip_bad_files:
                 continue
@@ -514,419 +492,51 @@ def add_histograms(
                 hist_bar.reset(len(keys))
             for key in keys:
                 try:
-                    file[key]
+                    in_file[key]
                 except ValueError:
                     if not union:
                         continue
                     msg = "Union key filter error."
                     raise ValueError(msg) from None
-                if len(file[key].axes) == 1:
-                    h_sum = _hadd_1d(destination, file, key, first)
+                if len(in_file[key].axes) == 1:
+                    h_sum = _hadd_1d(hists, in_file, key, first)
 
-                elif len(file[key].axes) == 2:
-                    h_sum = _hadd_2d(destination, file, key, first)
+                elif len(in_file[key].axes) == 2:
+                    h_sum = _hadd_2d(hists, in_file, key, first)
 
                 else:
-                    h_sum = _hadd_3d(destination, file, key, first)
+                    h_sum = _hadd_3d(hists, in_file, key, first)
 
                 if progress_bar:
-                    file_bar.update(n=1)
+                    hist_bar.update(n=1)
+
+                if h_sum is not None:
+                    hists[key] = h_sum
         else:
-            n_keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
+            n_keys = in_file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
             if progress_bar:
                 hist_bar.reset(len(n_keys))
             for i, _value in enumerate(keys):
-                if len(file[n_keys[i]].axes) == 1:
-                    h_sum = _hadd_1d(destination, file, keys[i], first, n_key=n_keys[i])
+                if len(in_file[n_keys[i]].axes) == 1:
+                    h_sum = _hadd_1d(out_file, in_file, keys[i], first, n_key=n_keys[i])
 
                 elif len(file[n_keys[i]].axes) == 2:
-                    h_sum = _hadd_2d(destination, file, keys[i], first, n_key=n_keys[i])
+                    h_sum = _hadd_2d(out_file, in_file, keys[i], first, n_key=n_keys[i])
 
                 else:
-                    h_sum = _hadd_3d(destination, file, keys[i], first, n_key=n_keys[i])
+                    h_sum = _hadd_3d(out_file, in_file, keys[i], first, n_key=n_keys[i])
 
                 if h_sum is not None:
-                    file_out[keys[i]] = h_sum
+                    out_file[keys[i]] = h_sum
                 if progress_bar:
                     hist_bar.update(n=1)
         if progress_bar:
             file_bar.update(n=1)
 
         first = False
-        file.close()
-    file_out.close()
+        in_file.close()
 
+    for key, h_sum in hists.items():
+        out_file[key] = h_sum
 
-def _tprofile_1d(destination, file, key, first, *, n_key=None):
-    """
-    Args:
-    :param destination: Name of the output file or file path.
-    :type destination: path-like
-    :param file: ROOT file to read histogram from.
-    :type file: ReadOnlyDirectory
-    :key: key to reference histogram to be added.
-    :type key: str
-    :param first: if True, special case for first of a certain histogram
-        to be added to the new file.
-    :type first: str
-    """
-    hist = file[key] if n_key is None else file[n_key]
-    outfile = uproot.open(destination)
-    if first:
-        member_data = np.array(
-            [
-                hist.member("fEntries"),
-                hist.member("fTsumw"),
-                hist.member("fTsumw2"),
-                hist.member("fTsumwx"),
-                hist.member("fTsumwx2"),
-                hist.member("fTsumwy"),
-                hist.member("fTsumwy2"),
-            ]
-        )
-        return uproot.writing.identify.to_TProfile(
-            hist.member("fName"),
-            hist.member("fTitle"),
-            hist.values(flow=True),
-            *member_data,
-            hist.member("fSumw2"),
-            hist.member("fBinEntries"),
-            hist.member("fBinSumw2"),
-            hist.variances(flow=True),
-            uproot.writing.identify.to_TAxis(
-                "fXaxis",
-                "",
-                hist.member("fN"),
-                hist.axis(axis="x").low,
-                hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
-            ),
-        )
-    if hist.member("fN") == outfile[key].member("fN"):
-        member_data = np.array(
-            [
-                hist.member("fEntries"),
-                hist.member("fTsumw"),
-                hist.member("fTsumw2"),
-                hist.member("fTsumwx"),
-                hist.member("fTsumwx2"),
-                hist.member("fTsumwy"),
-                hist.member("fTsumwy2"),
-            ]
-        )
-        h_sum = uproot.writing.identify.to_TProfile(
-            hist.member("fName"),
-            hist.member("fTitle"),
-            outfile[key].values(flow=True) + hist.values(flow=True),
-            *np.add(
-                np.array(
-                    [
-                        outfile[key].member("fEntries"),
-                        outfile[key].member("fTsumw"),
-                        outfile[key].member("fTsumw2"),
-                        outfile[key].member("fTsumwx"),
-                        outfile[key].member("fTsumwx2"),
-                        outfile[key].member("fTsumwy"),
-                        outfile[key].member("fTsumwy2"),
-                        outfile[key].member("fSumw2"),
-                        outfile[key].member("fBinEntries"),
-                        outfile[key].member("fBinSumw2"),
-                    ]
-                ),
-                member_data,
-            ),
-            outfile[key].member("fSumw2") + hist.member("fSumw2"),
-            outfile[key].member("fBinEntries") + hist.member("fBinEntries"),
-            outfile[key].member("fBinEntries") + hist.member("fBinSumw2"),
-            outfile[key].variances(flow=True) + hist.variances(flow=True),
-            uproot.writing.identify.to_TAxis(
-                "fXaxis",
-                "",
-                hist.member("fN"),
-                hist.axis(axis="x").low,
-                hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
-            ),
-        )
-        outfile.close()
-        return h_sum
-
-    msg = "Bins must be the same for histograms to be added, not "
-    raise ValueError(
-        msg,
-        hist.member("fN"),
-        " and ",
-        outfile[key].member("fN"),
-    ) from None
-
-
-def _tprofile_2d(destination, file, key, first, *, n_key=None):
-    """
-    Args:
-    :param destination: Name of the output file or file path.
-    :type destination: path-like
-    :param file: ROOT file to read histogram from.
-    :type file: ReadOnlyDirectory
-    :key: key to reference histogram to be added.
-    :type key: str
-    :param first: if True, special case for first of a certain histogram
-        to be added to the new file.
-    :type first: str
-    """
-    outfile = uproot.open(destination)
-    hist = file[key] if n_key is None else file[n_key]
-
-    if first:
-        member_data = np.array(
-            [
-                hist.member("fEntries"),
-                hist.member("fTsumw"),
-                hist.member("fTsumw2"),
-                hist.member("fTsumwx"),
-                hist.member("fTsumwx2"),
-                hist.member("fTsumwy"),
-                hist.member("fTsumwy2"),
-                hist.member("fTsumwxy"),
-                hist.member("fTsumwz"),
-                hist.member("fTsumwz2"),
-                hist.member("fSumw2"),
-                hist.member("fBinEntries"),
-                hist.member("fBinSumw2"),
-            ]
-        )
-        return uproot.writing.identify.to_TProfile2D(
-            hist.member("fName"),
-            hist.member("fTitle"),
-            np.ravel(hist.values(flow=True), order="C"),
-            *member_data,
-            np.ravel(hist.variances(flow=True), order="C"),
-            uproot.writing.identify.to_TAxis(
-                "fXaxis",
-                "",
-                hist.member("fXaxis").member("fNbins"),
-                hist.axis(axis="x").low,
-                hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
-            ),
-            uproot.writing.identify.to_TAxis(
-                "fYaxis",
-                "",
-                hist.member("fYaxis").member("fNbins"),
-                hist.axis(axis="y").low,
-                hist.axis(axis="y").high,
-            ),
-        )
-    if hist.member("fN") == outfile[key].member("fN"):
-        member_data = np.array(
-            [
-                hist.member("fEntries"),
-                hist.member("fTsumw"),
-                hist.member("fTsumw2"),
-                hist.member("fTsumwx"),
-                hist.member("fTsumwx2"),
-                hist.member("fTsumwy"),
-                hist.member("fTsumwy2"),
-                hist.member("fTsumwxy"),
-                hist.member("fTsumwz"),
-                hist.member("fTsumwz2"),
-                hist.member("fSumw2"),
-                hist.member("fBinEntries"),
-                hist.member("fBinSumw2"),
-            ]
-        )
-        h_sum = uproot.writing.identify.to_TH2x(
-            hist.member("fName"),
-            hist.member("fTitle"),
-            np.ravel(outfile[key].values(flow=True), order="C")
-            + np.ravel(hist.values(flow=True), order="C"),
-            *np.add(
-                np.array(
-                    [
-                        outfile[key].member("fEntries"),
-                        outfile[key].member("fTsumw"),
-                        outfile[key].member("fTsumw2"),
-                        outfile[key].member("fTsumwx"),
-                        outfile[key].member("fTsumwx2"),
-                        outfile[key].member("fTsumwy"),
-                        outfile[key].member("fTsumwy2"),
-                        outfile[key].member("fTsumwxy"),
-                        outfile[key].member("fTsumwz"),
-                        outfile[key].member("fTsumwz2"),
-                        outfile[key].member("fSumw2"),
-                        outfile[key].member("fBinEntries"),
-                        outfile[key].member("fBinSumw2"),
-                    ]
-                ),
-                member_data,
-            ),
-            np.ravel(
-                outfile[key].variances(flow=True) + hist.variances(flow=True), order="C"
-            ),
-            uproot.writing.identify.to_TAxis(
-                "fXaxis",
-                "",
-                hist.member("fXaxis").member("fNbins"),
-                hist.axis(axis="x").low,
-                hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
-            ),
-            uproot.writing.identify.to_TAxis(
-                "fYaxis",
-                "",
-                hist.member("fYaxis").member("fNbins"),
-                hist.axis(axis="y").low,
-                hist.axis(axis="y").high,
-            ),
-        )
-        outfile.close()
-        return h_sum
-
-    msg = "Bins must be the same for histograms to be added, not "
-    raise ValueError(
-        msg,
-        hist.member("fN"),
-        " and ",
-        outfile[key].member("fN"),
-    ) from None
-
-
-def _tprofile_3d(destination, file, key, first, *, n_key=None):
-    """
-    Args:
-    :param destination: Name of the output file or file path.
-    :type destination: path-like
-    :param file: ROOT file to read histogram from.
-    :type file: ReadOnlyDirectory
-    :key: key to reference histogram to be added.
-    :type key: str
-    :param first: if True, special case for first of a certain histogram
-        to be added to the new file.
-    :type first: str
-    """
-    outfile = uproot.open(destination)
-    hist = file[key] if n_key is None else file[n_key]
-
-    if first:
-        member_data = np.array(
-            [
-                hist.member("fEntries"),
-                hist.member("fTsumw"),
-                hist.member("fTsumw2"),
-                hist.member("fTsumwx"),
-                hist.member("fTsumwx2"),
-                hist.member("fTsumwy"),
-                hist.member("fTsumwy2"),
-                hist.member("fTsumwxy"),
-                hist.member("fTsumwz"),
-                hist.member("fTsumwz2"),
-                hist.member("fTsumwxz"),
-                hist.member("fTsumwxyz"),
-                hist.member("fTsumwt"),
-                hist.member("fTsumwt2"),
-                hist.member("fSumw2"),
-                hist.member("fBinEntries"),
-                hist.member("fBinSumw2"),
-            ]
-        )
-        return uproot.writing.identify.to_TProfile2D(
-            hist.member("fName"),
-            hist.member("fTitle"),
-            np.ravel(hist.values(flow=True), order="C"),
-            *member_data,
-            np.ravel(hist.variances(flow=True), order="C"),
-            uproot.writing.identify.to_TAxis(
-                "fXaxis",
-                "",
-                hist.member("fXaxis").member("fNbins"),
-                hist.axis(axis="x").low,
-                hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
-            ),
-            uproot.writing.identify.to_TAxis(
-                "fYaxis",
-                "",
-                hist.member("fYaxis").member("fNbins"),
-                hist.axis(axis="y").low,
-                hist.axis(axis="y").high,
-            ),
-        )
-    if hist.member("fN") == outfile[key].member("fN"):
-        member_data = np.array(
-            [
-                hist.member("fEntries"),
-                hist.member("fTsumw"),
-                hist.member("fTsumw2"),
-                hist.member("fTsumwx"),
-                hist.member("fTsumwx2"),
-                hist.member("fTsumwy"),
-                hist.member("fTsumwy2"),
-                hist.member("fTsumwxy"),
-                hist.member("fTsumwz"),
-                hist.member("fTsumwz2"),
-                hist.member("fTsumwxz"),
-                hist.member("fTsumwxyz"),
-                hist.member("fTsumwt"),
-                hist.member("fTsumwt2"),
-                hist.member("fSumw2"),
-                hist.member("fBinEntries"),
-                hist.member("fBinSumw2"),
-            ]
-        )
-        h_sum = uproot.writing.identify.to_TH2x(
-            hist.member("fName"),
-            hist.member("fTitle"),
-            np.ravel(outfile[key].values(flow=True), order="C")
-            + np.ravel(hist.values(flow=True), order="C"),
-            *np.add(
-                np.array(
-                    [
-                        outfile[key].member("fEntries"),
-                        outfile[key].member("fTsumw"),
-                        outfile[key].member("fTsumw2"),
-                        outfile[key].member("fTsumwx"),
-                        outfile[key].member("fTsumwx2"),
-                        outfile[key].member("fTsumwy"),
-                        outfile[key].member("fTsumwy2"),
-                        outfile[key].member("fTsumwxy"),
-                        outfile[key].member("fTsumwz"),
-                        outfile[key].member("fTsumwz2"),
-                        outfile[key].member("fTsumwxz"),
-                        outfile[key].member("fTsumwxyz"),
-                        outfile[key].member("fTsumwt"),
-                        outfile[key].member("fTsumwt2"),
-                        outfile[key].member("fSumw2"),
-                        outfile[key].member("fBinEntries"),
-                        outfile[key].member("fBinSumw2"),
-                    ]
-                ),
-                member_data,
-            ),
-            np.ravel(
-                outfile[key].variances(flow=True) + hist.variances(flow=True), order="C"
-            ),
-            uproot.writing.identify.to_TAxis(
-                "fXaxis",
-                "",
-                hist.member("fXaxis").member("fNbins"),
-                hist.axis(axis="x").low,
-                hist.axis(axis="x").high,
-                fXbins=hist.member("fXaxis").edges(flow=True),
-            ),
-            uproot.writing.identify.to_TAxis(
-                "fYaxis",
-                "",
-                hist.member("fYaxis").member("fNbins"),
-                hist.axis(axis="y").low,
-                hist.axis(axis="y").high,
-            ),
-        )
-        outfile.close()
-        return h_sum
-
-    msg = "Bins must be the same for histograms to be added, not "
-    raise ValueError(
-        msg,
-        hist.member("fN"),
-        " and ",
-        outfile[key].member("fN"),
-    ) from None
+    out_file.close()
