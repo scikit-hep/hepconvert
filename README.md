@@ -1,6 +1,5 @@
-# hepconvert
+<img src="https://github.com/scikit-hep/hepconvert/blob/f461872ec41473b14fdb7ebd76e68798ef8bb394/docs/docs-img/hepconvert_logo.svg" width="400px">
 
-<img src="https://github.com/scikit-hep/hepconvert/blob/931efe1dbb0660cf0a7a3e7e8378d358fe1b99f0/docs/docs-img/hepconvert_logo.svg" width="300px">
 [![Actions Status][actions-badge]][actions-link]
 [![Documentation Status][rtd-badge]][rtd-link]
 
@@ -15,7 +14,8 @@
 <!-- prettier-ignore-start -->
 [actions-badge]:            https://github.com/zbilodea/hepconvert/workflows/CI/badge.svg
 [actions-link]:             https://github.com/zbilodea/hepconvert/actions
-[![NSF-1836650](https://img.shields.io/badge/NSF-1836650-blue.svg)](https://nsf.gov/awardsearch/showAward?AWD_ID=1836650)
+[conda-badge]:              https://img.shields.io/conda/vn/conda-forge/hepconvert
+[conda-link]:               https://github.com/conda-forge/hepconvert-feedstock
 [github-discussions-badge]: https://img.shields.io/static/v1?label=Discussions&message=Ask&color=blue&logo=github
 [github-discussions-link]:  https://github.com/zbilodea/hepconvert/discussions
 [pypi-link]:                https://pypi.org/project/hepconvert/
