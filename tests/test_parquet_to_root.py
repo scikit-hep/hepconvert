@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import awkward as ak
 import pytest
 import uproot
@@ -9,16 +11,18 @@ from hepconvert.parquet_to_root import parquet_to_root
 skhep_testdata = pytest.importorskip("skhep_testdata")
 
 
-def test_hepdata():
+def test_hepdata(tmp_path):
     arrays = uproot.open(skhep_testdata.data_path("uproot-hepdata-example.root"))[
         "ntuple;1"
     ].arrays()
 
-    ak.to_parquet(arrays, "uproot-hepdata-example.parquet")
+    ak.to_parquet(arrays, Path(tmp_path) / "uproot-hepdata-example.parquet")
     parquet_to_root(
-        "uproot-hepdata-example.root", "uproot-hepdata-example.parquet", name="ntuple"
+        Path(tmp_path) / "uproot-hepdata-example.root",
+        Path(tmp_path) / "uproot-hepdata-example.parquet",
+        name="ntuple",
     )
-    test = uproot.open("uproot-hepdata-example.root")
+    test = uproot.open(Path(tmp_path) / "uproot-hepdata-example.root")
     original = uproot.open(skhep_testdata.data_path("uproot-hepdata-example.root"))
 
     for key in original["ntuple"].keys():
@@ -29,7 +33,7 @@ def test_hepdata():
         assert ak.all(test["ntuple"].arrays()[key] == original["ntuple"].arrays()[key])
 
 
-def test_hzz():
+def test_hzz(tmp_path):
     file = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
 
     tree = file["events"]
@@ -81,13 +85,13 @@ def test_hzz():
     record = ak.Record(chunks)
     ak.to_parquet(record, "uproot-HZZ.parquet")
     parquet_to_root(
-        "tests/samples/parquet_HZZ.root",
+        Path(tmp_path) / "parquet_HZZ.root",
         "uproot-HZZ.parquet",
         name="events",
         progress_bar=True,
         counter_name=lambda counted: "N" + counted,
     )
-    test = uproot.open("tests/samples/parquet_HZZ.root")
+    test = uproot.open(Path(tmp_path) / "parquet_HZZ.root")
     original = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
 
     for key in original["events"].keys():
