@@ -28,11 +28,17 @@ The hepconvert library is a bridge between columnar file formats, currently **RO
 
 # Installation
 
-hepconvert can be installed from [PyPI](https://pypi.org/project/hepconvert) using pip:
+hepconvert can be installed `from PyPI <https://pypi.org/project/hepconvert>`__ using pip:
 
-```bash
-pip install hepconvert
-```
+.. code-block:: bash
+
+    pip install hepconvert
+
+To install with Conda through `conda-forge <https://github.com/conda-forge/hepconvert-feedstock>`__:
+
+.. code-block:: bash
+
+    conda install -c conda-forge hepconvert
 
 # Getting started
 
