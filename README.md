@@ -31,13 +31,13 @@ The hepconvert library is a bridge between columnar file formats, currently **RO
 hepconvert can be installed from [PyPI](https://pypi.org/project/hepconvert) using pip:
 
 ```bash
-    pip install hepconvert
+pip install hepconvert
 ```
 
 To install with Conda through [conda-forge](https://github.com/conda-forge/hepconvert-feedstock):
 
 ```bash
-    conda install -c conda-forge hepconvert
+conda install -c conda-forge hepconvert
 ```
 # Getting started
 
