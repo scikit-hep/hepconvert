@@ -2,5 +2,4 @@
     :caption: merge
     :hidden:
 
-    hepconvert.merge (module) <hepconvert.merge>
-    hepconvert.merge.merge_root <hepconvert.merge.merge_root>
+    hepconvert.merge_root <hepconvert.merge_root>

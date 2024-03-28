@@ -2,8 +2,8 @@
     :caption: Main Interface
     :hidden:
 
-    hepconvert.parquet_to_root.parquet_to_root
-    hepconvert.root_to_parquet.root_to_parquet
-    hepconvert.copy_root.copy_root
-    hepconvert.merge.merge_root
-    hepconvert.histogram_adding.add_histograms
+    hepconvert.parquet_to_root
+    hepconvert.root_to_parquet
+    hepconvert.copy_root
+    hepconvert.merge_root
+    hepconvert.add_histograms

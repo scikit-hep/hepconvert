@@ -43,7 +43,7 @@ def root_to_parquet(
     """Converts ROOT to Parquet file using Uproot and awkward.to_parquet. Data read from 1 tree, converted to single Parquet file.
 
     :param in_file: Local ROOT file to convert to Parquet. May contain glob patterns.
-    :type in_file: str
+    :type in_file: path-like
     :param out_file: Name of the output file or file path.
     :type out_file: path-like
     :param tree: If there are multiple trees in the ROOT file, specify the name of one to write to Parquet.
@@ -191,7 +191,9 @@ def root_to_parquet(
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> hepconvert root-to-parquet [options] [OUT_FILE] [IN_FILE]
+    .. code-block:: bash
+
+        hepconvert root-to-parquet [options] [OUT_FILE] [IN_FILE]
 
     """
     path = Path(out_file)

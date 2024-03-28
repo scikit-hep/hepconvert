@@ -109,7 +109,9 @@ def merge_root(
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> hepconvert merge [options] [OUT_FILE] [IN_FILES]
+    .. code-block:: bash
+
+        hepconvert merge [options] [OUT_FILE] [IN_FILES]
 
 
     """
