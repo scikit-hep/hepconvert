@@ -34,6 +34,11 @@ hepconvert can be installed from [PyPI](https://pypi.org/project/hepconvert) usi
 pip install hepconvert
 ```
 
+To install with Conda through [conda-forge](https://github.com/conda-forge/hepconvert-feedstock):
+
+```bash
+conda install -c conda-forge hepconvert
+```
 # Getting started
 
 ```python
