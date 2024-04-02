@@ -112,7 +112,9 @@ def copy_root(
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> hepconvert copy-root [options] [OUT_FILE] [IN_FILE]
+    .. code-block:: bash
+
+        hepconvert copy-root [options] [OUT_FILE] [IN_FILE]
 
     """
     if compression in ("ZLIB", "zlib"):

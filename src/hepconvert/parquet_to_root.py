@@ -66,7 +66,9 @@ def parquet_to_root(
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> hepconvert parquet-to-root [options] [OUT_FILE] [IN_FILE]
+    .. code-block:: bash
+
+        hepconvert parquet-to-root [options] [OUT_FILE] [IN_FILE]
 
     """
     if compression in ("LZMA", "lzma"):

@@ -397,7 +397,9 @@ def add_histograms(
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> hepconvert add [options] [OUT_FILE] [IN_FILES]
+    .. code-block:: bash
+
+        hepconvert add [options] [OUT_FILE] [IN_FILES]
 
     """
     if compression in ("ZLIB", "zlib"):

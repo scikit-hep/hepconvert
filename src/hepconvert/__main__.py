@@ -31,6 +31,7 @@ def main() -> None:
 )
 @click.option(
     "-c",
+    "-c",
     "--compression",
     default="zlib",
     help='Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".',
@@ -178,6 +179,7 @@ def copy_root(
 )
 @click.option(
     "-c",
+    "-c",
     "--compression",
     default="zlib",
     type=str,
@@ -274,6 +276,7 @@ def add(
     "-a", "--append", is_flag=True, help="Append histograms to an existing file"
 )
 @click.option(
+    "-c",
     "-c",
     "--compression",
     default="zlib",
@@ -415,6 +418,7 @@ def merge_root(
 )
 @click.option(
     "-c",
+    "-c",
     "--compression",
     default=False,
     type=bool,
@@ -509,6 +513,13 @@ def root_to_parquet(
     expressions=None,
     force=False,
     step_size="100 MB",
+    tree=None,
+    drop_branches=None,
+    keep_branches=None,
+    cut=None,
+    expressions=None,
+    force=False,
+    step_size="100 MB",
     list_to32=False,
     string_to32=True,
     bytestring_to32=True,
@@ -540,6 +551,13 @@ def root_to_parquet(
     hepconvert.root_to_parquet(
         in_file=in_file,
         out_file=out_file,
+        tree=tree,
+        drop_branches=drop_branches,
+        keep_branches=keep_branches,
+        cut=cut,
+        expressions=expressions,
+        force=force,
+        step_size=step_size,
         tree=tree,
         drop_branches=drop_branches,
         keep_branches=keep_branches,
