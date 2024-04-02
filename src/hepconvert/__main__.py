@@ -31,7 +31,6 @@ def main() -> None:
 )
 @click.option(
     "-c",
-    "-c",
     "--compression",
     default="zlib",
     help='Sets compression level for root file to write to. Can be one of "ZLIB", "LZMA", "LZ4", or "ZSTD". By default the compression algorithm is "LZ4".',
@@ -89,13 +88,32 @@ def parquet_to_root(
 @click.argument("destination", type=click.Path())
 @click.argument("file")
 @click.option(
-    "--drop-branches", "-db", default=None, type=list or dict or str, required=False, help="Specify branch names to remove from the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to remove branches from certain ttrees. Wildcarding accepted."
+    "-db",
+    "--drop-branches",
+    default=None,
+    type=list or dict or str,
+    required=False,
+    help="Specify branch names to remove from the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to remove branches from certain ttrees. Wildcarding accepted.",
 )
 @click.option(
-    "--keep-branches", "-kb", default=None, type=list or dict or str, required=False
+    "-kb", "--keep-branches", default=None, type=list or dict or str, required=False
 )
-@click.option("--drop-trees", "-dt", default=None, type=list or str, required=False, help="Specify tree names to remove from the ROOT file. Wildcarding accepted.")
-@click.option("--keep-trees", "-kt", default=None, type=list or str, required=False, help="Specify tree names to keep in the ROOT file. All others will be removed. Wildcarding accepted.")
+@click.option(
+    "-dt",
+    "--drop-trees",
+    default=None,
+    type=list or str,
+    required=False,
+    help="Specify tree names to remove from the ROOT file. Wildcarding accepted.",
+)
+@click.option(
+    "-kt",
+    "--keep-trees",
+    default=None,
+    type=list or str,
+    required=False,
+    help="Specify tree names to keep in the ROOT file. All others will be removed. Wildcarding accepted.",
+)
 @click.option("--progress-bar", is_flag=True)
 @click.option("--cut", default=None, type=str or list, required=False)
 @click.option("--expressions", default=None, type=str or list, required=False)
@@ -179,7 +197,6 @@ def copy_root(
 )
 @click.option(
     "-c",
-    "-c",
     "--compression",
     default="zlib",
     type=str,
@@ -259,24 +276,45 @@ def add(
     help="If an integer, the maximum number of entries to include in each iteration step; if a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”.",
 )
 @click.option(
-    "--drop-branches", "-db", default=None, type=list or dict or str, required=False, help="Specify branch names to remove from the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to remove branches from certain ttrees. Wildcarding accepted."
+    "-db",
+    "--drop-branches",
+    default=None,
+    type=list or dict or str,
+    required=False,
+    help="Specify branch names to remove from the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to remove branches from certain ttrees. Wildcarding accepted.",
 )
 @click.option(
-    "--keep-branches", "-kb", default=None, type=list or dict or str, required=False
+    "-kb", "--keep-branches", default=None, type=list or dict or str, required=False
 )
-@click.option("--drop-trees", "-dt", default=None, type=list or str, required=False, help="Specify tree names to remove from the ROOT file. Wildcarding accepted.")
-@click.option("--keep-trees", "-kt", default=None, type=list or str, required=False, help="Specify tree names to keep in the ROOT file.. Wildcarding accepted.")
+@click.option(
+    "-dt",
+    "--drop-trees",
+    default=None,
+    type=list or str,
+    required=False,
+    help="Specify tree names to remove from the ROOT file. Wildcarding accepted.",
+)
+@click.option(
+    "-kt",
+    "--keep-trees",
+    default=None,
+    type=list or str,
+    required=False,
+    help="Specify tree names to keep in the ROOT file.. Wildcarding accepted.",
+)
 @click.option("--progress-bar", is_flag=True)
 @click.option("--cut", default=None, type=str or list, required=False)
 @click.option("--expressions", default=None, type=str or list, required=False)
 @click.option(
-    "--force", is_flag=True, help="Overwrite destination file if it already exists"
+    "-f",
+    "--force",
+    is_flag=True,
+    help="Overwrite destination file if it already exists",
 )
 @click.option(
     "-a", "--append", is_flag=True, help="Append histograms to an existing file"
 )
 @click.option(
-    "-c",
     "-c",
     "--compression",
     default="zlib",
@@ -357,11 +395,23 @@ def merge_root(
     help="Specify the name of a tree to write to Parquet, if there are multiple trees in the ROOT file.",
 )
 @click.option(
-    "--drop-branches", "-db", default=None, type=list or dict or str, required=False, help="Specify branch names to remove from the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to remove branches from certain ttrees. Wildcarding accepted."
+    "-db",
+    "--drop-branches",
+    default=None,
+    type=list or dict or str,
+    required=False,
+    help="Specify branch names to remove from the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to remove branches from certain ttrees. Wildcarding accepted.",
 )
 @click.option(
-    "--keep-branches", "-kb", default=None, type=list or dict or str, required=False, help="Specify branch names to keep in the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to keep only certain branches in certain ttrees. Wildcarding accepted."
+    "-kb",
+    "--keep-branches",
+    default=None,
+    type=list or dict or str,
+    required=False,
+    help="Specify branch names to keep in the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to keep only certain branches in certain ttrees. Wildcarding accepted.",
 )
+@click.option("--cut", default=None, type=str or list, required=False)
+@click.option("--expressions", default=None, type=str or list, required=False)
 @click.option(
     "-f",
     "--force",
@@ -417,7 +467,6 @@ def merge_root(
     help="Count the number of missing values at each level and include these in the resulting Arrow array, which makes some downstream applications faster. If False, skip the up-front cost of counting them.",
 )
 @click.option(
-    "-c",
     "-c",
     "--compression",
     default=False,
@@ -544,13 +593,6 @@ def root_to_parquet(
     hepconvert.root_to_parquet(
         in_file=in_file,
         out_file=out_file,
-        tree=tree,
-        drop_branches=drop_branches,
-        keep_branches=keep_branches,
-        cut=cut,
-        expressions=expressions,
-        force=force,
-        step_size=step_size,
         tree=tree,
         drop_branches=drop_branches,
         keep_branches=keep_branches,

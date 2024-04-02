@@ -12,6 +12,7 @@ ROOT = pytest.importorskip("ROOT")
 
 # ruff: noqa: PTH118
 
+
 def test_simple(tmp_path):
     gauss_1 = ROOT.TH1I("name", "title", 5, -4, 4)
     gauss_1.FillRandom("gaus")
@@ -44,7 +45,16 @@ def test_simple(tmp_path):
     h3 = uproot.from_pyroot(gauss_3)
 
     destination = os.path.join(tmp_path, "destination.root")
-    hepconvert.add_histograms(destination, [os.path.join(tmp_path, "file1.root"), os.path.join(tmp_path, "file2.root"), os.path.join(tmp_path, "file3.root")], force=True, progress_bar=True)
+    hepconvert.add_histograms(
+        destination,
+        [
+            os.path.join(tmp_path, "file1.root"),
+            os.path.join(tmp_path, "file2.root"),
+            os.path.join(tmp_path, "file3.root"),
+        ],
+        force=True,
+        progress_bar=True,
+    )
     with uproot.open(destination) as file:
         added = uproot.from_pyroot(
             gauss_1 + gauss_2 + gauss_3
@@ -488,9 +498,7 @@ def simple_2D(tmp_path):
     for i in range(len(data2)):
         for j in range(len(data2[0])):
             h2.Fill(i, j, data2[i][j])
-    outHistFile = ROOT.TFile.Open(
-        os.path.join(tmp_path, "file2dim2.root"), "RECREATE"
-    )
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file2dim2.root"), "RECREATE")
     outHistFile.cd()
     h2.Write()
     outHistFile.Close()
@@ -511,9 +519,7 @@ def simple_2D(tmp_path):
         for j in range(len(data1[0])):
             h1.Fill(i, j, data1[i][j])
 
-    outHistFile = ROOT.TFile.Open(
-        os.path.join(tmp_path, "file1dim2.root"), "RECREATE"
-    )
+    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file1dim2.root"), "RECREATE")
     outHistFile.cd()
     h1.Write()
     outHistFile.Close()
@@ -528,9 +534,7 @@ def simple_2D(tmp_path):
         force=True,
     )
 
-    with uproot.open(
-        os.path.join(tmp_path, "place2.root")
-    ) as file:
+    with uproot.open(os.path.join(tmp_path, "place2.root")) as file:
         assert file["name"].member("fN") == h1.member("fN")
         assert file["name"].member("fTsumw") == h1.member("fTsumw") + h2.member(
             "fTsumw"
@@ -593,5 +597,3 @@ def break_bins(tmp_path):
         ],
         force=True,
     )
-
-
