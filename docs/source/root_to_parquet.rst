@@ -26,7 +26,7 @@ Options:
 
 ``--drop-branches``, ``-db``, and ``--keep-branches``, ``-kb`` (list) str or dict Specify branch names to remove from the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to remove branches from certain ttrees. Wildcarding accepted.
 
-``--cut`` For branch skimming, passed to `uproot.iterate <https://uproot.readthedocs.io/en/latest/uproot.behaviors.TBranch.iterate.html>`__. str, if not None, this expression filters all of the expressions. 
+``--cut`` For branch skimming, passed to `uproot.iterate <https://uproot.readthedocs.io/en/latest/uproot.behaviors.TBranch.iterate.html>`__. str, if not None, this expression filters all of the expressions.
 
 ``--expressions`` For branch skimming, passed to `uproot.iterate <https://uproot.readthedocs.io/en/latest/uproot.behaviors.TBranch.iterate.html>`__. Names of TBranches or aliases to convert to ararys or mathematical expressions of them. If None, all TBranches selected by the filters are included.
 
@@ -154,7 +154,7 @@ as `use_compliant_nested_type`.
 Any additional options to pass to
 `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html>`__.
 
-``--storage-options`` (None or dict) 
+``--storage-options`` (None or dict)
 Any additional options to pass to
 `fsspec.core.url_to_fs <https://filesystem-spec.readthedocs.io/en/latest/api.html#fsspec.core.url_to_fs>`__
 to open a remote file for writing.

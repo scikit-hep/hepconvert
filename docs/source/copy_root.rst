@@ -32,7 +32,7 @@ Options:
 
 ``--drop-trees``, ``-dt`` and ``--keep-trees``, ``-kt`` list of str, or str. Specify tree names to remove/keep TTrees in the ROOT files. Wildcarding accepted.
 
-``--cut`` For branch skimming, passed to `uproot.iterate <https://uproot.readthedocs.io/en/latest/uproot.behaviors.TBranch.iterate.html>`__. str, if not None, this expression filters all of the expressions. 
+``--cut`` For branch skimming, passed to `uproot.iterate <https://uproot.readthedocs.io/en/latest/uproot.behaviors.TBranch.iterate.html>`__. str, if not None, this expression filters all of the expressions.
 
 ``--expressions`` For branch skimming, passed to `uproot.iterate <https://uproot.readthedocs.io/en/latest/uproot.behaviors.TBranch.iterate.html>`__. Names of TBranches or aliases to convert to ararys or mathematical expressions of them. If None, all TBranches selected by the filters are included.
 
@@ -55,4 +55,3 @@ Options:
 ``--resize-factor`` (float) When the TTree metadata needs to be rewritten, this specifies how many more TBasket slots to allocate as a multiplicative factor. Default is 10.0.
 
 ``--step-size`` Size of batches of data to read and write. If an integer, the maximum number of entries to include in each iteration step; if a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”. Default is "100 MB"
-

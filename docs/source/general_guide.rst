@@ -1,6 +1,6 @@
 General Guide and Examples:
 ===========================
-Is something missing from this guide? Please let us know on the discussions page! 
+Is something missing from this guide? Please let us know on the discussions page!
 
 Adding Histograms
 -----------------
@@ -13,8 +13,8 @@ This function can be run in the command-line, see the `add cli guide <>`__
 **Parameters of note:**
 
 
-Memory: 
-This function will 
+Memory:
+This function will
 
 
 Merging TTrees
@@ -27,7 +27,7 @@ Parquet to ROOT
 ---------------
 
 Writes the data from a single Parquet file to one TTree in a ROOT file.
-This function creates a new TTree (which can be named) 
+This function creates a new TTree (which can be named)
 
 **Parameters of note:**
 
@@ -37,27 +37,27 @@ This function creates a new TTree (which can be named)
 ROOT to Parquet
 ---------------
 
-Writes the data from a single flat TTree to a Parquet file. 
+Writes the data from a single flat TTree to a Parquet file.
 
 **Parameters of note:**
 
-``tree`` str, If there are multiple TTrees in the ROOT file being read, pass the name of one TTree to write. 
+``tree`` str, If there are multiple TTrees in the ROOT file being read, pass the name of one TTree to write.
 
 Branch slimming:
     ``keep_branches`` or ``drop_branches`` (list or dict):
 
     .. code:: python
-        
+
         hepconvert.root_to_parquet("out_file.root", "in_file.root", keep_branches=[], progress_bar=True, force=True)
-    
+
     .. code:: python
-        
+
         hepconvert.root_to_parquet("out_file.root", "in_file.root", keep_branches={"tree1": ["branch2", "branch3"], "tree2": ["branch2"]}, progress_bar=True, force=True)
 
 Branch skimming:
 
     ``cut``
-    and 
+    and
     ``expressions``
 
 Remove TTrees:
@@ -86,5 +86,4 @@ hepconvert currently works with flat TTrees (nanoAOD-like data).
 Progress Bars
 -------------
 hepconvert uses the package tqdm for progress bars.
-They are controlled with the ``progress_bar`` argument. 
-
+They are controlled with the ``progress_bar`` argument.
