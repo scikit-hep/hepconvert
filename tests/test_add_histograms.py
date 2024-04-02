@@ -12,7 +12,6 @@ ROOT = pytest.importorskip("ROOT")
 
 # ruff: noqa: PTH118
 
-
 def test_simple(tmp_path):
     gauss_1 = ROOT.TH1I("name", "title", 5, -4, 4)
     gauss_1.FillRandom("gaus")
@@ -45,16 +44,7 @@ def test_simple(tmp_path):
     h3 = uproot.from_pyroot(gauss_3)
 
     destination = os.path.join(tmp_path, "destination.root")
-    hepconvert.add_histograms(
-        destination,
-        [
-            os.path.join(tmp_path, "file1.root"),
-            os.path.join(tmp_path, "file2.root"),
-            os.path.join(tmp_path, "file3.root"),
-        ],
-        force=True,
-        progress_bar=True,
-    )
+    hepconvert.add_histograms(destination, [os.path.join(tmp_path, "file1.root"), os.path.join(tmp_path, "file2.root"), os.path.join(tmp_path, "file3.root")], force=True, progress_bar=True)
     with uproot.open(destination) as file:
         added = uproot.from_pyroot(
             gauss_1 + gauss_2 + gauss_3
@@ -71,12 +61,12 @@ def test_simple(tmp_path):
         ).all
 
 
-def mult_1D(tmp_path):
+def mult_1D(tmp_path, file_paths):
     gauss_1 = ROOT.TH1I("name1", "title", 5, -4, 4)
     gauss_1.FillRandom("gaus")
     gauss_1.Sumw2()
     gauss_1.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file1.root"), "RECREATE")
+    outHistFile = ROOT.TFile.Open(file_paths[0], "RECREATE")
     outHistFile.cd()
     gauss_1.Write()
     outHistFile.Close()
@@ -86,7 +76,7 @@ def mult_1D(tmp_path):
     gauss_2.FillRandom("gaus")
     gauss_2.Sumw2()
     gauss_2.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file1.root"), "UPDATE")
+    outHistFile = ROOT.TFile.Open(file_paths[0], "UPDATE")
     outHistFile.cd()
     gauss_2.Write()
     outHistFile.Close()
@@ -96,7 +86,7 @@ def mult_1D(tmp_path):
     gauss_3.FillRandom("gaus")
     gauss_3.Sumw2()
     gauss_3.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file2.root"), "RECREATE")
+    outHistFile = ROOT.TFile.Open(file_paths[1], "RECREATE")
     outHistFile.cd()
     gauss_3.Write()
     outHistFile.Close()
@@ -106,7 +96,7 @@ def mult_1D(tmp_path):
     gauss_4.FillRandom("gaus")
     gauss_4.Sumw2()
     gauss_4.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file2.root"), "UPDATE")
+    outHistFile = ROOT.TFile.Open(file_paths[1], "UPDATE")
     outHistFile.cd()
     gauss_4.Write()
     outHistFile.Close()
@@ -116,7 +106,7 @@ def mult_1D(tmp_path):
     gauss_5.FillRandom("gaus")
     gauss_5.Sumw2()
     gauss_5.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file3.root"), "RECREATE")
+    outHistFile = ROOT.TFile.Open(file_paths[2], "RECREATE")
     outHistFile.cd()
     gauss_5.Write()
     outHistFile.Close()
@@ -126,23 +116,14 @@ def mult_1D(tmp_path):
     gauss_6.FillRandom("gaus")
     gauss_6.Sumw2()
     gauss_6.SetDirectory(0)
-    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file3.root"), "UPDATE")
+    outHistFile = ROOT.TFile.Open(file_paths[2], "UPDATE")
     outHistFile.cd()
     gauss_6.Write()
     outHistFile.Close()
     h6 = uproot.from_pyroot(gauss_6)
 
     destination = os.path.join(tmp_path, "destination.root")
-    hepconvert.add_histograms(
-        destination,
-        [
-            os.path.join(tmp_path, "file1.root"),
-            os.path.join(tmp_path, "file2.root"),
-            os.path.join(tmp_path, "file3.root"),
-        ],
-        force=True,
-        same_names=False,
-    )
+    hepconvert.add_histograms(destination, file_paths, force=True, same_names=False)
 
     with uproot.open(destination) as file:
         added = uproot.from_pyroot(
@@ -507,7 +488,9 @@ def simple_2D(tmp_path):
     for i in range(len(data2)):
         for j in range(len(data2[0])):
             h2.Fill(i, j, data2[i][j])
-    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file2dim2.root"), "RECREATE")
+    outHistFile = ROOT.TFile.Open(
+        os.path.join(tmp_path, "file2dim2.root"), "RECREATE"
+    )
     outHistFile.cd()
     h2.Write()
     outHistFile.Close()
@@ -528,7 +511,9 @@ def simple_2D(tmp_path):
         for j in range(len(data1[0])):
             h1.Fill(i, j, data1[i][j])
 
-    outHistFile = ROOT.TFile.Open(os.path.join(tmp_path, "file1dim2.root"), "RECREATE")
+    outHistFile = ROOT.TFile.Open(
+        os.path.join(tmp_path, "file1dim2.root"), "RECREATE"
+    )
     outHistFile.cd()
     h1.Write()
     outHistFile.Close()
@@ -543,7 +528,9 @@ def simple_2D(tmp_path):
         force=True,
     )
 
-    with uproot.open(os.path.join(tmp_path, "place2.root")) as file:
+    with uproot.open(
+        os.path.join(tmp_path, "place2.root")
+    ) as file:
         assert file["name"].member("fN") == h1.member("fN")
         assert file["name"].member("fTsumw") == h1.member("fTsumw") + h2.member(
             "fTsumw"
@@ -606,3 +593,5 @@ def break_bins(tmp_path):
         ],
         force=True,
     )
+
+

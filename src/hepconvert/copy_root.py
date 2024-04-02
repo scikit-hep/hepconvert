@@ -18,7 +18,7 @@ def copy_root(
     *,
     keep_branches=None,
     drop_branches=None,
-    # add_branches=None, #TO-DO: add functionality for this, just specify about the counter issue
+    # add_branches=None, #TODO: add functionality for this, just specify about the counter issue?
     keep_trees=None,
     drop_trees=None,
     cut=None,
@@ -26,7 +26,7 @@ def copy_root(
     progress_bar=None,
     force=False,
     fieldname_separator="_",
-    # fix_duplicate_counters=False, #TO-DO: ask about this?
+    # fix_duplicate_counters=False, #TODO: ask about this?
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
