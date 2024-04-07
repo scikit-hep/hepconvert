@@ -107,9 +107,9 @@ def parquet_to_root(
             ),
         )
     metadata = ak.metadata_from_parquet(file)
-    if progress_bar:
+    if progress_bar is not False:
+        number_of_items = metadata["num_row_groups"]
         if progress_bar is True:
-            number_of_items = metadata["num_row_groups"]
             tqdm = _utils.check_tqdm()
 
             progress_bar = tqdm.tqdm(desc="Row-groups written")

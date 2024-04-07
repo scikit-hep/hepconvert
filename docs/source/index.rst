@@ -10,21 +10,12 @@
     :caption: Modules
     :hidden:
 
-.. |br| raw:: html
-
-    <br/>
-
-.. image:: https://github.com/scikit-hep/hepconvert/blob/main/docs/docs-img/hepconvert_logo.svg
-    ::width: 300px
+.. image:: https://raw.githubusercontent.com/scikit-hep/hepconvert/main/docs/docs-img/hepconvert_logo.svg
+    :width: 450px
     :alt: hepconvert
     :target: https://github.com/scikit-hep/hepconvert
 
-.. role:: raw-html(raw)
-    :format: html
-
-|br|
-
-:raw-html:`<p>`
+|
 
 Welcome to hepconvert's documentation!
 ======================================

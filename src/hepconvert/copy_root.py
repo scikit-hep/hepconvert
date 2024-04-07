@@ -216,11 +216,10 @@ def copy_root(
                 )
                 raise ValueError(msg)
 
-    if len(trees) > 1 and progress_bar:
+    if len(trees) > 1 and progress_bar is not False:
+        number_of_items = len(trees)
         if progress_bar is True:
             tqdm = _utils.check_tqdm()
-            number_of_items = len(trees)
-
             progress_bar = tqdm.tqdm(desc="Trees copied")
         progress_bar.reset(total=number_of_items)
     for t in trees:
@@ -281,6 +280,6 @@ def copy_root(
                     out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "Are the branch-names correct?"
-        if len(trees) > 1 and progress_bar:
+        if len(trees) > 1 and progress_bar is not False:
             progress_bar.update(n=1)
         f.close()
