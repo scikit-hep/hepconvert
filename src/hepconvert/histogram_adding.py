@@ -397,7 +397,9 @@ def add_histograms(
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> hepconvert add [options] [OUT_FILE] [IN_FILES]
+    .. code-block:: bash
+
+        hepconvert add [options] [OUT_FILE] [IN_FILES]
 
     """
     if compression in ("ZLIB", "zlib"):
@@ -449,12 +451,12 @@ def add_histograms(
 
     with uproot.open(files[0]) as file:
         keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
-    if progress_bar:
+    if progress_bar is not False:
+        tqdm = _utils.check_tqdm()
         file_bar = progress_bar
-        hist_bar = progress_bar
+        hist_bar = tqdm.tqdm(desc="Histograms added")
+        number_of_items = len(files)
         if progress_bar is True:
-            tqdm = _utils.check_tqdm()
-            number_of_items = len(files)
             file_bar = tqdm.tqdm(desc="Files added")
             hist_bar = tqdm.tqdm(desc="Histograms added")
 

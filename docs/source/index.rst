@@ -4,11 +4,18 @@
    contain the root `toctree` directive.
 
 .. include:: main.toctree
-
+.. include:: guide.toctree
+.. include:: cli.toctree
 .. toctree::
     :caption: Modules
     :hidden:
 
+.. image:: https://raw.githubusercontent.com/scikit-hep/hepconvert/main/docs/docs-img/hepconvert_logo.svg
+    :width: 450px
+    :alt: hepconvert
+    :target: https://github.com/scikit-hep/hepconvert
+
+|
 
 Welcome to hepconvert's documentation!
 ======================================

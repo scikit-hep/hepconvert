@@ -1,0 +1,9 @@
+.. toctree::
+    :caption: Command Line Interface Instructions
+    :hidden:
+
+    parquet-to-root <parquet_to_root>
+    root-to-parquet <root_to_parquet>
+    copy-root <copy_root>
+    merge-root <merge_root>
+    add (add_histograms) <add>

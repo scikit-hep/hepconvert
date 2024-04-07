@@ -109,7 +109,9 @@ def merge_root(
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> hepconvert merge [options] [OUT_FILE] [IN_FILES]
+    .. code-block:: bash
+
+        hepconvert merge [options] [OUT_FILE] [IN_FILES]
 
 
     """
@@ -243,7 +245,7 @@ def merge_root(
                     destination,
                 )
                 raise ValueError(msg)
-    if progress_bar:
+    if progress_bar is not False:
         if progress_bar is True:
             tqdm = _utils.check_tqdm()
             number_of_items = len(files)
@@ -306,7 +308,7 @@ def merge_root(
                     out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "TTrees must have the same structure to be merged. Are the branch_names correct?"
-        if progress_bar:
+        if progress_bar is not False:
             progress_bar.update(n=1)
         f.close()
 
@@ -381,6 +383,6 @@ def merge_root(
 
             for key in hist_keys:
                 out_file[key] = writable_hists[key]
-        if progress_bar:
+        if progress_bar is not False:
             progress_bar.update(n=1)
         f.close()

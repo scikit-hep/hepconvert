@@ -18,7 +18,7 @@ def copy_root(
     *,
     keep_branches=None,
     drop_branches=None,
-    # add_branches=None, #TO-DO: add functionality for this, just specify about the counter issue
+    # add_branches=None, #TODO: add functionality for this, just specify about the counter issue?
     keep_trees=None,
     drop_trees=None,
     cut=None,
@@ -26,7 +26,7 @@ def copy_root(
     progress_bar=None,
     force=False,
     fieldname_separator="_",
-    # fix_duplicate_counters=False, #TO-DO: ask about this?
+    # fix_duplicate_counters=False, #TODO: ask about this?
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
@@ -112,7 +112,9 @@ def copy_root(
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> hepconvert copy-root [options] [OUT_FILE] [IN_FILE]
+    .. code-block:: bash
+
+        hepconvert copy-root [options] [OUT_FILE] [IN_FILE]
 
     """
     if compression in ("ZLIB", "zlib"):
@@ -214,11 +216,10 @@ def copy_root(
                 )
                 raise ValueError(msg)
 
-    if len(trees) > 1 and progress_bar:
+    if len(trees) > 1 and progress_bar is not False:
+        number_of_items = len(trees)
         if progress_bar is True:
             tqdm = _utils.check_tqdm()
-            number_of_items = len(trees)
-
             progress_bar = tqdm.tqdm(desc="Trees copied")
         progress_bar.reset(total=number_of_items)
     for t in trees:
@@ -279,6 +280,6 @@ def copy_root(
                     out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "Are the branch-names correct?"
-        if len(trees) > 1 and progress_bar:
+        if len(trees) > 1 and progress_bar is not False:
             progress_bar.update(n=1)
         f.close()

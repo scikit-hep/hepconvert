@@ -1,0 +1,5 @@
+.. toctree::
+    :caption: Guide with Examples
+    :hidden:
+
+    general_guide

@@ -1,4 +1,4 @@
-# hepconvert
+<img src="https://github.com/scikit-hep/hepconvert/blob/f461872ec41473b14fdb7ebd76e68798ef8bb394/docs/docs-img/hepconvert_logo.svg" width="400px">
 
 [![Actions Status][actions-badge]][actions-link]
 [![Documentation Status][rtd-badge]][rtd-link]
@@ -24,7 +24,7 @@
 [rtd-badge]:                https://readthedocs.org/projects/hepconvert/badge/?version=latest
 [rtd-link]:                 https://hepconvert.readthedocs.io/en/latest/
 
-The hepconvert library is a bridge between columnar file formats, currently **ROOT, and Parquet** and soon eventually include **Feather, and HDF5.** It aims to simplify file conversions in Python, replacing what is usually a multi-step process with one line of code, with builtin features for managing large datasets and choosing compression levels.
+The hepconvert library is a bridge between columnar file formats, currently **ROOT, and Parquet** and soon will include **Feather, and HDF5.** It aims to simplify file conversions in Python, replacing what is usually a multi-step process with one line of code, with builtin features for managing large datasets and choosing compression levels.
 
 # Installation
 

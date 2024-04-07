@@ -43,7 +43,7 @@ def root_to_parquet(
     """Converts ROOT to Parquet file using Uproot and awkward.to_parquet. Data read from 1 tree, converted to single Parquet file.
 
     :param in_file: Local ROOT file to convert to Parquet. May contain glob patterns.
-    :type in_file: str
+    :type in_file: path-like
     :param out_file: Name of the output file or file path.
     :type out_file: path-like
     :param tree: If there are multiple trees in the ROOT file, specify the name of one to write to Parquet.
@@ -95,7 +95,7 @@ def root_to_parquet(
         Command line option: ``--count-nulls``.
     :type count_nulls: bool
     :param compression: Compression algorithm name, passed to
-        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html>`__.
         Parquet supports `{"NONE", "SNAPPY", "GZIP", "BROTLI", "LZ4", "ZSTD"}`
         (where `"GZIP"` is also known as "zlib" or "deflate"). If a dict, the keys
         are column names (the same column names that #ak.forms.Form.columns returns
@@ -103,33 +103,33 @@ def root_to_parquet(
         algorithm names, to compress each column differently. Command line option: ``--compression``.
     :type compression: None, str, or dict
     :param compression_level: Compression level, passed to
-        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html>`__.
         Compression levels have different meanings for different compression
         algorithms: GZIP ranges from 1 to 9, but ZSTD ranges from -7 to 22, for
         example. Generally, higher numbers provide slower but smaller compression. Command line option
         ``--compression-level``.
     :type compression_level: None, int, or dict None
     :param row_group_size: Maximum number of entries in each row group,
-        passed to [pyarrow.parquet.ParquetWriter.write_table](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html#pyarrow.parquet.ParquetWriter.write_table).
+        passed to `pyarrow.parquet.ParquetWriter.write_table <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html#pyarrow.parquet.ParquetWriter.write_table>`__.
         If None, the Parquet default of 64 MiB is used. Command line options: ``-rg`` or ``--row-group-size``.
     :type row_group_size: int or None
     :param data_page_size: Number of bytes in each data page, passed to
-        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html>`__.
         If None, the Parquet default of 1 MiB is used. Command line option: ``--data-page-size``.
     :type data_page_size: None or int
     :param parquet_flavor: If None, the output Parquet file will follow
         Arrow conventions; if `"spark"`, it will follow Spark conventions. Some
         systems, such as Spark and Google BigQuery, might need Spark conventions,
         while others might need Arrow conventions. Passed to
-        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html>`__.
         as `flavor`. Command line option: ``--parquet-flavor``.
     :type parquet_flavor: None or `"spark"`
     :param parquet_version: Parquet file format version.
-        Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        Passed to `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html>`__.
         as `version`. Command line option: ``--parquet-version``.
     :type parquet_version: `"1.0"`, `"2.4"`, or `"2.6"`
     :param parquet_page_version: Parquet page format version.
-        Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        Passed to `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html)>`__.
         as `data_page_version`. Command line option: ``--parquet-page-version``.
     :type parquet_page_version: `"1.0"` or `"2.0"`
     :param parquet_metadata_statistics: If True, include summary
@@ -137,19 +137,19 @@ def root_to_parquet(
         applications search for data more quickly (by skipping pages). If a dict
         mapping column names to bool, include summary statistics on only the
         specified columns. Passed to
-        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html>`__.
         as `write_statistics`. Command line option: ``--parquet-metadata-statistics``.
     :type parquet_metadata_statistics: bool or dict
     :param parquet_dictionary_encoding: If True, allow Parquet to pre-compress
         with dictionary encoding. If a dict mapping column names to bool, only
         use dictionary encoding on the specified columns. Passed to
-        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html>`__.
         as `use_dictionary`. Command line option: ``--parquet-dictionary-encoding``.
     :type parquet_dictionary_encoding: bool or dict
     :param parquet_byte_stream_split: If True, pre-compress floating
         point fields (`float32` or `float64`) with byte stream splitting, which
         collects all mantissas in one part of the stream and exponents in another.
-        Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        Passed to `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html>`__.
         as `use_byte_stream_split`. Command line option: ``--parquet-byte-stream-split``.
     :type parquet_byte_stream_split: bool or dict
     :param parquet_coerce_timestamps: If None, any timestamps
@@ -157,27 +157,27 @@ def root_to_parquet(
         `parquet_version`: version `"1.0"` and `"2.4"` are coerced to microseconds,
         but later versions use the `datetime64`'s own units. If `"ms"` is explicitly
         specified, timestamps are coerced to milliseconds; if `"us"`, microseconds.
-        Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        Passed to `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html>`__.
         as `coerce_timestamps`. Command line option: ``--parquet-coerce-timestamps``.
     :type parquet_coerce_timestamps: None, `"ms"`, or `"us"`
     :param parquet_old_int96_timestamps: If True, use Parquet's INT96 format
         for any timestamps (`datetime64` data), taking priority over `parquet_coerce_timestamps`.
         If None, let the `parquet_flavor` decide. Passed to
-        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html>`__.
         as `use_deprecated_int96_timestamps`. Command line option: ``--parquet-old-int96-timestamps``.
     :type parquet_old_int96_timestamps: None or bool
     :param parquet_compliant_nested: If True, use the Spark/BigQuery/Parquet
-        [convention for nested lists](https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#nested-types),
+        `convention for nested lists <https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#nested-types>`__,
         in which each list is a one-field record with field name "`element`";
         otherwise, use the Arrow convention, in which the field name is "`item`".
-        Passed to [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        Passed to `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html>`__.
         as `use_compliant_nested_type`. Command line option: ``--parquet-compliant-nested``.
     :type parquet_compliated_nested: bool
     :param parquet_extra_options: Any additional options to pass to
-        [pyarrow.parquet.ParquetWriter](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html).
+        `pyarrow.parquet.ParquetWriter <https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetWriter.html>`__.
     :type parquet_extra_options: None or dict
     :param storage_options: Any additional options to pass to
-        [fsspec.core.url_to_fs](https://filesystem-spec.readthedocs.io/en/latest/api.html#fsspec.core.url_to_fs)
+        `fsspec.core.url_to_fs <https://filesystem-spec.readthedocs.io/en/latest/api.html#fsspec.core.url_to_fs>`__
         to open a remote file for writing.
     :type storage_options: None or dict
 
@@ -191,7 +191,9 @@ def root_to_parquet(
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> hepconvert root-to-parquet [options] [OUT_FILE] [IN_FILE]
+    .. code-block:: bash
+
+        hepconvert root-to-parquet [options] [OUT_FILE] [IN_FILE]
 
     """
     path = Path(out_file)
