@@ -459,7 +459,8 @@ def add_histograms(
         if progress_bar is True:
             file_bar = tqdm.tqdm(desc="Files added")
             hist_bar = tqdm.tqdm(desc="Histograms added")
-
+    else:
+        hist_bar = None
         file_bar.reset(number_of_items)
     if same_names:
         if union:
