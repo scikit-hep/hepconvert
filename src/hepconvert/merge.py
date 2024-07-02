@@ -246,10 +246,9 @@ def merge_root(
                 )
                 raise ValueError(msg)
     if progress_bar is not False:
+        number_of_items = len(files)
         if progress_bar is True:
             tqdm = _utils.check_tqdm()
-            number_of_items = len(files)
-
             progress_bar = tqdm.tqdm(desc="Files added")
         progress_bar.reset(number_of_items)
     for t in trees:

@@ -266,6 +266,9 @@ def simple_1dim_F(tmp_path):
         ).all
 
 
+simple_1dim_F("tests/samples")
+
+
 def mult_2D_hists(tmp_path):
     h1 = ROOT.TH2F("name", "", 10, 0.0, 10.0, 8, 0.0, 8.0)
     data1 = [

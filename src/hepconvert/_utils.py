@@ -54,38 +54,33 @@ def filter_branches(tree, keep_branches, drop_branches, count_branches):
     if drop_branches and keep_branches:
         msg = "Can specify either drop_branches or keep_branches, not both."
         raise ValueError(msg) from None
-
-    if drop_branches:
-        if isinstance(drop_branches, dict):  # noqa: SIM102
+    branches = drop_branches if drop_branches else keep_branches
+    keys = []
+    if branches:
+        if isinstance(branches, dict):  # noqa: SIM102
             if (
-                len(drop_branches) > 1
-                and tree.name in drop_branches
-                or tree.name == next(iter(drop_branches.keys()))
+                len(branches) > 1
+                and tree.name in branches
+                or tree.name == next(iter(branches.keys()))
             ):
-                drop_branches = drop_branches.get(tree.name)
-        if isinstance(drop_branches, str) or len(drop_branches) == 1:
-            drop_branches = tree.keys(filter_name=drop_branches)
-        return [
-            b.name
-            for b in tree.branches
-            if b.name not in count_branches and b.name not in drop_branches
-        ]
-    if keep_branches:
-        if isinstance(keep_branches, dict):  # noqa: SIM102
-            if (
-                len(keep_branches) > 1
-                and tree.name in keep_branches
-                or tree.name == next(iter(keep_branches.keys()))
-            ):
-                keep_branches = keep_branches.get(tree.name)
-        if isinstance(keep_branches, str) or len(keep_branches) == 1:
-            keep_branches = tree.keys(filter_name=keep_branches)
+                keys = branches.get(tree.name)
+        if isinstance(branches, str) or len(branches) == 1:
+            keys = tree.keys(filter_name=branches)
+        else:
+            for i in branches:
+                keys = np.union1d(keys, tree.keys(filter_name=i))
+        if drop_branches:
             return [
                 b.name
                 for b in tree.branches
-                if b.name not in count_branches and b.name in keep_branches
+                if b.name not in count_branches and b.name not in keys
             ]
-    return [b.name for b in tree.branches if b.name not in count_branches]
+        return [
+            b.name
+            for b in tree.branches
+            if b.name not in count_branches and b.name in keys
+        ]
+    return [b.name for b in tree.branches]
 
 
 def check_tqdm():
