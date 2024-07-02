@@ -453,15 +453,11 @@ def add_histograms(
         keys = file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
     if progress_bar is not False:
         tqdm = _utils.check_tqdm()
-        file_bar = progress_bar
-        hist_bar = tqdm.tqdm(desc="Histograms added")
         number_of_items = len(files)
         if progress_bar is True:
-            file_bar = tqdm.tqdm(desc="Files added")
-            hist_bar = tqdm.tqdm(desc="Histograms added")
-    else:
-        hist_bar = None
-        file_bar.reset(number_of_items)
+            file_bar = tqdm.tqdm(desc="Files summed")
+            file_bar.reset(number_of_items)
+
     if same_names:
         if union:
             for i, _value in enumerate(files[1:]):
@@ -491,8 +487,6 @@ def add_histograms(
             msg = f"File: {input_file} does not exist or is corrupt."
             raise FileNotFoundError(msg) from None
         if same_names:
-            if progress_bar and hist_bar:
-                hist_bar.reset(len(keys))
             for key in keys:
                 try:
                     in_file[key]
@@ -510,15 +504,10 @@ def add_histograms(
                 else:
                     h_sum = _hadd_3d(hists, in_file, key, first)
 
-                if progress_bar:
-                    hist_bar.update(n=1)
-
                 if h_sum is not None:
                     hists[key] = h_sum
         else:
             n_keys = in_file.keys(filter_classname="TH[1|2|3][I|S|F|D|C]", cycle=False)
-            if progress_bar:
-                hist_bar.reset(len(n_keys))
             for i, _value in enumerate(keys):
                 if len(in_file[n_keys[i]].axes) == 1:
                     h_sum = _hadd_1d(out_file, in_file, keys[i], first, n_key=n_keys[i])
@@ -531,8 +520,6 @@ def add_histograms(
 
                 if h_sum is not None:
                     out_file[keys[i]] = h_sum
-                if progress_bar:
-                    hist_bar.update(n=1)
         if progress_bar:
             file_bar.update(n=1)
 

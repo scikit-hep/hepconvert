@@ -71,6 +71,14 @@ def test_simple(tmp_path):
         ).all
 
 
+def test_glob(tmp_path):
+    hepconvert.add_histograms(  
+        os.path.join(tmp_path, "dest.root"),
+        "tests/samples/hists", progress_bar=True
+    )
+
+test_glob("tests/samples/")
+
 def mult_1D(tmp_path, file_paths):
     gauss_1 = ROOT.TH1I("name1", "title", 5, -4, 4)
     gauss_1.FillRandom("gaus")
