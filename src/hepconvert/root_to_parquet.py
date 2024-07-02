@@ -4,6 +4,7 @@ from pathlib import Path
 
 import awkward as ak
 import uproot
+from numpy import union1d
 
 
 def root_to_parquet(
@@ -261,8 +262,6 @@ def _filter_branches(tree, keep_branches, drop_branches):
         msg = "Can specify either drop_branches or keep_branches, not both."
         raise ValueError(msg) from None
     keys = []
-    from numpy import union1d
-
     if drop_branches:
         if isinstance(drop_branches, str):
             keys = tree.keys(filter_name=drop_branches)
