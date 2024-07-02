@@ -18,7 +18,6 @@ def copy_root(
     *,
     keep_branches=None,
     drop_branches=None,
-    # add_branches=None, #TODO: add functionality for this, just specify about the counter issue?
     keep_trees=None,
     drop_trees=None,
     cut=None,
@@ -32,7 +31,7 @@ def copy_root(
     initial_basket_capacity=10,
     resize_factor=10.0,
     counter_name=lambda counted: "n" + counted,
-    step_size=100,
+    step_size="100 MB",
     compression="ZLIB",
     compression_level=1,
 ):
@@ -216,12 +215,12 @@ def copy_root(
                 )
                 raise ValueError(msg)
 
-    if len(trees) > 1 and progress_bar is not False:
+    if len(trees) > 1 and progress_bar is not False and progress_bar is not None:
         number_of_items = len(trees)
         if progress_bar is True:
             tqdm = _utils.check_tqdm()
             progress_bar = tqdm.tqdm(desc="Trees copied")
-        progress_bar.reset(total=number_of_items)
+            progress_bar.reset(total=number_of_items)
     for t in trees:
         tree = f[t]
         count_branches = get_counter_branches(tree)
@@ -280,6 +279,6 @@ def copy_root(
                     out_file[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "Are the branch-names correct?"
-        if len(trees) > 1 and progress_bar is not False:
+        if len(trees) > 1 and progress_bar is not False and progress_bar is not None:
             progress_bar.update(n=1)
         f.close()

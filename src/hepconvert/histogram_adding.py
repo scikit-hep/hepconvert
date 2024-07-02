@@ -418,11 +418,11 @@ def add_histograms(
         if not force and not append:
             raise FileExistsError
         if force and append:
-            msg = "Cannot append to a new file. Either force or append can be true."
+            msg = "Cannot append to a new file. Either force or append can be true, not both."
             raise ValueError(msg)
         if append:
             out_file = uproot.update(destination)
-        elif force:
+        else:
             out_file = uproot.recreate(
                 destination,
                 compression=uproot.compression.Compression.from_code_pair(
@@ -490,7 +490,7 @@ def add_histograms(
             msg = f"File: {input_file} does not exist or is corrupt."
             raise FileNotFoundError(msg) from None
         if same_names:
-            if progress_bar:
+            if progress_bar and hist_bar:
                 hist_bar.reset(len(keys))
             for key in keys:
                 try:
