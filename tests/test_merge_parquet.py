@@ -3,13 +3,12 @@ from __future__ import annotations
 from pathlib import Path
 
 import awkward as ak
-import numpy as np
 import pytest
-import uproot
 
 from hepconvert import merge
 
 skhep_testdata = pytest.importorskip("skhep_testdata")
+
 
 def simple_test(tmp_path):
     arr1 = ak.Array(
@@ -24,11 +23,11 @@ def simple_test(tmp_path):
             ],
             "c": [
                 1,
-                2, 
+                2,
             ],
         }
     )
-    ak.to_parquet(arr1, "/Users/zobil/Documents/hepconvert/tests/samples/arr1.parquet")
+    ak.to_parquet(arr1, Path(tmp_path / "arr1.parquet"))
     arr2 = ak.Array(
         {
             "a": [7, 8, 9],
@@ -39,7 +38,7 @@ def simple_test(tmp_path):
             ],
         }
     )
-    ak.to_parquet(arr2, "/Users/zobil/Documents/hepconvert/tests/samples/arr2.parquet")
+    ak.to_parquet(arr2, Path(tmp_path / "arr2.parquet"))
     arr3 = ak.Array(
         {
             "a": [10, 11, 12, 13, 14],
@@ -47,16 +46,47 @@ def simple_test(tmp_path):
             "d": [1, 2, 3, 4, 5],
         }
     )
-    ak.to_parquet(arr3, "/Users/zobil/Documents/hepconvert/tests/samples/arr3.parquet")
+    ak.to_parquet(arr3, Path(tmp_path / "arr3.parquet"))
 
     merge.merge_parquet(
-        "/Users/zobil/Documents/hepconvert/tests/samples/new.parquet",
+        Path(tmp_path / "new.parquet"),
         [
-            "/Users/zobil/Documents/hepconvert/tests/samples/arr1.parquet",
-            "/Users/zobil/Documents/hepconvert/tests/samples/arr2.parquet",
-            "/Users/zobil/Documents/hepconvert/tests/samples/arr3.parquet",
+            Path(tmp_path / "arr1.parquet"),
+            Path(tmp_path / "arr2.parquet"),
+            Path(tmp_path / "arr3.parquet"),
         ],
         force=True,
     )
-    array = ak.from_parquet("/Users/zobil/Documents/hepconvert/tests/samples/new.parquet")
-    
+    array = ak.from_parquet(Path(tmp_path / "new.parquet"))
+    assert ak.all(array["a"] == [1, 2, 7, 8, 9, 10, 11, 12, 13, 14])
+    assert ak.all(
+        array["b"]
+        == [
+            1,
+            2,
+            3,
+            4,
+            5,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ]
+    )
+    assert ak.all(array["c"] == [1, 2, None, None, None, 3, 4, 5, 6, 7])
+    assert ak.all(
+        array["d"]
+        == [
+            None,
+            None,
+            None,
+            None,
+            None,
+            1,
+            2,
+            3,
+            4,
+            5,
+        ]
+    )

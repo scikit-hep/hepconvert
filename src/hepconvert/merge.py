@@ -18,7 +18,7 @@ def merge_parquet(
     out_file,
     in_files,
     *,
-    max_files=2,
+    # max_files=2,
     force=False,
     list_to32=False,
     string_to32=True,
@@ -73,7 +73,7 @@ def merge_parquet(
     data = False
     for file in in_files:
         try:
-            metadata = ak.metadata_from_parquet(file)
+            ak.metadata_from_parquet(file)
         except FileNotFoundError:
             if skip_bad_files:
                 continue
