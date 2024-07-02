@@ -13,12 +13,11 @@ from hepconvert.histogram_adding import _hadd_1d, _hadd_2d, _hadd_3d
 
 
 def copy_root(
-    destination,
-    file,
+    out_file,
+    in_file,
     *,
     keep_branches=None,
     drop_branches=None,
-    # add_branches=None, #TODO: add functionality for this, just specify about the counter issue?
     keep_trees=None,
     drop_trees=None,
     cut=None,
@@ -32,15 +31,15 @@ def copy_root(
     initial_basket_capacity=10,
     resize_factor=10.0,
     counter_name=lambda counted: "n" + counted,
-    step_size=100,
+    step_size="100 MB",
     compression="ZLIB",
     compression_level=1,
 ):
     """
-    :param destination: Name of the output file or file path.
-    :type destination: path-like
-    :param file: Local ROOT file to copy.
-    :type file: str
+    :param out_file: Name of the output file or file path.
+    :type out_file: path-like
+    :param in_file: Local ROOT file to copy.
+    :type in_file: str
     :param keep_branches: To keep only certain branches and remove all others. To remove certain branches from all TTrees in the file,
         pass a list of names of branches to keep, wildcarding accepted ("Jet_*"). If removing branches from one of multiple trees, pass a dict of structure: {tree: [branch1, branch2]}
         to keep only branch1 and branch2 in ttree "tree". Defaults to None. Command line option: ``--keep-branches``.
@@ -114,7 +113,7 @@ def copy_root(
 
     .. code-block:: bash
 
-        hepconvert copy-root [options] [OUT_FILE] [IN_FILE]
+        hepconvert copy-root [options] [of] [IN_FILE]
 
     """
     if compression in ("ZLIB", "zlib"):
@@ -128,29 +127,29 @@ def copy_root(
     else:
         msg = f"unrecognized compression algorithm: {compression}. Only ZLIB, LZMA, LZ4, and ZSTD are accepted."
         raise ValueError(msg)
-    path = Path(destination)
+    path = Path(out_file)
     if Path.is_file(path):
         if not force:
             raise FileExistsError
-        out_file = uproot.recreate(
-            destination,
+        of = uproot.recreate(
+            out_file,
             compression=uproot.compression.Compression.from_code_pair(
                 compression_code, compression_level
             ),
         )
         first = (True,)
     else:
-        out_file = uproot.recreate(
-            destination,
+        of = uproot.recreate(
+            out_file,
             compression=uproot.compression.Compression.from_code_pair(
                 compression_code, compression_level
             ),
         )
         first = (True,)
     try:
-        f = uproot.open(file)
+        f = uproot.open(in_file)
     except FileNotFoundError:
-        msg = "File: ", file, " does not exist or is corrupt."
+        msg = "file: ", in_file, " does not exist or is corrupt."
         raise FileNotFoundError(msg) from None
 
     hist_keys = f.keys(
@@ -159,11 +158,11 @@ def copy_root(
 
     for key in hist_keys:  # just pass to hadd??
         if len(f[key].axes) == 1:
-            out_file[key] = _hadd_1d(destination, f, key, True)
+            of[key] = _hadd_1d(out_file, f, key, True)
         elif len(f[key].axes) == 2:
-            out_file[key] = _hadd_2d(destination, f, key, True)
+            of[key] = _hadd_2d(out_file, f, key, True)
         else:
-            out_file[key] = _hadd_3d(destination, f, key, True)
+            of[key] = _hadd_3d(out_file, f, key, True)
 
     trees = f.keys(filter_classname="TTree", cycle=False, recursive=False)
 
@@ -179,7 +178,7 @@ def copy_root(
                         "Key '"
                         + key
                         + "' does not match any TTree in ROOT file"
-                        + str(file)
+                        + str(in_file)
                     )
                     raise ValueError(msg)
         if isinstance(keep_trees, str):
@@ -197,7 +196,7 @@ def copy_root(
                         "Key '"
                         + key
                         + "' does not match any TTree in ROOT file"
-                        + str(file)
+                        + str(in_file)
                     )
                     raise ValueError(msg)
                 trees.remove(key)
@@ -212,16 +211,16 @@ def copy_root(
                     "TTree ",
                     key,
                     " does not match any TTree in ROOT file",
-                    destination,
+                    out_file,
                 )
                 raise ValueError(msg)
 
-    if len(trees) > 1 and progress_bar is not False:
+    if len(trees) > 1 and progress_bar is not False and progress_bar is not None:
         number_of_items = len(trees)
         if progress_bar is True:
             tqdm = _utils.check_tqdm()
             progress_bar = tqdm.tqdm(desc="Trees copied")
-        progress_bar.reset(total=number_of_items)
+            progress_bar.reset(total=number_of_items)
     for t in trees:
         tree = f[t]
         count_branches = get_counter_branches(tree)
@@ -265,7 +264,7 @@ def copy_root(
                     }
                 else:
                     branch_types = {name: array.type for name, array in chunk.items()}
-                out_file.mktree(
+                of.mktree(
                     tree.name,
                     branch_types,
                     title=title,
@@ -277,9 +276,9 @@ def copy_root(
 
             else:
                 try:
-                    out_file[tree.name].extend(chunk)
+                    of[tree.name].extend(chunk)
                 except AssertionError:
                     msg = "Are the branch-names correct?"
-        if len(trees) > 1 and progress_bar is not False:
+        if len(trees) > 1 and progress_bar is not False and progress_bar is not None:
             progress_bar.update(n=1)
         f.close()
