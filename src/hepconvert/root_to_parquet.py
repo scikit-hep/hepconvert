@@ -4,6 +4,7 @@ from pathlib import Path
 
 import awkward as ak
 import uproot
+from numpy import union1d
 
 
 def root_to_parquet(
@@ -260,19 +261,23 @@ def _filter_branches(tree, keep_branches, drop_branches):
     if drop_branches and keep_branches:
         msg = "Can specify either drop_branches or keep_branches, not both."
         raise ValueError(msg) from None
-
+    keys = []
     if drop_branches:
         if isinstance(drop_branches, str):
-            drop_branches = tree.keys(filter_name=drop_branches)
+            keys = tree.keys(filter_name=drop_branches)
         if isinstance(drop_branches, dict) and tree.name in drop_branches:
-            drop_branches = drop_branches.get(tree.name)
-        return lambda b: b in [
-            b.name for b in tree.branches if b.name not in drop_branches
-        ]
+            keys = drop_branches.get(tree.name)
+        else:
+            for i in drop_branches:
+                keys = union1d(keys, tree.keys(filter_name=i))
+        return lambda b: b in [b.name for b in tree.branches if b.name not in keys]
     if keep_branches:
         if isinstance(keep_branches, str):
-            keep_branches = tree.keys(filter_name=keep_branches)
+            keys = tree.keys(filter_name=keep_branches)
         if isinstance(keep_branches, dict) and tree.name in keep_branches:
-            keep_branches = keep_branches.get(tree.name)
-        return lambda b: b in [b.name for b in tree.branches if b.name in keep_branches]
+            keys = keep_branches.get(tree.name)
+        else:
+            for i in keep_branches:
+                keys = union1d(keys, tree.keys(filter_name=i))
+        return lambda b: b in [b.name for b in tree.branches if b.name in keys]
     return None
