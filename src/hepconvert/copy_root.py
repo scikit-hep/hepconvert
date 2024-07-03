@@ -266,7 +266,10 @@ def copy_root(
                     initial_basket_capacity=initial_basket_capacity,
                     resize_factor=resize_factor,
                 )
-
+                try:
+                    of[tree.name].extend(chunk)
+                except AssertionError:
+                    msg = "Are the branch-names correct?"
             else:
                 try:
                     of[tree.name].extend(chunk)
