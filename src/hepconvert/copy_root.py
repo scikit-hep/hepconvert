@@ -251,19 +251,12 @@ def copy_root(
                             )
                         }
                     )
-                for key in group:
-                    if key in kb:
-                        del chunk[key]
+                    for key in group:
+                        if key in kb:
+                            del chunk[key]
             if first:
                 first = False
-                if drop_branches:
-                    branch_types = {
-                        name: array.type
-                        for name, array in chunk.items()
-                        if name not in drop_branches
-                    }
-                else:
-                    branch_types = {name: array.type for name, array in chunk.items()}
+                branch_types = {name: array.type for name, array in chunk.items()}
                 of.mktree(
                     tree.name,
                     branch_types,
