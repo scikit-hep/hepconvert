@@ -221,7 +221,7 @@ def copy_root(
             tqdm = _utils.check_tqdm()
             progress_bar = tqdm.tqdm(desc="Trees copied")
             progress_bar.reset(total=number_of_items)
-    for t in trees:
+    for t in trees:  # pylint: disable=too-many-nested-blocks
         tree = f[t]
         count_branches = get_counter_branches(tree)
         kb = filter_branches(tree, keep_branches, drop_branches, count_branches)
