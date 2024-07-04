@@ -95,9 +95,7 @@ def parquet_to_root(
     required=False,
     help="Specify branch names to remove from the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to remove branches from certain ttrees. Wildcarding accepted.",
 )
-@click.option(
-    "-kb", "--keep-branches", default=None, type=str, required=False
-)
+@click.option("-kb", "--keep-branches", default=None, type=str, required=False)
 @click.option(
     "-s",
     "--step-size",
@@ -291,9 +289,7 @@ def add(
     required=False,
     help="Specify branch names to remove from the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to remove branches from certain ttrees. Wildcarding accepted.",
 )
-@click.option(
-    "-kb", "--keep-branches", default=None, type=str, required=False
-)
+@click.option("-kb", "--keep-branches", default=None, type=str, required=False)
 @click.option(
     "-dt",
     "--drop-trees",

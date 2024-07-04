@@ -213,12 +213,12 @@ def root_to_parquet(
             msg = "Must specify 1 tree to write, cannot write ", len(trees), "trees."
             raise AttributeError(msg) from None
         tree = trees[0]
-       
-    try: # is this legal?
+
+    try:  # is this legal?
         step_size = int(step_size)
     except ValueError:
-        step_size = step_size
-        
+        step_size = str(step_size)
+
     filter_b = _filter_branches(f[tree], keep_branches, drop_branches)
     # if there's a counter, rid of that too...
     ak.to_parquet_row_groups(
