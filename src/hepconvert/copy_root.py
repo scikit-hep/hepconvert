@@ -146,6 +146,12 @@ def copy_root(
             ),
         )
         first = (True,)
+
+    try:  # is this legal?
+        step_size = int(step_size)
+    except ValueError:
+        step_size = str(step_size)
+
     try:
         f = uproot.open(in_file)
     except FileNotFoundError:
@@ -221,7 +227,7 @@ def copy_root(
             tqdm = _utils.check_tqdm()
             progress_bar = tqdm.tqdm(desc="Trees copied")
             progress_bar.reset(total=number_of_items)
-    for t in trees:
+    for t in trees:  # pylint: disable=too-many-nested-blocks
         tree = f[t]
         count_branches = get_counter_branches(tree)
         kb = filter_branches(tree, keep_branches, drop_branches, count_branches)
@@ -251,19 +257,12 @@ def copy_root(
                             )
                         }
                     )
-                for key in group:
-                    if key in kb:
-                        del chunk[key]
+                    for key in group:
+                        if key in kb:
+                            del chunk[key]
             if first:
                 first = False
-                if drop_branches:
-                    branch_types = {
-                        name: array.type
-                        for name, array in chunk.items()
-                        if name not in drop_branches
-                    }
-                else:
-                    branch_types = {name: array.type for name, array in chunk.items()}
+                branch_types = {name: array.type for name, array in chunk.items()}
                 of.mktree(
                     tree.name,
                     branch_types,
@@ -273,7 +272,10 @@ def copy_root(
                     initial_basket_capacity=initial_basket_capacity,
                     resize_factor=resize_factor,
                 )
-
+                try:
+                    of[tree.name].extend(chunk)
+                except AssertionError:
+                    msg = "Are the branch-names correct?"
             else:
                 try:
                     of[tree.name].extend(chunk)
