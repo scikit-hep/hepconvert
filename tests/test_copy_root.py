@@ -66,13 +66,14 @@ def test_keep_branches(tmp_path):
     hepconvert.copy_root(
         Path(tmp_path) / "drop_branches.root",
         skhep_testdata.data_path("uproot-HZZ.root"),
-        drop_branches=["Jet_*", "MClepton_*"],
+        keep_branches="MClepton_*",
         counter_name=lambda counted: "N" + counted,
         force=True,
     )
     original = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
 
     file = uproot.open(Path(tmp_path) / "drop_branches.root")
+    file["events"].show()
     for key in original["events"].keys():
         if key.startswith("MClepton_"):
             assert key in file["events"].keys()
@@ -81,6 +82,7 @@ def test_keep_branches(tmp_path):
             )
         else:
             assert key not in file["events"].keys()
+    file.close()
 
 
 def test_hepdata_example(tmp_path):
