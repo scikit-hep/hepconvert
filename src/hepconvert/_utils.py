@@ -80,7 +80,7 @@ def filter_branches(tree, keep_branches, drop_branches, count_branches):
             for b in tree.branches
             if b.name not in count_branches and b.name in keys
         ]
-    return [b.name for b in tree.branches]
+    return [b.name for b in tree.branches if b.name not in count_branches]
 
 
 def check_tqdm():

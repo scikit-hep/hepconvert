@@ -146,6 +146,12 @@ def copy_root(
             ),
         )
         first = (True,)
+
+    try:  # is this legal?
+        step_size = int(step_size)
+    except ValueError:
+        step_size = str(step_size)
+
     try:
         f = uproot.open(in_file)
     except FileNotFoundError:
