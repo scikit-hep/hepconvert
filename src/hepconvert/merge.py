@@ -160,7 +160,12 @@ def merge_root(
             ),
         )
         first = True
-
+       
+    try: # is this legal?
+        step_size = int(step_size)
+    except ValueError:
+        step_size = step_size
+        
     if not isinstance(files, list) and not isinstance(files, tuple):
         path = Path(files)
         files = sorted(path.glob("**/*.root"))

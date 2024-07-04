@@ -91,18 +91,25 @@ def parquet_to_root(
     "-db",
     "--drop-branches",
     default=None,
-    type=list or dict or str,
+    type=str,
     required=False,
     help="Specify branch names to remove from the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to remove branches from certain ttrees. Wildcarding accepted.",
 )
 @click.option(
-    "-kb", "--keep-branches", default=None, type=list or dict or str, required=False
+    "-kb", "--keep-branches", default=None, type=str, required=False
+)
+@click.option(
+    "-s",
+    "--step-size",
+    default="100 MB",
+    type=str,
+    help="If an integer, the maximum number of entries to include in each iteration step; if a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”.",
 )
 @click.option(
     "-dt",
     "--drop-trees",
     default=None,
-    type=list or str,
+    type=str,
     required=False,
     help="Specify tree names to remove from the ROOT file. Wildcarding accepted.",
 )
@@ -110,13 +117,13 @@ def parquet_to_root(
     "-kt",
     "--keep-trees",
     default=None,
-    type=list or str,
+    type=str,
     required=False,
     help="Specify tree names to keep in the ROOT file. All others will be removed. Wildcarding accepted.",
 )
 @click.option("--progress-bar", is_flag=True)
-@click.option("--cut", default=None, type=str or list, required=False)
-@click.option("--expressions", default=None, type=str or list, required=False)
+@click.option("--cut", default=None, type=str, required=False)
+@click.option("--expressions", default=None, type=str, required=False)
 @click.option("--title", type=str, required=False, default="")
 @click.option(
     "--initial-basket-capacity",
@@ -151,7 +158,7 @@ def copy_root(
     initial_basket_capacity=10,
     resize_factor=10.0,
     counter_name=lambda counted: "n" + counted,
-    step_size=100,
+    step_size="100 MB",
     compression="LZ4",
     compression_level=1,
 ):
@@ -270,41 +277,42 @@ def add(
     help="When the TTree metadata needs to be rewritten, this specifies how many more TBasket slots to allocate as a multiplicative factor.",
 )
 @click.option(
+    "-s",
     "--step-size",
     default="100 MB",
-    type=int or str,
+    type=str,
     help="If an integer, the maximum number of entries to include in each iteration step; if a string, the maximum memory size to include. The string must be a number followed by a memory unit, such as “100 MB”.",
 )
 @click.option(
     "-db",
     "--drop-branches",
     default=None,
-    type=list or dict or str,
+    type=str,
     required=False,
     help="Specify branch names to remove from the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to remove branches from certain ttrees. Wildcarding accepted.",
 )
 @click.option(
-    "-kb", "--keep-branches", default=None, type=list or dict or str, required=False
+    "-kb", "--keep-branches", default=None, type=str, required=False
 )
 @click.option(
     "-dt",
     "--drop-trees",
     default=None,
-    type=list or str,
+    type=str,
     required=False,
-    help="Specify tree names to remove from the ROOT file. Wildcarding accepted.",
+    help="Specify tree name to remove from the ROOT file. Wildcarding accepted.",
 )
 @click.option(
     "-kt",
     "--keep-trees",
     default=None,
-    type=list or str,
+    type=str,
     required=False,
-    help="Specify tree names to keep in the ROOT file.. Wildcarding accepted.",
+    help="Specify tree name to keep in the ROOT file.. Wildcarding accepted.",
 )
 @click.option("--progress-bar", is_flag=True)
-@click.option("--cut", default=None, type=str or list, required=False)
-@click.option("--expressions", default=None, type=str or list, required=False)
+@click.option("--cut", default=None, type=str, required=False)
+@click.option("--expressions", default=None, type=str, required=False)
 @click.option(
     "-f",
     "--force",
@@ -398,7 +406,7 @@ def merge_root(
     "-db",
     "--drop-branches",
     default=None,
-    type=list or dict or str,
+    type=str,
     required=False,
     help="Specify branch names to remove from the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to remove branches from certain ttrees. Wildcarding accepted.",
 )
@@ -406,12 +414,12 @@ def merge_root(
     "-kb",
     "--keep-branches",
     default=None,
-    type=list or dict or str,
+    type=str,
     required=False,
     help="Specify branch names to keep in the ROOT file. Either a str, list of str (for multiple branches), or a dict with form {'tree': 'branches'} to keep only certain branches in certain ttrees. Wildcarding accepted.",
 )
-@click.option("--cut", default=None, type=str or list, required=False)
-@click.option("--expressions", default=None, type=str or list, required=False)
+@click.option("--cut", default=None, type=str, required=False)
+@click.option("--expressions", default=None, type=str, required=False)
 @click.option(
     "-f",
     "--force",
@@ -422,7 +430,7 @@ def merge_root(
 @click.option(
     "-s",
     "--step-size",
-    type=int or str,
+    type=str,
     default="100 MB",
     help="Specify batch size for reading ROOT file. If an integer, the maximum number of entries to include in each iteration step; if a string, the maximum memory size to include.",
 )
@@ -561,7 +569,7 @@ def root_to_parquet(
     cut=None,
     expressions=None,
     force=False,
-    step_size="100 MB",
+    step_size="100MB",
     list_to32=False,
     string_to32=True,
     bytestring_to32=True,
