@@ -399,7 +399,7 @@ def merge_root(
     "-t",
     "--tree",
     default=False,
-    type=bool,
+    type=str,
     help="Specify the name of a tree to write to Parquet, if there are multiple trees in the ROOT file.",
 )
 @click.option(
