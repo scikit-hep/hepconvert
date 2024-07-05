@@ -19,11 +19,11 @@ order = [
 ]
 
 common = [
-    "hepconvert.parquet_to_root.parquet_to_root",
-    "hepconvert.root_to_parquet.root_to_parquet",
-    "hepconvert.copy_root.copy_root",
-    "hepconvert.merge.merge_root",
-    "hepconvert.histogram_adding.add_histograms",
+    "hepconvert.parquet_to_root",
+    "hepconvert.root_to_parquet",
+    "hepconvert.copy_root",
+    "hepconvert.merge_root",
+    "hepconvert.add_histograms",
 ]
 
 latest_commit = (
@@ -70,11 +70,11 @@ def handle_module(modulename, module):
 
 .. automodule:: {0}
 """.format(modulename, "=" * len(modulename))
-    ensure(modulename + ".rst", content)
-    if toctree2 is None:
-        toctree.write("    " + modulename + " (module) <" + modulename + ">\n")
-    else:
-        toctree2.write("    " + modulename + " (module) <" + modulename + ">\n")
+    # ensure(modulename + ".rst", content)
+    # if toctree2 is None:
+    #     toctree.write("    " + modulename + " (module) <" + modulename + ">\n")
+    # else:
+    #     toctree2.write("    " + modulename + " (module) <" + modulename + ">\n")
 
     if modulename != "hepconvert" and all(
         not x.startswith("test") and not x.startswith("_")
@@ -100,7 +100,8 @@ def handle_module(modulename, module):
                 if inspect.isclass(obj):
                     handle_class(modulename + "." + name, obj)
                 elif inspect.isfunction(obj):
-                    handle_function(modulename + "." + name, obj)
+                    ensure("hepconvert." + name + ".rst", content)
+                    handle_function("hepconvert." + name, obj)
 
 
 def handle_class(classname, cls):
@@ -223,7 +224,6 @@ Defined in {} on {}.
         classname,
         "\n".join([text for index, line, text in sorted(methods.values())]),
     )
-
     ensure(classname + ".rst", content)
     if upfront or toctree2 is None:
         if classname not in common:

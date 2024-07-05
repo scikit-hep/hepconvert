@@ -13,16 +13,17 @@ def parquet_to_root(
     file,
     *,
     name="tree",
+    force=False,
     branch_types=None,
     progress_bar=False,
+    append=False,
     title="",
     field_name=lambda outer, inner: inner if outer == "" else outer + "_" + inner,
     initial_basket_capacity=10,
     counter_name=lambda counted: "n" + counted,
     resize_factor=10.0,
-    compression="zlib",
+    compression="ZLIB",
     compression_level=1,
-    force=True,
 ):
     """Converts a Parquet file into a ROOT file. Data is stored in one TTree, which has a name defined by argument ``name``.
 
@@ -66,7 +67,9 @@ def parquet_to_root(
     --------------------------
     This function can be run from the command line. Use command
 
-        >>> hepconvert parquet-to-root [options] [OUT_FILE] [IN_FILE]
+    .. code-block:: bash
+
+        hepconvert parquet-to-root [options] [OUT_FILE] [IN_FILE]
 
     """
     if compression in ("LZMA", "lzma"):
@@ -82,21 +85,35 @@ def parquet_to_root(
         raise ValueError(msg)
     path = Path(destination)
     if Path.is_file(path) and not force:
-        raise FileExistsError
+        msg = f"File {path} already exists. To overwrite it, set force=True."
+        raise FileExistsError(msg)
+    if append:
+        if Path.is_file(path):
+            out_file = uproot.update(
+                destination,
+                compression=uproot.compression.Compression.from_code_pair(
+                    compression_code, compression_level
+                ),
+            )
+        else:
+            msg = "Cannot append to a non-existent file."
+            raise FileNotFoundError(msg)
+
+    else:
+        out_file = uproot.recreate(
+            destination,
+            compression=uproot.compression.Compression.from_code_pair(
+                compression_code, compression_level
+            ),
+        )
     metadata = ak.metadata_from_parquet(file)
-    if progress_bar:
+    if progress_bar is not False:
+        number_of_items = metadata["num_row_groups"]
         if progress_bar is True:
-            number_of_items = metadata["num_row_groups"]
             tqdm = _utils.check_tqdm()
 
             progress_bar = tqdm.tqdm(desc="Row-groups written")
         progress_bar.reset(number_of_items)
-    out_file = uproot.recreate(
-        destination,
-        compression=uproot.compression.Compression.from_code_pair(
-            compression_code, compression_level
-        ),
-    )
 
     chunk = ak.from_parquet(file, row_groups=[0])
     if not branch_types:

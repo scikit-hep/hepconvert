@@ -62,33 +62,27 @@ def test_keep_branch(tmp_path):
             assert key not in file["events"].keys()
 
 
-def test_add_branch(tmp_path):
+def test_keep_branches(tmp_path):
     hepconvert.copy_root(
         Path(tmp_path) / "drop_branches.root",
         skhep_testdata.data_path("uproot-HZZ.root"),
-        drop_branches=["MClepton_py", "Jet_Px"],
+        keep_branches="MClepton_*",
         counter_name=lambda counted: "N" + counted,
         force=True,
     )
-    arrays = file["events"].arrays()
-    branch_types = {
-        name: array.type
-        for name, array in zip(ak.fields(arrays), ak.unzip(arrays))
-        if not name.startswith("n") and not name.startswith("N")
-    }
+    original = uproot.open(skhep_testdata.data_path("uproot-HZZ.root"))
 
-    branches = {
-        file["events"]["MClepton_py"].name: file["events"]["MClepton_py"].arrays(),
-        file["events"]["Jet_Px"].name: file["events"]["Jet_Px"].arrays(),
-    }
-    jet_px = {file["events"]["Jet_Px"].name: file["events"]["Jet_Px"].arrays()}
-    hepconvert.copy_root(
-        Path(tmp_path) / "add_branches.root",
-        Path(tmp_path) / "drop_branches.root",
-        force=True,
-    )
-
-    file = uproot.open(Path(tmp_path) / "add_branches.root")
+    file = uproot.open(Path(tmp_path) / "drop_branches.root")
+    file["events"].show()
+    for key in original["events"].keys():
+        if key.startswith("MClepton_"):
+            assert key in file["events"].keys()
+            assert ak.all(
+                file["events"][key].array() == original["events"][key].array()
+            )
+        else:
+            assert key not in file["events"].keys()
+    file.close()
 
 
 def test_hepdata_example(tmp_path):
@@ -100,7 +94,6 @@ def test_hepdata_example(tmp_path):
     )
     hepconvert_file = uproot.open(Path(tmp_path) / "copy_hepdata.root")
     file = uproot.open(skhep_testdata.data_path("uproot-hepdata-example.root"))
-
     for key in hepconvert_file.keys(cycle=False):
         assert key in file.keys(cycle=False)
 
@@ -203,7 +196,7 @@ def test_drop_tree(tmp_path):
 
     with pytest.raises(
         ValueError,
-        match="Key 'tree5' does not match any TTree in ROOT file/Users/zobil/Desktop/directory/two_trees.root",
+        match=f"Key 'tree5' does not match any TTree in ROOT {tmp_path}/two_trees.root",
     ):
         hepconvert.copy_root(
             Path(tmp_path) / "copied.root",
@@ -244,7 +237,11 @@ def test_keep_tree_and_branch(tmp_path):
     import numpy as np
 
     with uproot.recreate(Path(tmp_path) / "two_trees.root") as file:
-        file["tree"] = {"x": np.array([1, 2, 3, 4, 5]), "y": np.array([4, 5, 6, 7, 8])}
+        file["tree"] = {
+            "x": np.array([1, 2, 3, 4, 5]),
+            "y": np.array([4, 5, 6, 7, 8]),
+            "z": np.array([4, 5, 6, 7, 8]),
+        }
         file["tree1"] = {
             "x": np.array([1, 2, 3, 4, 5]),
             "y": np.array([4, 5, 6, 7, 8]),
@@ -254,14 +251,14 @@ def test_keep_tree_and_branch(tmp_path):
         hepconvert.copy_root(
             Path(tmp_path) / "copied.root",
             Path(tmp_path) / "two_trees.root",
-            keep_branches={"tree": "x", "tree1": "y"},
+            keep_branches={"tree": ["x", "z"], "tree1": "y"},
             force=True,
         )
 
         with uproot.open(Path(tmp_path) / "copied.root") as copy:
             assert copy.keys(cycle=False) == ["tree", "tree1"]
             assert copy["tree1"].keys() == ["y"]
-            assert copy["tree"].keys() == ["x"]
+            assert copy["tree"].keys() == ["x", "z"]
             for tree in copy.keys(cycle=False):
                 for key in copy[tree].keys():
                     assert ak.all(copy[tree][key].array() == file[tree][key].array())
