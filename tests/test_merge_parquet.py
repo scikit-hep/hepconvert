@@ -110,6 +110,3 @@ def HZZ_test(tmp_path):
     test = ak.from_parquet(Path(tmp_path / "/merged_hzz.parquet"))
     for key in new_arrays.fields:
         assert ak.all(new_arrays[key] == test[key])
-
-
-HZZ_test()
