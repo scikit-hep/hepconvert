@@ -5,7 +5,7 @@ from pathlib import Path
 import awkward as ak
 import pytest
 
-from hepconvert import merge
+from hepconvert import merge, root_to_parquet
 
 skhep_testdata = pytest.importorskip("skhep_testdata")
 
@@ -90,3 +90,26 @@ def simple_test(tmp_path):
             5,
         ]
     )
+
+
+def HZZ_test(tmp_path):
+    merge.merge_parquet(
+        Path(tmp_path / "/merged_hzz.parquet"),
+        [
+            Path(tmp_path / "/uproot-HZZ.parquet"),
+            Path(tmp_path / "/uproot-HZZ.parquet"),
+        ],
+        force=True,
+    )
+    new_arrays = ak.from_parquet(Path(tmp_path / "/new.parquet"))
+    root_to_parquet(
+        Path(tmp_path / "/merged_hzz.root"),
+        Path(tmp_path / "/merged_hzz.parquet"),
+        force=True,
+    )
+    test = ak.from_parquet(Path(tmp_path / "/merged_hzz.parquet"))
+    for key in new_arrays.fields:
+        assert ak.all(new_arrays[key] == test[key])
+
+
+HZZ_test()

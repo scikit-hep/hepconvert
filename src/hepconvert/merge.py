@@ -83,7 +83,7 @@ def merge_parquet(
             data = ak.from_parquet(file)
         else:
             data = ak.merge_union_of_records(
-                ak.concatenate((data, ak.from_parquet(file)))
+                ak.concatenate((data, ak.from_parquet(file))), axis=0
             )
 
         ak.to_parquet(
