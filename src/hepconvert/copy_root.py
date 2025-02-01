@@ -283,4 +283,5 @@ def copy_root(
                     msg = "Are the branch-names correct?"
         if len(trees) > 1 and progress_bar is not False and progress_bar is not None:
             progress_bar.update(n=1)
-        f.close()
+    f.close()
+    of.close()
