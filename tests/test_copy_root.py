@@ -115,30 +115,34 @@ def test_keep_tree(tmp_path):
             "z1": np.array([3, 77, 3, 4, 5]),
             "p1": np.array([44, 55, 66, 7, 8]),
         }
-    with uproot.open(Path(tmp_path) / "two_trees.root") as file:
-        hepconvert.copy_root(
-            Path(tmp_path) / "copied.root",
-            Path(tmp_path) / "two_trees.root",
-            keep_trees="tree",
-            force=True,
-        )
-        with uproot.open(Path(tmp_path) / "copied.root") as copy:
-            assert copy.keys(cycle=False) == ["tree"]
-            for tree in copy.keys(cycle=False):
-                for key in copy[tree].keys():
-                    assert ak.all(copy[tree][key].array() == file[tree][key].array())
 
-        hepconvert.copy_root(
-            Path(tmp_path) / "copied.root",
-            Path(tmp_path) / "two_trees.root",
-            keep_trees=["tree", "tree2", "tree3"],
-            force=True,
-        )
-        with uproot.open(Path(tmp_path) / "copied.root") as copy:
-            assert copy.keys(cycle=False) == ["tree", "tree2", "tree3"]
-            for tree in copy.keys(cycle=False):
-                for key in copy[tree].keys():
-                    assert ak.all(copy[tree][key].array() == file[tree][key].array())
+    hepconvert.copy_root(
+        Path(tmp_path) / "copied.root",
+        Path(tmp_path) / "two_trees.root",
+        keep_trees="tree",
+        force=True,
+    )
+    with uproot.open(Path(tmp_path) / "copied.root") as copy, uproot.open(
+        Path(tmp_path) / "two_trees.root"
+    ) as file:
+        assert copy.keys(cycle=False) == ["tree"]
+        for tree in copy.keys(cycle=False):
+            for key in copy[tree].keys():
+                assert ak.all(copy[tree][key].array() == file[tree][key].array())
+
+    hepconvert.copy_root(
+        Path(tmp_path) / "copied.root",
+        Path(tmp_path) / "two_trees.root",
+        keep_trees=["tree", "tree2", "tree3"],
+        force=True,
+    )
+    with uproot.open(Path(tmp_path) / "copied.root") as copy, uproot.open(
+        Path(tmp_path) / "two_trees.root"
+    ) as file:
+        assert copy.keys(cycle=False) == ["tree", "tree2", "tree3"]
+        for tree in copy.keys(cycle=False):
+            for key in copy[tree].keys():
+                assert ak.all(copy[tree][key].array() == file[tree][key].array())
 
     with pytest.raises(
         ValueError,
